@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль — Цифрлық сауаттылық</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page" data-page="profile">
+    <header class="dashboard-header">
+        <div class="header-inner">
+            <a href="dashboard.html" class="logo">
+                <span class="logo-icon">◉</span>
+                <span class="logo-text" data-translate="siteName">Цифрлық сауаттылықты бағалау</span>
+            </a>
+            <nav class="header-nav">
+                <a href="test.html" class="nav-btn nav-btn-primary">📋 <span data-translate="takeTest">Тест тапсыру</span></a>
+                <a href="profile.html" class="nav-btn nav-btn-profile">
+                    <span class="nav-btn-icon profile-icon-svg" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </span>
+                    <span data-translate="profile">Профиль</span>
+                </a>
+                <div class="lang-dropdown">
+                    <button type="button" class="lang-dropdown-trigger nav-btn nav-btn-outline" id="langDropdownBtn" aria-expanded="false" aria-haspopup="true" title="Тілді таңдау">
+                        <span class="lang-dropdown-label">EN</span>
+                        <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="lang-dropdown-menu" id="langDropdownMenu" role="menu" aria-hidden="true">
+                        <button type="button" class="lang-option" data-lang="en" role="menuitem">EN</button>
+                        <button type="button" class="lang-option" data-lang="kk" role="menuitem">KK</button>
+                        <button type="button" class="lang-option" data-lang="ru" role="menuitem">RU</button>
+                    </div>
+                </div>
+                <button type="button" class="nav-btn nav-btn-outline" onclick="logout()" data-translate="logout">Шығу</button>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-main">
+        <section class="welcome-section">
+            <h1 class="welcome-title" data-translate="pageTitle">Профиль</h1>
+            <p class="welcome-subtitle" data-translate="pageDesc">Сіздің деректеріңіз және тест статистикасы.</p>
+        </section>
+
+        <!-- Пайдаланушы ақпараты -->
+        <section class="profile-section">
+            <div class="profile-card profile-card-user">
+                <h2 class="profile-card-title" data-translate="fullName">Аты-жөні</h2>
+                <p class="profile-card-value" id="profileUserName">—</p>
+                <p class="profile-card-label" data-translate="email">Электрондық пошта</p>
+                <p class="profile-card-value" id="profileUserEmail">—</p>
+            </div>
+
+            <!-- Деңгей және орындалған тесттер саны -->
+            <div class="profile-stats">
+                <div class="profile-stat-card">
+                    <span class="profile-stat-label" data-translate="level">Деңгей</span>
+                    <span class="profile-stat-value" id="profileLevel">—</span>
+                    <span class="profile-stat-hint" data-translate="levelPlaceholder">Тест тапсырғаннан кейін белгіленеді</span>
+                </div>
+                <div class="profile-stat-card profile-stat-card-count">
+                    <span class="profile-stat-label" data-translate="completedTests">Орындалған тесттер</span>
+                    <span class="profile-stat-value profile-stat-number" id="profileCompletedCount">0</span>
+                    <span class="profile-stat-suffix" data-translate="completedTestsCount">тест</span>
+                </div>
+            </div>
+
+            <!-- Тест нәтижелері -->
+            <div class="profile-card profile-card-results">
+                <h2 class="profile-card-title" data-translate="testResultsTitle">Тест нәтижелері</h2>
+                <div class="profile-results-list" id="profileResultsList">
+                    <p class="profile-results-empty" data-translate="testResultsEmpty" id="profileResultsEmpty">Әзірше тест тапсырылмаған. Нәтижелерді көру үшін тест тапсырыңыз.</p>
+                    <ul class="profile-results-items" id="profileResultsItems" aria-hidden="true"></ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta-section">
+            <div class="cta-card">
+                <a href="dashboard.html" class="cta-button" data-translate="backButton">Басты бет</a>
+            </div>
+        </section>
+    </main>
+    <script src="translations.js"></script>
+    <script>
+        const userStr = localStorage.getItem('user');
+        if (!userStr) window.location.href = 'index.html';
+
+        // Профиль статистикасы (болашақта тест беті толықтырады)
+        const PROFILE_STATS_KEY = 'profileStats';
+        function getProfileStats() {
+            try {
+                const raw = localStorage.getItem(PROFILE_STATS_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch (e) {}
+            return { completedTestsCount: 0, level: null, testResults: [] };
+        }
+        function saveProfileStats(stats) {
+            localStorage.setItem(PROFILE_STATS_KEY, JSON.stringify(stats));
+        }
+
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+
+        function renderProfile() {
+            const user = userStr ? JSON.parse(userStr) : null;
+            const stats = getProfileStats();
+
+            if (user) {
+                const nameEl = document.getElementById('profileUserName');
+                const emailEl = document.getElementById('profileUserEmail');
+                if (nameEl) nameEl.textContent = user.name || '—';
+                if (emailEl) emailEl.textContent = user.email || '—';
+            }
+
+            const levelEl = document.getElementById('profileLevel');
+            const countEl = document.getElementById('profileCompletedCount');
+            if (levelEl) levelEl.textContent = stats.level != null && stats.level !== '' ? stats.level : '—';
+            if (countEl) countEl.textContent = stats.completedTestsCount || 0;
+
+            const list = document.getElementById('profileResultsItems');
+            const empty = document.getElementById('profileResultsEmpty');
+            if (stats.testResults && stats.testResults.length > 0) {
+                if (empty) empty.hidden = true;
+                if (list) {
+                    list.hidden = false;
+                    list.setAttribute('aria-hidden', 'false');
+                    list.innerHTML = stats.testResults.map(function (r, i) {
+                        return '<li class="profile-result-item">' + (r.date || '') + ' — ' + (r.score != null ? r.score + '%' : '—') + '</li>';
+                    }).join('');
+                }
+            } else {
+                if (empty) empty.hidden = false;
+                if (list) {
+                    list.hidden = true;
+                    list.setAttribute('aria-hidden', 'true');
+                    list.innerHTML = '';
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            renderProfile();
+            if (typeof applyTranslations === 'function') applyTranslations();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест — Цифрлық сауаттылық</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page" data-page="test">
+    <header class="dashboard-header">
+        <div class="header-inner">
+            <a href="dashboard.html" class="logo">
+                <span class="logo-icon">◉</span>
+                <span class="logo-text" data-translate="siteName">Цифрлық сауаттылықты бағалау</span>
+            </a>
+            <nav class="header-nav">
+                <a href="test.html" class="nav-btn nav-btn-primary">📋 <span data-translate="takeTest">Тест тапсыру</span></a>
+                <a href="profile.html" class="nav-btn nav-btn-profile">
+                    <span class="nav-btn-icon profile-icon-svg" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </span>
+                    <span data-translate="profile">Профиль</span>
+                </a>
+                <div class="lang-dropdown">
+                    <button type="button" class="lang-dropdown-trigger nav-btn nav-btn-outline" id="langDropdownBtn" aria-expanded="false" aria-haspopup="true" title="Тілді таңдау">
+                        <span class="lang-dropdown-label">EN</span>
+                        <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="lang-dropdown-menu" id="langDropdownMenu" role="menu" aria-hidden="true">
+                        <button type="button" class="lang-option" data-lang="en" role="menuitem">EN</button>
+                        <button type="button" class="lang-option" data-lang="kk" role="menuitem">KK</button>
+                        <button type="button" class="lang-option" data-lang="ru" role="menuitem">RU</button>
+                    </div>
+                </div>
+                <button type="button" class="nav-btn nav-btn-outline" onclick="logout()" data-translate="logout">Шығу</button>
+            </nav>
+        </div>
+    </header>
+    <main class="dashboard-main">
+        <section class="welcome-section">
+            <h1 class="welcome-title" data-translate="pageTitle">Цифрлық сауаттылық тесті</h1>
+            <p class="welcome-subtitle" data-translate="pageDesc">Тест сұрақтары жақын арада қосылады. Сіз осы жерде цифрлық сауаттылығыңызды бағалай аласыз.</p>
+        </section>
+        <section class="cta-section">
+            <div class="cta-card">
+                <h2 data-translate="backTitle">Басты бетке оралу</h2>
+                <a href="dashboard.html" class="cta-button" data-translate="backButton">Басты бет</a>
+            </div>
+        </section>
+    </main>
+    <script src="translations.js"></script>
+    <script>
+        const userStr = localStorage.getItem('user');
+        if (!userStr) window.location.href = 'index.html';
+        function logout() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        }
+        if (typeof applyTranslations === 'function') applyTranslations();
+    </script>
+</body>
+</html>

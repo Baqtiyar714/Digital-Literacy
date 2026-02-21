@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Modern Style</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="register-page">
+    <div class="language-switcher">
+        <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
+        <button class="lang-btn" data-lang="kk" onclick="setLanguage('kk')">KK</button>
+        <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+    </div>
+    
+    <div class="container">
+        <div class="login-card">
+            <div class="login-header">
+                <h1 data-translate="title">Create Account</h1>
+                <p data-translate="subtitle">Sign up to get started</p>
+            </div>
+            
+            <form class="login-form" id="registerForm">
+                <div class="form-group">
+                    <label for="name" data-translate="nameLabel">Full Name</label>
+                    <input 
+                        type="text" 
+                        id="name" 
+                        name="name" 
+                        data-translate-placeholder="namePlaceholder"
+                        placeholder="Enter your full name"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="email" data-translate="emailLabel">Email</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        data-translate-placeholder="emailPlaceholder"
+                        placeholder="Enter your email"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="password" data-translate="passwordLabel">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        data-translate-placeholder="passwordPlaceholder"
+                        placeholder="Create a password"
+                        required
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmPassword" data-translate="confirmPasswordLabel">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        data-translate-placeholder="confirmPasswordPlaceholder"
+                        placeholder="Confirm your password"
+                        required
+                    >
+                </div>
+                
+                <div class="form-options">
+                    <label class="remember-me">
+                        <input type="checkbox" id="terms" required>
+                        <span><span data-translate="terms">I agree to the</span> <a href="#" class="terms-link" data-translate="termsLink">Terms & Conditions</a></span>
+                    </label>
+                </div>
+                
+                <button type="submit" class="login-button">
+                    <span data-translate="createAccount">Create Account</span>
+                </button>
+            </form>
+            
+            <div class="signup-link">
+                <p><span data-translate="haveAccount">Already have an account?</span> <a href="index.html" data-translate="signIn">Sign in</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="translations.js"></script>
+    <script src="api.js"></script>
+    <script>
+        // Test connection when page loads
+        // Бет жүктегенде байланысты тексеру
+        // Проверить подключение при загрузке страницы
+        window.addEventListener('DOMContentLoaded', async function() {
+            console.log('Page loaded, testing server connection...');
+            const isConnected = await testConnection();
+            if (!isConnected) {
+                console.warn('⚠️ Server connection test failed. Make sure backend is running on port 5000');
+            }
+        });
+        
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Get form values
+            // Форма мәндерін алу
+            // Получить значения формы
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            // Validate password match
+            // Парольдердің сәйкестігін тексеру
+            // Проверка совпадения паролей
+            if (password !== confirmPassword) {
+                const currentLang = localStorage.getItem('language') || 'en';
+                const translations = {
+                    en: 'Passwords do not match!',
+                    kk: 'Құпия сөздер сәйкес келмейді!',
+                    ru: 'Пароли не совпадают!'
+                };
+                showMessage(translations[currentLang] || translations.en);
+                return;
+            }
+            
+            // Disable button during request
+            // Сұрау кезінде батырманы өшіру
+            // Отключить кнопку во время запроса
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.querySelector('span').textContent;
+            submitButton.disabled = true;
+            submitButton.querySelector('span').textContent = 'Creating...';
+            
+            // Call API
+            // API шақыру
+            // Вызов API
+            const result = await registerUser(name, email, password);
+            
+            // Re-enable button
+            // Батырманы қайта іске қосу
+            // Включить кнопку обратно
+            submitButton.disabled = false;
+            submitButton.querySelector('span').textContent = originalText;
+        });
+    </script>
+</body>
+</html>
+

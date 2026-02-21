@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Цифрлық сауаттылықты бағалау — Басты бет</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="dashboard-page" data-page="dashboard">
+    <!-- Header / Төменгі тақырып / Шапка -->
+    <header class="dashboard-header">
+        <div class="header-inner">
+            <a href="dashboard.html" class="logo">
+                <span class="logo-icon">◉</span>
+                <span class="logo-text" data-translate="siteName">Цифрлық сауаттылықты бағалау</span>
+            </a>
+            <nav class="header-nav">
+                <a href="test.html" class="nav-btn nav-btn-primary">
+                    <span class="nav-btn-icon">📋</span>
+                    <span data-translate="takeTest">Тест тапсыру</span>
+                </a>
+                <a href="profile.html" class="nav-btn nav-btn-profile">
+                    <span class="nav-btn-icon profile-icon-svg" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </span>
+                    <span data-translate="profile">Профиль</span>
+                </a>
+                <div class="lang-dropdown">
+                    <button type="button" class="lang-dropdown-trigger nav-btn nav-btn-outline" id="langDropdownBtn" aria-expanded="false" aria-haspopup="true" title="Тілді таңдау">
+                        <span class="lang-dropdown-label">EN</span>
+                        <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
+                    </button>
+                    <div class="lang-dropdown-menu" id="langDropdownMenu" role="menu" aria-hidden="true">
+                        <button type="button" class="lang-option" data-lang="en" role="menuitem">EN</button>
+                        <button type="button" class="lang-option" data-lang="kk" role="menuitem">KK</button>
+                        <button type="button" class="lang-option" data-lang="ru" role="menuitem">RU</button>
+                    </div>
+                </div>
+                <button type="button" class="nav-btn nav-btn-outline" id="logoutBtn" data-translate="logout">Шығу</button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="dashboard-main">
+        <!-- Welcome section -->
+        <section class="welcome-section">
+            <h1 class="welcome-title"><span data-translate="welcomePrefix">Қош келдіңіз</span>, <span id="userName">Пайдаланушы</span>!</h1>
+            <p class="welcome-subtitle" data-translate="welcomeDesc">Цифрлық сауаттылығыңызды тексеріп, жаңа дағдыларды игеріңіз.</p>
+        </section>
+
+        <!-- Action cards -->
+        <section class="actions-section">
+            <h2 class="section-title" data-translate="quickActions">Жылдам әрекеттер</h2>
+            <div class="action-cards">
+                <a href="test.html" class="action-card action-card-test">
+                    <div class="action-card-icon">📋</div>
+                    <h3 data-translate="actionTest">Тест тапсыру</h3>
+                    <p data-translate="actionTestDesc">Цифрлық сауаттылық тестін тапсырып, нәтижеңізді біліңіз.</p>
+                    <span class="action-card-arrow">→</span>
+                </a>
+                <a href="profile.html" class="action-card action-card-profile">
+                    <div class="action-card-icon profile-icon-svg profile-icon-card" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                        </svg>
+                    </div>
+                    <h3 data-translate="actionProfile">Профиль</h3>
+                    <p data-translate="actionProfileDesc">Жеке деректеріңізді және тест нәтижелеріңізді қараңыз.</p>
+                    <span class="action-card-arrow">→</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Digital literacy info -->
+        <section class="info-section">
+            <h2 class="section-title" data-translate="aboutTitle">Цифрлық сауаттылық туралы</h2>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <span class="info-card-icon">💡</span>
+                        <h3 data-translate="whatIs">Цифрлық сауаттылық деген не?</h3>
+                    </div>
+                    <p data-translate="whatIsDesc">Цифрлық сауаттылық — ақпараттық-коммуникациялық технологияларды (АКТ) тиімді пайдалану, ақпаратты іздеу, талдау және қауіпсіз цифрлық ортада қызмет ету дағдыларының жиынтығы.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <span class="info-card-icon">🎯</span>
+                        <h3 data-translate="whyMatters">Неге маңызды?</h3>
+                    </div>
+                    <p data-translate="whyMattersDesc">Біздің жүйе сіздің цифрлық дағдыларыңызды объективті бағалауға көмектеседі: жұмыс, білім алу және күнделікті өмірде технологияны сенімді пайдалану үшін қаншалықты дайын екеніңізді білу.</p>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-header">
+                        <span class="info-card-icon">📊</span>
+                        <h3 data-translate="areas">Бағаланатын салалар</h3>
+                    </div>
+                    <p data-translate="areasDesc">Ақпаратты іздеу және талдау, қауіпсіздік және жеке деректерді қорғау, коммуникация және ынтымақтастық, контент жасау және цифрлық құралдарды пайдалану.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA -->
+        <section class="cta-section">
+            <div class="cta-card">
+                <h2 data-translate="ctaTitle">Цифрлық сауаттылығыңызды біліңіз</h2>
+                <p data-translate="ctaDesc">Тест 15–20 минут алады. Нәтиже сізге әлсіз және күшті жақтарыңызды көрсетеді.</p>
+                <a href="test.html" class="cta-button" data-translate="ctaButton">Тестті бастау</a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="dashboard-footer">
+        <p data-translate="footer">Цифрлық сауаттылықты бағалау ақпараттық жүйесі</p>
+    </footer>
+
+    <script src="translations.js"></script>
+    <script>
+        // Auth check: redirect to login if not logged in
+        const userStr = localStorage.getItem('user');
+        if (!userStr) {
+            window.location.href = 'index.html';
+        } else {
+            const user = JSON.parse(userStr);
+            const nameEl = document.getElementById('userName');
+            if (nameEl && user.name) nameEl.textContent = user.name;
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', function() {
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        });
+        // Apply saved language on load
+        if (typeof applyTranslations === 'function') applyTranslations();
+    </script>
+</body>
+</html>
