@@ -339,9 +339,6 @@ app.get('/users/:id', async (req, res) => {
     }
 });
 
-// Health check endpoint
-// Денсаулық тексеру нүктесі
-// Точка проверки работоспособности
 app.get('/health', (req, res) => {
     res.status(200).json({
         success: true,
@@ -359,8 +356,6 @@ app.use('*', (req, res) => {
     res.status(404).json({
         success: false,
         message: 'Route not found',
-        // Бағыт табылмады
-        // Маршрут не найден
     });
 });
 
