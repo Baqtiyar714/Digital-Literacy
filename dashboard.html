@@ -4,7 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Цифрлық сауаттылықты бағалау — Басты бет</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Base + dashboard styles -->
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="dashboard.css">
+
+    <!-- Translations + dashboard logic -->
+    <script src="translations.js" defer></script>
+    <script src="dashboard.js" defer></script>
 </head>
 <body class="dashboard-page" data-page="dashboard">
     <!-- Header / Төменгі тақырып / Шапка -->
@@ -44,13 +56,353 @@
     </header>
 
     <main class="dashboard-main">
-        <!-- Welcome section -->
+        <!-- SECTION 1 — Welcome banner -->
         <section class="welcome-section">
-            <h1 class="welcome-title"><span data-translate="welcomePrefix">Қош келдіңіз</span>, <span id="userName">Пайдаланушы</span>!</h1>
-            <p class="welcome-subtitle" data-translate="welcomeDesc">Цифрлық сауаттылығыңызды тексеріп, жаңа дағдыларды игеріңіз.</p>
+            <h1 class="welcome-title">
+                <span data-translate="welcomePrefix">Қош келдіңіз</span>,
+                <span id="userName">Пайдаланушы</span>
+                <span class="welcome-level-badge" id="welcomeLevelBadge">Бастаушы 🌱</span>
+            </h1>
+            <p class="welcome-subtitle" data-translate="welcomeDesc">
+                Цифрлық сауаттылығыңызды тексеріп, жаңа дағдыларды игеріңіз.
+            </p>
         </section>
 
-        <!-- Action cards -->
+        <!-- SECTION 2 — Statistics row -->
+        <section class="stats-section" aria-label="Негізгі статистика">
+            <div class="stat-card">
+                <div class="stat-card__icon">📝</div>
+                <div class="stat-card__value" id="statsCompleted">0 / 5</div>
+                <div class="stat-card__label">Тапсырылған тесттер</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__icon">⭐</div>
+                <div class="stat-card__value" id="statsTotalScore">0 / 25</div>
+                <div class="stat-card__label">Жалпы балл</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__icon">🎯</div>
+                <div class="stat-card__value" id="statsAverage">0%</div>
+                <div class="stat-card__label">Орташа нәтиже</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-card__icon">🏅</div>
+                <div class="stat-card__value" id="statsLevel">Бастаушы</div>
+                <div class="stat-card__label">Деңгей</div>
+            </div>
+        </section>
+
+        <!-- SECTION 3 — Overall progress -->
+        <section class="overall-section" aria-label="Жалпы прогресс">
+            <div class="overall-card">
+                <div class="overall-card__top">
+                    <h2 class="overall-card__title">Жалпы прогресс</h2>
+                    <div class="overall-card__subtitle">
+                        <span id="overallBlocksText">0 / 5 блок аяқталды</span>
+                    </div>
+                </div>
+                <div class="overall-card__bar-wrapper">
+                    <div class="overall-card__bar">
+                        <div class="overall-card__bar-fill" id="overallProgressFill"></div>
+                    </div>
+                </div>
+                <div class="overall-card__dots" id="overallDots">
+                    <span class="progress-dot" data-block-id="info-search" title="Ақпарат іздеу"></span>
+                    <span class="progress-dot" data-block-id="financial-security" title="Қаржылық қауіпсіздік"></span>
+                    <span class="progress-dot" data-block-id="egov" title="eGov қызметтері"></span>
+                    <span class="progress-dot" data-block-id="network-culture" title="Желі мәдениеті"></span>
+                    <span class="progress-dot" data-block-id="device-care" title="Құрылғыларды күту"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4 — Motivational banner -->
+        <section class="motivation-section" aria-label="Мотивациялық хабарлама">
+            <div class="motivation-banner">
+                <p class="motivation-banner__text" id="motivationText">
+                    🚀 Бастайық! Алғашқы тестті тапсырып, деңгейіңізді анықтаңыз.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 5 — Last activity -->
+        <section class="activity-section" aria-label="Соңғы белсенділік">
+            <div class="activity-card">
+                <div class="activity-card__header">
+                    <h2 class="activity-card__title">Соңғы белсенділік</h2>
+                </div>
+                <div class="activity-card__body" id="activityList">
+                    <p class="activity-empty">
+                        Әлі тест тапсырылмаған. Бастаңыз! →
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6 — DigComp accordion -->
+        <section class="digcomp-section" aria-label="DigComp цифрлық құзыреттіліктері">
+            <h2 class="section-title">DigComp цифрлық құзыреттіліктері</h2>
+            <div class="digcomp-accordion" id="digcompAccordion">
+                <!-- 1 — Ақпаратты іздеу, бағалау және басқару -->
+                <article class="digcomp-item digcomp-item--active" data-color="#1a56db">
+                    <button class="digcomp-header" type="button">
+                        <div class="digcomp-header-left">
+                            <span class="digcomp-number" style="--dc-color:#1a56db;">1</span>
+                            <div class="digcomp-header-text">
+                                <h3 class="digcomp-header-title">
+                                    Ақпаратты іздеу, бағалау және басқару
+                                </h3>
+                                <p class="digcomp-header-subtitle">
+                                    Интернеттен ақпаратты табу, сүзгілеу және құрылымдау
+                                </p>
+                            </div>
+                        </div>
+                        <span class="digcomp-toggle-icon">−</span>
+                    </button>
+                    <div class="digcomp-body">
+                        <div class="digcomp-body-inner">
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">1.1</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Ақпаратты іздеу</h4>
+                                    <p>Іздеу жүйелерін тиімді пайдалану, кілт сөздерді дұрыс таңдау.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">1.2</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Ақпарат көзін бағалау</h4>
+                                    <p>Сенімді және күмәнді дереккөздерді ажырата білу, фактчек жасау.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">1.3</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Ақпаратты ұйымдастыру</h4>
+                                    <p>Сақталған файлдар мен сілтемелерді қалталарға топтастыру, тегтеу.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 2 — Байланыс және ынтымақтастық -->
+                <article class="digcomp-item" data-color="#0e9f6e">
+                    <button class="digcomp-header" type="button">
+                        <div class="digcomp-header-left">
+                            <span class="digcomp-number" style="--dc-color:#0e9f6e;">2</span>
+                            <div class="digcomp-header-text">
+                                <h3 class="digcomp-header-title">
+                                    Байланыс және ынтымақтастық
+                                </h3>
+                                <p class="digcomp-header-subtitle">
+                                    Цифрлық ортада қарым-қатынас жасау және бірлесіп жұмыс істеу
+                                </p>
+                            </div>
+                        </div>
+                        <span class="digcomp-toggle-icon">+</span>
+                    </button>
+                    <div class="digcomp-body">
+                        <div class="digcomp-body-inner">
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">2.1</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Цифрлық байланыс арналары</h4>
+                                    <p>Электрондық пошта, мессенджерлер және видеоқоңырауларды тиімді пайдалану.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">2.2</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Ынтымақтастық құралдары</h4>
+                                    <p>Ортақ құжаттармен, онлайн тақталармен және жобалық платформалармен жұмыс.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">2.3</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Цифрлық із қалдыру</h4>
+                                    <p>Онлайн бедел мен цифрлық іздің салдарын түсіну және басқару.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">2.4</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Онлайн қауымдастықтар</h4>
+                                    <p>Форумдарда, әлеуметтік желілерде және топтарда жауапты қатысу.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">2.5</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Мәдениетаралық коммуникация</h4>
+                                    <p>Әртүрлі мәдениет өкілдерімен цифрлық ортада этикалық диалог жүргізу.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">2.6</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Нетикет</h4>
+                                    <p>Онлайн қарым-қатынастың этикалық нормаларын сақтау.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 3 — Контент жасау -->
+                <article class="digcomp-item" data-color="#e3a008">
+                    <button class="digcomp-header" type="button">
+                        <div class="digcomp-header-left">
+                            <span class="digcomp-number" style="--dc-color:#e3a008;">3</span>
+                            <div class="digcomp-header-text">
+                                <h3 class="digcomp-header-title">
+                                    Контент жасау
+                                </h3>
+                                <p class="digcomp-header-subtitle">
+                                    Құжаттар, медиа және цифрлық материалдар дайындау
+                                </p>
+                            </div>
+                        </div>
+                        <span class="digcomp-toggle-icon">+</span>
+                    </button>
+                    <div class="digcomp-body">
+                        <div class="digcomp-body-inner">
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">3.1</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Құжаттармен жұмыс</h4>
+                                    <p>Мәтіндік құжаттар, кестелер және презентациялар құру және өңдеу.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">3.2</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Мультимедиа контент</h4>
+                                    <p>Сурет, аудио және бейне материалдар дайындау және редакциялау.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">3.3</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Авторлық құқық</h4>
+                                    <p>Лицензияларды және дәйексөз келтіру ережелерін сақтау.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">3.4</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Контентті бейімдеу</h4>
+                                    <p>Әртүрлі аудитория мен құрылғыларға арналған материалдарды бейімдеу.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 4 — Қауіпсіздік, әл-ауқат және жауапты пайдалану -->
+                <article class="digcomp-item" data-color="#e02424">
+                    <button class="digcomp-header" type="button">
+                        <div class="digcomp-header-left">
+                            <span class="digcomp-number" style="--dc-color:#e02424;">4</span>
+                            <div class="digcomp-header-text">
+                                <h3 class="digcomp-header-title">
+                                    Қауіпсіздік, әл-ауқат және жауапты пайдалану
+                                </h3>
+                                <p class="digcomp-header-subtitle">
+                                    Деректер қауіпсіздігі, денсаулық және жауапкершілік
+                                </p>
+                            </div>
+                        </div>
+                        <span class="digcomp-toggle-icon">+</span>
+                    </button>
+                    <div class="digcomp-body">
+                        <div class="digcomp-body-inner">
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">4.1</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Құпиялылық және деректерді қорғау</h4>
+                                    <p>Құпия сөздер, екі факторлы аутентификация және жеке деректерді қорғау.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">4.2</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Қауіптерден қорғану</h4>
+                                    <p>Вирус, фишинг, скам және басқа да киберқауіптерді тану.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">4.3</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Сандық әл-ауқат</h4>
+                                    <p>Экран алдында уақытты басқару, психологиялық қауіпсіздік.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">4.4</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Жауапты пайдалану</h4>
+                                    <p>Онлайн құқықтар мен міндеттерді түсіну, заңды сақтау.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 5 — Мәселені анықтау және шешу -->
+                <article class="digcomp-item" data-color="#7e3af2">
+                    <button class="digcomp-header" type="button">
+                        <div class="digcomp-header-left">
+                            <span class="digcomp-number" style="--dc-color:#7e3af2;">5</span>
+                            <div class="digcomp-header-text">
+                                <h3 class="digcomp-header-title">
+                                    Мәселені анықтау және шешу
+                                </h3>
+                                <p class="digcomp-header-subtitle">
+                                    Цифрлық құралдар арқылы проблемаларды талдау және шешу
+                                </p>
+                            </div>
+                        </div>
+                        <span class="digcomp-toggle-icon">+</span>
+                    </button>
+                    <div class="digcomp-body">
+                        <div class="digcomp-body-inner">
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">5.1</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Мәселені анықтау</h4>
+                                    <p>Цифрлық ортадағы проблемаларды байқау және нақты тұжырымдау.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">5.2</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Шешім нұсқаларын табу</h4>
+                                    <p>Цифрлық құралдарды пайдаланып, балама шешімдер іздеу.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">5.3</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Құралдарды баптау</h4>
+                                    <p>Құрылғылар мен қосымшаларды өз қажеттілігіне қарай бейімдеу.</p>
+                                </div>
+                            </div>
+                            <div class="digcomp-card">
+                                <div class="digcomp-card-code">5.4</div>
+                                <div class="digcomp-card-content">
+                                    <h4>Үздіксіз оқу</h4>
+                                    <p>Жаңа цифрлық дағдыларды үздіксіз меңгеру және жаңарту.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- SECTION 8 — Quick actions (existing) -->
         <section class="actions-section">
             <h2 class="section-title" data-translate="quickActions">Жылдам әрекеттер</h2>
             <div class="action-cards">
@@ -72,67 +424,10 @@
                 </a>
             </div>
         </section>
-
-        <!-- Digital literacy info -->
-        <section class="info-section">
-            <h2 class="section-title" data-translate="aboutTitle">Цифрлық сауаттылық туралы</h2>
-            <div class="info-cards">
-                <div class="info-card">
-                    <div class="info-card-header">
-                        <span class="info-card-icon">💡</span>
-                        <h3 data-translate="whatIs">Цифрлық сауаттылық деген не?</h3>
-                    </div>
-                    <p data-translate="whatIsDesc">Цифрлық сауаттылық — ақпараттық-коммуникациялық технологияларды (АКТ) тиімді пайдалану, ақпаратты іздеу, талдау және қауіпсіз цифрлық ортада қызмет ету дағдыларының жиынтығы.</p>
-                </div>
-                <div class="info-card">
-                    <div class="info-card-header">
-                        <span class="info-card-icon">🎯</span>
-                        <h3 data-translate="whyMatters">Неге маңызды?</h3>
-                    </div>
-                    <p data-translate="whyMattersDesc">Біздің жүйе сіздің цифрлық дағдыларыңызды объективті бағалауға көмектеседі: жұмыс, білім алу және күнделікті өмірде технологияны сенімді пайдалану үшін қаншалықты дайын екеніңізді білу.</p>
-                </div>
-                <div class="info-card">
-                    <div class="info-card-header">
-                        <span class="info-card-icon">📊</span>
-                        <h3 data-translate="areas">Бағаланатын салалар</h3>
-                    </div>
-                    <p data-translate="areasDesc">Ақпаратты іздеу және талдау, қауіпсіздік және жеке деректерді қорғау, коммуникация және ынтымақтастық, контент жасау және цифрлық құралдарды пайдалану.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- CTA -->
-        <section class="cta-section">
-            <div class="cta-card">
-                <h2 data-translate="ctaTitle">Цифрлық сауаттылығыңызды біліңіз</h2>
-                <p data-translate="ctaDesc">Тест 15–20 минут алады. Нәтиже сізге әлсіз және күшті жақтарыңызды көрсетеді.</p>
-                <a href="test.html" class="cta-button" data-translate="ctaButton">Тестті бастау</a>
-            </div>
-        </section>
     </main>
 
     <footer class="dashboard-footer">
         <p data-translate="footer">Цифрлық сауаттылықты бағалау ақпараттық жүйесі</p>
     </footer>
-
-    <script src="translations.js"></script>
-    <script>
-        // Auth check: redirect to login if not logged in
-        const userStr = localStorage.getItem('user');
-        if (!userStr) {
-            window.location.href = 'index.html';
-        } else {
-            const user = JSON.parse(userStr);
-            const nameEl = document.getElementById('userName');
-            if (nameEl && user.name) nameEl.textContent = user.name;
-        }
-
-        document.getElementById('logoutBtn').addEventListener('click', function() {
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        });
-        // Apply saved language on load
-        if (typeof applyTranslations === 'function') applyTranslations();
-    </script>
 </body>
 </html>

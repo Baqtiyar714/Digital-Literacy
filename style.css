@@ -883,3 +883,21 @@ body.dashboard-page {
     }
 }
 
+/* ============================================
+   Test page — Block cards (Category Selection)
+   Glassmorphism + Hover glow
+   ============================================ */
+[data-page="test"] .block-card {
+    background: linear-gradient(135deg, var(--block-from, #60a5fa), var(--block-to, #22d3ee));
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+[data-page="test"] .block-card:hover {
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3), 0 0 40px rgba(255, 255, 255, 0.15);
+}
+/* Block-specific gradients (Tailwind equivalents) */
+[data-page="test"] .block-card[data-block-id="info-search"] { --block-from: #60a5fa; --block-to: #22d3ee; }
+[data-page="test"] .block-card[data-block-id="financial-security"] { --block-from: #facc15; --block-to: #f97316; }
+[data-page="test"] .block-card[data-block-id="egov"] { --block-from: #6366f1; --block-to: #9333ea; }
+[data-page="test"] .block-card[data-block-id="network-culture"] { --block-from: #ec4899; --block-to: #f43f5e; }
+[data-page="test"] .block-card[data-block-id="device-care"] { --block-from: #4ade80; --block-to: #10b981; }
+

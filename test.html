@@ -1,64 +1,235 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="kk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Тест — Цифрлық сауаттылық</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="dashboard-page" data-page="test">
-    <header class="dashboard-header">
-        <div class="header-inner">
-            <a href="dashboard.html" class="logo">
-                <span class="logo-icon">◉</span>
-                <span class="logo-text" data-translate="siteName">Цифрлық сауаттылықты бағалау</span>
-            </a>
-            <nav class="header-nav">
-                <a href="test.html" class="nav-btn nav-btn-primary">📋 <span data-translate="takeTest">Тест тапсыру</span></a>
-                <a href="profile.html" class="nav-btn nav-btn-profile">
-                    <span class="nav-btn-icon profile-icon-svg" aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </span>
-                    <span data-translate="profile">Профиль</span>
-                </a>
-                <div class="lang-dropdown">
-                    <button type="button" class="lang-dropdown-trigger nav-btn nav-btn-outline" id="langDropdownBtn" aria-expanded="false" aria-haspopup="true" title="Тілді таңдау">
-                        <span class="lang-dropdown-label">EN</span>
-                        <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
-                    </button>
-                    <div class="lang-dropdown-menu" id="langDropdownMenu" role="menu" aria-hidden="true">
-                        <button type="button" class="lang-option" data-lang="en" role="menuitem">EN</button>
-                        <button type="button" class="lang-option" data-lang="kk" role="menuitem">KK</button>
-                        <button type="button" class="lang-option" data-lang="ru" role="menuitem">RU</button>
-                    </div>
-                </div>
-                <button type="button" class="nav-btn nav-btn-outline" onclick="logout()" data-translate="logout">Шығу</button>
-            </nav>
-        </div>
-    </header>
-    <main class="dashboard-main">
-        <section class="welcome-section">
-            <h1 class="welcome-title" data-translate="pageTitle">Цифрлық сауаттылық тесті</h1>
-            <p class="welcome-subtitle" data-translate="pageDesc">Тест сұрақтары жақын арада қосылады. Сіз осы жерде цифрлық сауаттылығыңызды бағалай аласыз.</p>
-        </section>
-        <section class="cta-section">
-            <div class="cta-card">
-                <h2 data-translate="backTitle">Басты бетке оралу</h2>
-                <a href="dashboard.html" class="cta-button" data-translate="backButton">Басты бет</a>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Тест блоктарын таңдау — Цифрлық сауаттылықты бағалау</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Page styles -->
+    <link rel="stylesheet" href="test.css" />
+
+    <!-- Translations + page script -->
+    <script src="translations.js" defer></script>
+    <script src="test.js" defer></script>
+  </head>
+  <body data-page="test">
+    <!-- Sticky top navbar -->
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="app-header__left">
+          <a href="dashboard.html" class="app-logo">
+            <div class="app-logo__icon">
+              <span>◉</span>
             </div>
-        </section>
+            <div class="app-logo__text" data-translate="siteName">
+              Цифрлық сауаттылықты бағалау
+            </div>
+          </a>
+        </div>
+        <nav class="app-header__right">
+          <a href="test.html" class="btn btn-primary">
+            <span>📋</span>
+            <span data-translate="takeTest">Тест тапсыру</span>
+          </a>
+
+          <a href="profile.html" class="btn btn-ghost">
+            <span class="nav-icon profile-icon" aria-hidden="true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Zm0 2c-2.8 0-8 1.4-8 4v2h16v-2c0-2.6-5.2-4-8-4Z"
+                />
+              </svg>
+            </span>
+            <span data-translate="profile">Профиль</span>
+          </a>
+
+          <div class="lang-dropdown">
+            <button
+              type="button"
+              class="lang-dropdown-trigger btn btn-outline"
+              id="langDropdownBtn"
+              aria-expanded="false"
+              aria-haspopup="true"
+              title="Тілді таңдау"
+            >
+              <span class="lang-dropdown-label">EN</span>
+              <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
+            </button>
+            <div
+              class="lang-dropdown-menu"
+              id="langDropdownMenu"
+              role="menu"
+              aria-hidden="true"
+            >
+              <button
+                type="button"
+                class="lang-option"
+                data-lang="en"
+                role="menuitem"
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                class="lang-option"
+                data-lang="kk"
+                role="menuitem"
+              >
+                KK
+              </button>
+              <button
+                type="button"
+                class="lang-option"
+                data-lang="ru"
+                role="menuitem"
+              >
+                RU
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            class="btn btn-outline"
+            id="logoutBtn"
+            data-translate="logout"
+          >
+            Шығу
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-main">
+      <!-- Page title + overall progress -->
+      <section class="page-header">
+        <div class="page-header__text">
+          <h1 class="page-header__title">Тест блоктарын таңдаңыз</h1>
+          <p class="page-header__subtitle">
+            Әр блокты тапсырып, жалпы деңгейіңізді анықтаңыз
+          </p>
+        </div>
+
+        <div class="overall-progress">
+          <div class="overall-progress__top">
+            <span class="overall-progress__label">
+              Блоктардың жалпы прогресі
+            </span>
+            <span class="overall-progress__value">
+              <span id="overallCompletedCount">0</span>/5 блок аяқталды
+            </span>
+          </div>
+          <div class="overall-progress__bar">
+            <div
+              class="overall-progress__bar-fill"
+              id="overallProgressBar"
+            ></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Horizontal test cards list -->
+      <section class="blocks-list" id="blocksList">
+        <!-- Cards are rendered by test.js -->
+      </section>
+
+      <!-- Bottom summary card -->
+      <section class="summary-card" aria-label="Жалпы нәтиже">
+        <div class="summary-card__top">
+          <div>
+            <h2 class="summary-card__title">Жалпы нәтиже</h2>
+            <p class="summary-card__hint">
+              Блоктарды аяқтаған сайын нәтиже осында жаңартылады
+            </p>
+          </div>
+          <div class="summary-card__score">
+            <span id="totalScore">0</span>
+            <span class="summary-card__score-max">/ 25 балл</span>
+          </div>
+        </div>
+
+        <div class="summary-card__middle">
+          <div class="summary-progress">
+            <div class="summary-progress__label">Жалпы прогресс</div>
+            <div class="summary-progress__bar">
+              <div
+                class="summary-progress__bar-fill"
+                id="summaryProgressBar"
+              ></div>
+            </div>
+          </div>
+          <div class="summary-card__level">
+            <span class="summary-card__level-label">Деңгей:</span>
+            <span class="level-badge level-badge--beginner" id="levelBadge">
+              Бастаушы
+            </span>
+          </div>
+        </div>
+
+        <div class="summary-card__bottom">
+          <button class="btn btn-disabled ai-button" type="button" disabled>
+            <span class="nav-icon" aria-hidden="true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1Zm-7-2a2 2 0 0 1 4 0v2h-4Zm6 11H8v-7h8Z"
+                />
+              </svg>
+            </span>
+            <span>ИИ талдауы — жақында</span>
+          </button>
+        </div>
+      </section>
     </main>
-    <script src="translations.js"></script>
-    <script>
-        const userStr = localStorage.getItem('user');
-        if (!userStr) window.location.href = 'index.html';
-        function logout() {
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
-        }
-        if (typeof applyTranslations === 'function') applyTranslations();
-    </script>
-</body>
+
+    <!-- Modal placeholder for future questions -->
+    <div class="modal-backdrop" id="testModal" aria-hidden="true">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="testModalTitle"
+      >
+        <div class="modal__header">
+          <h2 class="modal__title" id="testModalTitle">
+            Тест сұрақтары жақында қосылады
+          </h2>
+        </div>
+        <div class="modal__body">
+          <p id="testModalDescription">
+            Әзірге тек блоктарды таңдауды және прогресті көруді сынап көре
+            аласыз. Толық сұрақтар мен талдау кейінірек қосылады.
+          </p>
+        </div>
+        <div class="modal__footer">
+          <button
+            type="button"
+            class="btn btn-ghost-secondary"
+            id="modalCancelBtn"
+          >
+            Жабу
+          </button>
+          <button type="button" class="btn btn-primary" id="modalPrimaryBtn">
+            Түсінікті
+          </button>
+        </div>
+      </div>
+    </div>
+    <a href="quiz.html" class="btn btn-primary">Тест тапсыру</a>
+  </body>
 </html>

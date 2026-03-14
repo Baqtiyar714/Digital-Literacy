@@ -147,83 +147,50 @@ app.post('/register', async (req, res) => {
                 // Пользователь с этой электронной почтой уже существует
             });
         }
-        
-        // Hash password
-        // Парольді хештеу
-        // Хеширование пароля
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
-        
-        // Insert new user
-        // Жаңа пайдаланушыны енгізу
-        // Вставка нового пользователя
+
         const result = await pool.query(
             'INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, created_at',
             [name, email, hashedPassword]
         );
         
-        // Return success response
-        // Сәтті жауапты қайтару
-        // Вернуть успешный ответ
         res.status(201).json({
             success: true,
             message: 'User registered successfully',
-            // Пайдаланушы сәтті тіркелді
-            // Пользователь успешно зарегистрирован
             data: result.rows[0]
         });
         
     } catch (error) {
         console.error('Error registering user:', error);
-        // Пайдаланушыны тіркеу кезіндегі қате
-        // Ошибка при регистрации пользователя
-        
         res.status(500).json({
             success: false,
             message: 'Error registering user',
-            // Пайдаланушыны тіркеу кезіндегі қате
-            // Ошибка при регистрации пользователя
             error: error.message
         });
     }
 });
 
-// POST /login - Login user
-// Пайдаланушыға кіру
-// Вход пользователя
 app.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         
-        // Validate input
-        // Кіріс деректерін тексеру
-        // Проверка входных данных
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
                 message: 'Email and password are required',
-                // Электрондық пошта мен пароль міндетті
-                // Электронная почта и пароль обязательны
             });
         }
         
-        // Find user by email
-        // Электрондық пошта бойынша пайдаланушыны табу
-        // Найти пользователя по электронной почте
         const result = await pool.query(
             'SELECT id, name, email, password, created_at FROM users WHERE email = $1',
             [email]
         );
         
-        // Check if user exists
-        // Пайдаланушы бар ма екенін тексеру
-        // Проверка существования пользователя
         if (result.rows.length === 0) {
             return res.status(401).json({
                 success: false,
                 message: 'Invalid email or password',
-                // Жарамсыз электрондық пошта немесе пароль
-                // Неверная электронная почта или пароль
             });
         }
         
@@ -343,15 +310,10 @@ app.get('/health', (req, res) => {
     res.status(200).json({
         success: true,
         message: 'Server is running',
-        // Сервер жұмыс істеп тұр
-        // Сервер работает
         timestamp: new Date().toISOString()
     });
 });
 
-// 404 handler for undefined routes
-// Анықталмаған бағыттар үшін 404 басқарушысы
-// Обработчик 404 для неопределенных маршрутов
 app.use('*', (req, res) => {
     res.status(404).json({
         success: false,
@@ -359,13 +321,8 @@ app.use('*', (req, res) => {
     });
 });
 
-// Start the server
-// Серверді іске қосу
-// Запуск сервера
 app.listen(PORT, () => {
     console.log(`🚀 Server is running on http://localhost:${PORT}`);
-    // Сервер http://localhost:${PORT} мекенжайында жұмыс істеп тұр
-    // Сервер работает по адресу http://localhost:${PORT}
     console.log(`\n📱 Frontend Pages / Фронтенд беттері / Фронтенд страницы:`);
     console.log(`   🏠 Login: http://localhost:${PORT}/index.html`);
     console.log(`   📝 Register: http://localhost:${PORT}/register.html`);

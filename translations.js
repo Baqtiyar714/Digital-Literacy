@@ -83,7 +83,7 @@ const translations = {
             profile: "Profile",
             logout: "Log out",
             pageTitle: "Digital literacy test",
-            pageDesc: "Test questions will be added soon. Here you will be able to assess your digital literacy.",
+            pageDesc: "Select a block and start the test.",
             backTitle: "Back to main page",
             backButton: "Main page"
         }
@@ -170,7 +170,7 @@ const translations = {
             profile: "Профиль",
             logout: "Шығу",
             pageTitle: "Цифрлық сауаттылық тесті",
-            pageDesc: "Тест сұрақтары жақын арада қосылады. Сіз осы жерде цифрлық сауаттылығыңызды бағалай аласыз.",
+            pageDesc: "Блокты таңдаңыз және тестті бастаңыз.",
             backTitle: "Басты бетке оралу",
             backButton: "Басты бет"
         }
@@ -257,14 +257,13 @@ const translations = {
             profile: "Профиль",
             logout: "Выйти",
             pageTitle: "Тест по цифровой грамотности",
-            pageDesc: "Вопросы теста будут добавлены скоро. Здесь вы сможете оценить свою цифровую грамотность.",
+            pageDesc: "Выберите блок и начните тест.",
             backTitle: "Вернуться на главную",
             backButton: "Главная"
         }
     }
 };
 
-// Language switcher functionality
 let currentLanguage = localStorage.getItem('language') || 'en';
 
 function setLanguage(lang) {

@@ -1,0 +1,670 @@
+/* Color tokens */
+:root {
+    --clr-bg: #f0f4ff;
+    --clr-surface: #ffffff;
+    --clr-primary: #3949ab;
+    --clr-panel: #1a237e;
+    --clr-gold: #ffc107;
+    --clr-text: #1a1f36;
+    --clr-sub: #5c6690;
+    --clr-muted: #9ba3c9;
+    --clr-border: #dde1f5;
+    --clr-success: #1b8a4e;
+    --clr-error: #e53935;
+}
+
+/* Base layout */
+body.profile-page {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: var(--clr-bg);
+    color: var(--clr-sub);
+}
+
+.profile-main {
+    flex: 1;
+}
+
+/* Page wrapper — full-width stacked */
+.page-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 32px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Every card is full width */
+.card {
+    width: 100%;
+    background: var(--clr-surface);
+    border-radius: 16px;
+    border: 1px solid var(--clr-border);
+    padding: 28px 32px;
+    box-shadow: 0 4px 20px rgba(57, 73, 171, 0.08);
+}
+
+/* Navbar (match dashboard) */
+.profile-page .dashboard-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--clr-border);
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.profile-page .logo-icon {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #3949ab, #5c6bc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.profile-page .logo-text {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: var(--clr-text);
+    font-weight: 700;
+}
+
+.profile-page .header-nav .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background: #ffffff;
+    border: 1.5px solid var(--clr-border);
+    border-radius: 10px;
+    color: var(--clr-primary);
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.profile-page .header-nav .nav-btn:hover {
+    border-color: var(--clr-primary);
+    background: var(--clr-bg);
+    box-shadow: 0 2px 12px rgba(57, 73, 171, 0.12);
+}
+
+.profile-page .header-nav .nav-btn svg,
+.profile-page .header-nav .nav-btn img {
+    width: 17px;
+    height: 17px;
+    color: var(--clr-primary);
+    opacity: 0.85;
+}
+
+.profile-page .nav-btn-primary,
+.profile-page .nav-btn-profile,
+.profile-page .nav-btn-outline {
+    background: inherit;
+    border-color: inherit;
+    color: inherit;
+    box-shadow: none;
+}
+
+.profile-page .nav-btn-active {
+    background: #e8eaf6;
+    border-color: var(--clr-primary);
+}
+
+.profile-page #logoutBtn.nav-btn:hover {
+    border-color: var(--clr-error);
+    color: var(--clr-error);
+    background: #fff7f7;
+    box-shadow: 0 2px 12px rgba(229, 57, 53, 0.12);
+}
+
+.profile-page .lang-dropdown-menu {
+    border-color: var(--clr-border);
+}
+
+/* 1. Profile Hero Card */
+.profile-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+}
+
+.profile-hero-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #3949ab, #5c6bc0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-size: 1.6rem;
+    font-weight: 700;
+    box-shadow: 0 14px 30px rgba(57, 73, 171, 0.6);
+}
+
+.profile-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profile-name {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--clr-text);
+}
+
+.profile-email {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--clr-sub);
+}
+
+.profile-registered {
+    margin: 0;
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8rem;
+    color: var(--clr-muted);
+}
+
+.profile-hero-right {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-end;
+}
+
+.profile-level-badge {
+    padding: 8px 20px;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.profile-level-badge--beginner {
+    background: #e8eaf6;
+    color: #3949ab;
+}
+
+.profile-level-badge--intermediate {
+    background: #fff8e1;
+    color: #f9a825;
+}
+
+.profile-level-badge--advanced {
+    background: #e8f5e9;
+    color: var(--clr-success);
+}
+
+.profile-score-chip {
+    padding: 6px 16px;
+    border-radius: 999px;
+    background: var(--clr-bg);
+    border: 1px solid var(--clr-border);
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.85rem;
+    color: var(--clr-primary);
+}
+
+/* 2. Stats Row Card — 4 items in one row with dividers */
+.stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stats-item {
+    text-align: center;
+    padding: 0 16px;
+    border-right: 1px solid #eef0fb;
+}
+
+.stats-item:last-child {
+    border-right: none;
+}
+
+.stats-icon {
+    margin-bottom: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+
+.stats-value {
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--clr-text);
+}
+
+.stats-label {
+    margin-top: 4px;
+    font-size: 0.75rem;
+    color: var(--clr-muted);
+}
+
+.stats-icon--tests {
+    background: #e8eaf6;
+    color: var(--clr-primary);
+}
+
+.stats-icon--score {
+    background: #fff8e1;
+    color: #f9a825;
+}
+
+.stats-icon--avg {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.stats-icon--best {
+    background: #f3e5f5;
+    color: #6a1b9a;
+}
+
+.stats-value--avg.profile-avg-low {
+    color: var(--clr-error);
+}
+
+.stats-value--avg.profile-avg-medium {
+    color: #f9a825;
+}
+
+.stats-value--avg.profile-avg-high {
+    color: var(--clr-success);
+}
+
+/* 3. Level & Achievements */
+.profile-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+}
+
+.profile-card-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--clr-text);
+}
+
+.profile-level-progress__labels {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.8rem;
+    color: var(--clr-muted);
+    margin-bottom: 6px;
+}
+
+.profile-level-progress__bar {
+    position: relative;
+    height: 10px;
+    border-radius: 999px;
+    background: #e3e7ff;
+    overflow: hidden;
+}
+
+.profile-level-progress__bar-fill {
+    position: absolute;
+    inset: 0;
+    width: 0;
+    border-radius: inherit;
+    background: var(--clr-error);
+    transition: width 0.6s cubic-bezier(0.22, 0.61, 0.36, 1), background-color 0.2s ease;
+}
+
+.profile-level-progress__bar-fill.level-beginner {
+    background: var(--clr-error);
+}
+
+.profile-level-progress__bar-fill.level-intermediate {
+    background: #f9a825;
+}
+
+.profile-level-progress__bar-fill.level-advanced {
+    background: var(--clr-success);
+}
+
+.profile-level-progress__hint {
+    margin: 6px 0 0;
+    font-size: 0.78rem;
+    color: var(--clr-muted);
+}
+
+.profile-achievements {
+    margin-top: 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+}
+
+.profile-achievement-badge {
+    flex: 0 1 60px;
+    max-width: 72px;
+    text-align: center;
+}
+
+.profile-achievement-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    background: var(--clr-bg);
+    color: var(--clr-muted);
+    opacity: 0.4;
+    transition: opacity 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.profile-achievement-circle.is-completed {
+    opacity: 1;
+}
+
+.profile-achievement-label {
+    display: block;
+    margin-top: 4px;
+    font-size: 0.7rem;
+    color: var(--clr-muted);
+}
+
+/* 4. Test Results — full-width rows */
+.profile-results {
+    display: flex;
+    flex-direction: column;
+}
+
+.test-row {
+    display: grid;
+    grid-template-columns: 48px 1fr 1fr 120px auto;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f4ff;
+}
+
+.test-row:last-child {
+    border-bottom: none;
+}
+
+.test-row .profile-result-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+}
+
+.test-row .profile-result-main {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.test-row .profile-result-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--clr-text);
+}
+
+.test-row .profile-result-date {
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.76rem;
+    color: var(--clr-muted);
+}
+
+.test-row .progress-col {
+    min-width: 0;
+}
+
+.test-row .profile-result-progress {
+    width: 100%;
+    min-width: 60px;
+    height: 7px;
+    border-radius: 999px;
+    background: #eef0fb;
+    overflow: hidden;
+}
+
+.test-row .profile-result-progress-fill {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: var(--clr-primary);
+    transition: width 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.test-row .profile-result-score {
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.82rem;
+    color: var(--clr-text);
+}
+
+.test-row .profile-result-score--empty {
+    color: var(--clr-muted);
+}
+
+.test-row .profile-result-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--clr-border);
+    background: #ffffff;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--clr-primary);
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.test-row .profile-result-btn:hover {
+    border-color: var(--clr-primary);
+    background: var(--clr-bg);
+    box-shadow: 0 2px 10px rgba(57, 73, 171, 0.12);
+}
+
+.test-row.profile-result-row--empty .profile-result-name {
+    color: var(--clr-muted);
+}
+
+/* 5. Statistics — 3-column grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.profile-stats-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.profile-stats-label {
+    font-size: 0.8rem;
+    color: var(--clr-muted);
+}
+
+.profile-stats-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--clr-text);
+}
+
+/* 6. AI Recommendations */
+.profile-card-ai {
+    border-left: 4px solid var(--clr-primary);
+}
+
+.profile-card-header--ai {
+    margin-bottom: 8px;
+}
+
+.profile-ai-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #e8eaf6;
+    color: var(--clr-primary);
+}
+
+.profile-ai-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--clr-sub);
+}
+
+.profile-ai-item {
+    display: flex;
+    gap: 6px;
+}
+
+.profile-ai-item-icon {
+    flex: 0 0 auto;
+}
+
+.profile-ai-item-text {
+    flex: 1 1 auto;
+}
+
+.profile-ai-footer {
+    margin-top: 12px;
+}
+
+.profile-ai-button {
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: 1px dashed var(--clr-border);
+    background: var(--clr-bg);
+    color: var(--clr-muted);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: not-allowed;
+}
+
+/* 7. Activity History */
+.profile-activity {
+    font-size: 0.85rem;
+}
+
+.profile-activity-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 0;
+    border-top: 1px solid #eef0fb;
+}
+
+.profile-activity-row:first-child {
+    border-top: none;
+}
+
+.profile-activity-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--clr-muted);
+}
+
+.profile-activity-text {
+    color: var(--clr-sub);
+}
+
+.profile-activity-date {
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.76rem;
+    color: var(--clr-muted);
+}
+
+.profile-activity-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 16px 0;
+    color: var(--clr-muted);
+    font-size: 0.86rem;
+}
+
+.profile-activity-empty-icon {
+    font-size: 1.8rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .page-wrapper {
+        padding: 16px;
+    }
+
+    .profile-hero {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .profile-hero-left {
+        flex-direction: column;
+    }
+
+    .profile-hero-right {
+        align-items: center;
+    }
+
+    .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .stats-item {
+        border-right: none;
+        padding: 8px 0;
+    }
+
+    .stats-item:nth-child(1),
+    .stats-item:nth-child(2) {
+        border-bottom: 1px solid #eef0fb;
+    }
+
+    .stats-item:nth-child(odd) {
+        border-right: 1px solid #eef0fb;
+    }
+
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .test-row {
+        grid-template-columns: 40px 1fr auto;
+    }
+
+    .test-row .progress-col {
+        display: none;
+    }
+}

@@ -119,9 +119,6 @@ async function testConnection() {
     }
 }
 
-// Register user
-// Пайдаланушыны тіркеу
-// Зарегистрировать пользователя
 async function registerUser(name, email, password) {
     try {
         console.log('Attempting to register user...');
@@ -138,13 +135,8 @@ async function registerUser(name, email, password) {
         console.log('Response status:', response.status);
         console.log('Response OK:', response.ok);
         
-        // Check if response is OK before parsing JSON
-        // JSON-ды талдамас бұрын жауаптың дұрыс екенін тексеру
-        // Проверить, что ответ OK перед парсингом JSON
         if (!response.ok) {
-            // Try to get error message from response
-            // Жауаптан қате хабарламасын алуға тырысу
-            // Попытаться получить сообщение об ошибке из ответа
+            
             let errorData;
             try {
                 errorData = await response.json();

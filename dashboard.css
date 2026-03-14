@@ -1,0 +1,578 @@
+/* Base layout & background (clean light theme) */
+body.dashboard-page {
+    min-height: 100vh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background: #f0f4ff;
+    color: #5c6690;
+}
+
+.dashboard-main {
+    max-width: 1120px;
+    margin: 0 auto;
+    padding: 28px 20px 40px;
+}
+
+.dashboard-footer {
+    text-align: center;
+    padding: 18px 16px 22px;
+    font-size: 13px;
+    color: #9ba3c9;
+}
+
+/* Navbar overrides for dashboard */
+.dashboard-page .dashboard-header {
+    background-color: #ffffff;
+    border-bottom: 1px solid #dde1f5;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, 0.04);
+}
+
+.dashboard-page .logo-icon {
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #3949ab, #5c6bc0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.dashboard-page .logo-text {
+    background: none;
+    -webkit-text-fill-color: initial;
+    color: #1a1f36;
+    font-weight: 700;
+}
+
+/* Unified navbar button style (test, profile, lang, logout) */
+.dashboard-page .header-nav .nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    background: #ffffff;
+    border: 1.5px solid #dde1f5;
+    border-radius: 10px;
+    color: #3949ab;
+    font-family: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.dashboard-page .header-nav .nav-btn:hover {
+    border-color: #3949ab;
+    background: #f0f4ff;
+    box-shadow: 0 2px 12px rgba(57, 73, 171, 0.12);
+}
+
+.dashboard-page .header-nav .nav-btn svg,
+.dashboard-page .header-nav .nav-btn img {
+    width: 17px;
+    height: 17px;
+    color: #3949ab;
+    opacity: 0.85;
+}
+
+/* Make primary/profile/outline variants visually identical on dashboard */
+.dashboard-page .nav-btn-primary,
+.dashboard-page .nav-btn-profile,
+.dashboard-page .nav-btn-outline {
+    background: inherit;
+    border-color: inherit;
+    color: inherit;
+    box-shadow: none;
+}
+
+/* Logout hover: red accent instead of indigo */
+.dashboard-page #logoutBtn.nav-btn:hover {
+    border-color: #e53935;
+    color: #e53935;
+    background: #fff7f7;
+    box-shadow: 0 2px 12px rgba(229, 57, 53, 0.12);
+}
+
+.dashboard-page .lang-dropdown-menu {
+    border-color: #dde1f5;
+}
+
+/* Welcome banner */
+.welcome-section {
+    margin-bottom: 20px;
+    padding: 18px 18px 16px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #1a237e 0%, #3949ab 60%, #1565c0 100%);
+    color: #ffffff;
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.25);
+}
+
+.welcome-title {
+    font-size: clamp(1.9rem, 3vw, 2.3rem);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #ffffff;
+}
+
+.welcome-title #userName {
+    color: #ffc107;
+}
+
+.welcome-level-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    margin-left: 10px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: transparent;
+    border: 1px solid #ffc107;
+    font-size: 12px;
+    font-weight: 600;
+    color: #ffc107;
+}
+
+.welcome-subtitle {
+    margin-top: 8px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.82);
+    max-width: 520px;
+}
+
+/* Stats row */
+.stats-section {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    position: relative;
+    padding: 14px 14px 12px;
+    border-radius: 16px;
+    background: #ffffff;
+    border: 1px solid #dde1f5;
+    box-shadow: 0 4px 20px rgba(57, 73, 171, 0.08);
+}
+
+.stat-card__icon {
+    font-size: 18px;
+    margin-bottom: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+}
+
+.stat-card__value {
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 17px;
+    font-weight: 600;
+    color: #1a1f36;
+}
+
+.stat-card__label {
+    margin-top: 4px;
+    font-size: 12px;
+    color: #9ba3c9;
+}
+
+/* Icon background colors per stat */
+.stats-section .stat-card:nth-child(1) .stat-card__icon {
+    background-color: #e8eaf6;
+    color: #3949ab;
+}
+
+.stats-section .stat-card:nth-child(2) .stat-card__icon {
+    background-color: #fff8e1;
+    color: #f9a825;
+}
+
+.stats-section .stat-card:nth-child(3) .stat-card__icon {
+    background-color: #e3f2fd;
+    color: #1565c0;
+}
+
+.stats-section .stat-card:nth-child(4) .stat-card__icon {
+    background-color: #f3e5f5;
+    color: #6a1b9a;
+}
+
+/* Overall progress */
+.overall-section {
+    margin-bottom: 20px;
+}
+
+.overall-card {
+    padding: 16px 16px 14px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #dde1f5;
+    box-shadow: 0 4px 20px rgba(57, 73, 171, 0.06);
+}
+
+.overall-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.overall-card__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1f36;
+}
+
+.overall-card__subtitle {
+    font-size: 12px;
+    color: #9ba3c9;
+}
+
+.overall-card__bar-wrapper {
+    margin-bottom: 10px;
+}
+
+.overall-card__bar {
+    position: relative;
+    height: 10px;
+    border-radius: 999px;
+    background: #e3e7ff;
+    overflow: hidden;
+}
+
+.overall-card__bar-fill {
+    position: absolute;
+    inset: 0;
+    width: 0;
+    border-radius: inherit;
+    background: #ffc107;
+    transition: width 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.overall-card__dots {
+    display: flex;
+    gap: 8px;
+}
+
+.progress-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: 1px solid #dde1f5;
+    background: #dde1f5;
+    opacity: 1;
+    transition: background-color 0.25s ease, transform 0.25s ease, opacity 0.2s ease, box-shadow 0.25s ease;
+}
+
+.progress-dot.is-completed {
+    background: #ffc107;
+    border-color: #ffc107;
+    transform: translateY(-1px);
+}
+
+/* Motivation banner */
+.motivation-section {
+    margin-bottom: 20px;
+}
+
+.motivation-banner {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ffc107, #f9a825);
+    color: #1a1f36;
+    box-shadow: 0 8px 24px rgba(57, 73, 171, 0.16);
+}
+
+.motivation-banner__text {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* Activity card */
+.activity-section {
+    margin-bottom: 20px;
+}
+
+.activity-card {
+    padding: 14px 16px 14px;
+    border-radius: 18px;
+    background: #ffffff;
+    border: 1px solid #dde1f5;
+    box-shadow: 0 4px 18px rgba(57, 73, 171, 0.06);
+}
+
+.activity-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.activity-card__title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1a1f36;
+}
+
+.activity-card__body {
+    font-size: 13px;
+    color: #5c6690;
+}
+
+.activity-empty {
+    margin: 4px 0 0;
+    color: #9ba3c9;
+}
+
+.activity-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 6px 0;
+    border-top: 1px solid #eef0fb;
+}
+
+.activity-list-item:first-child {
+    border-top: none;
+}
+
+.activity-main {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.activity-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    background: #e8eaf6;
+    border: 1px solid #c5cae9;
+}
+
+.activity-name {
+    font-size: 13px;
+    color: #1a1f36;
+}
+
+.activity-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.activity-score-chip {
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #e8eaf6;
+    color: #3949ab;
+    border: 1px solid #c5cae9;
+}
+
+.activity-date {
+    font-size: 11px;
+    color: #9ba3c9;
+}
+
+/* DigComp accordion */
+.digcomp-section {
+    margin-bottom: 22px;
+}
+
+.digcomp-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.digcomp-item {
+    border-radius: 14px;
+    border: 1px solid #dde1f5;
+    background: #ffffff;
+    box-shadow: 0 4px 16px rgba(57, 73, 171, 0.06);
+    overflow: hidden;
+    position: relative;
+}
+
+.digcomp-item--active {
+    border-left: 4px solid var(--dc-color-active, #3949ab);
+}
+
+.digcomp-header {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.digcomp-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.digcomp-number {
+    min-width: 30px;
+    height: 30px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #ffffff;
+    background: var(--dc-color, #3949ab);
+}
+
+.digcomp-header-text {
+    text-align: left;
+}
+
+.digcomp-header-title {
+    margin: 0;
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #1a1f36;
+}
+
+.digcomp-header-subtitle {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: #9ba3c9;
+}
+
+.digcomp-toggle-icon {
+    font-size: 1.2rem;
+    width: 20px;
+    text-align: center;
+    color: #5c6690;
+}
+
+.digcomp-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.28s ease;
+    background: #f8f9ff;
+}
+
+.digcomp-body-inner {
+    padding: 10px 16px 14px;
+    display: grid;
+    gap: 8px;
+}
+
+.digcomp-card {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 8px 12px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: #f3f4ff;
+}
+
+.digcomp-card-code {
+    font-family: "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #3949ab;
+    align-self: flex-start;
+}
+
+.digcomp-card-content h4 {
+    margin: 0 0 2px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #1a1f36;
+}
+
+.digcomp-card-content p {
+    margin: 0;
+    font-size: 0.8rem;
+    color: #5c6690;
+}
+
+/* Quick actions: small tweaks to sit in new theme */
+.actions-section {
+    margin-bottom: 10px;
+}
+
+.section-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #1a1f36;
+}
+
+.action-card {
+    background: #ffffff;
+    border-color: #dde1f5;
+    box-shadow: 0 4px 16px rgba(57, 73, 171, 0.06);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.action-card h3 {
+    color: #3949ab;
+}
+
+.action-card p {
+    color: #5c6690;
+}
+
+.action-card:hover {
+    border-color: #3949ab;
+    box-shadow: 0 8px 24px rgba(57, 73, 171, 0.12);
+    transform: translateY(-1px);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .stats-section {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .dashboard-main {
+        padding-inline: 16px;
+    }
+
+    .stats-section {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .activity-list-item {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 420px) {
+    .dashboard-main {
+        padding-inline: 14px;
+    }
+
+    .stats-section {
+        grid-template-columns: 1fr;
+    }
+}
+
