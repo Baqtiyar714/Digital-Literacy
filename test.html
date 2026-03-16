@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Тест блоктарын таңдау — Цифрлық сауаттылықты бағалау</title>
+    <title>Тест тапсыру — Цифрлық сауаттылықты бағалау</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
-
     <link rel="stylesheet" href="test.css" />
     <script src="translations.js" defer></script>
+    <script src="test-results.js" defer></script>
 
     <style>
       .quiz-start-banner {
@@ -28,7 +28,7 @@
         );
         border-radius: 16px;
         padding: 20px 28px;
-        margin: 0 0 20px;
+        margin: 0 0 28px;
       }
       .quiz-start-banner__title {
         font-size: 1.1rem;
@@ -63,12 +63,444 @@
         transform: translateY(-2px);
         box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
       }
+
+      .tr-section {
+        margin-bottom: 28px;
+      }
+      .tr-section__title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a1f36;
+        margin: 0 0 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .tr-section__sub {
+        font-size: 0.82rem;
+        color: #9ba3c9;
+        margin: 0 0 16px;
+      }
+
+      .tr-overall {
+        background: #fff;
+        border: 1px solid #dde1f5;
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        box-shadow: 0 4px 16px rgba(57, 73, 171, 0.07);
+      }
+      .tr-overall__left {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .tr-overall__label {
+        font-size: 0.78rem;
+        color: #9ba3c9;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+      .tr-overall__score {
+        font-family: "DM Mono", monospace;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1f36;
+        line-height: 1;
+      }
+      .tr-overall__score span {
+        font-size: 1rem;
+        color: #9ba3c9;
+      }
+      .tr-overall__level {
+        font-size: 0.88rem;
+        font-weight: 600;
+      }
+      .tr-overall__right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+      .tr-segs {
+        display: flex;
+        gap: 4px;
+      }
+      .tr-seg {
+        width: 22px;
+        height: 8px;
+        border-radius: 3px;
+        background: #e3e7ff;
+      }
+      .tr-seg.on {
+        background: #3949ab;
+      }
+      .tr-overall__date {
+        font-family: "DM Mono", monospace;
+        font-size: 0.74rem;
+        color: #9ba3c9;
+      }
+
+      .tr-blocks {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .tr-block {
+        background: #fff;
+        border: 1px solid #dde1f5;
+        border-radius: 12px;
+        padding: 14px 18px;
+        display: grid;
+        grid-template-columns: 40px 1fr auto;
+        align-items: center;
+        gap: 14px;
+        box-shadow: 0 2px 8px rgba(57, 73, 171, 0.05);
+        border-left: 4px solid var(--bc, #3949ab);
+        cursor: pointer;
+        transition: box-shadow 0.2s;
+      }
+      .tr-block:hover {
+        box-shadow: 0 4px 16px rgba(57, 73, 171, 0.1);
+      }
+      .tr-block__icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        font-size: 1.2rem;
+        background: color-mix(in srgb, var(--bc) 12%, #fff);
+      }
+      .tr-block__name {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #1a1f36;
+        margin-bottom: 6px;
+      }
+      .tr-block__segs {
+        display: flex;
+        gap: 3px;
+      }
+      .tr-block__seg {
+        width: 16px;
+        height: 5px;
+        border-radius: 2px;
+        background: #e3e7ff;
+      }
+      .tr-block__seg.on {
+        background: var(--bc, #3949ab);
+      }
+      .tr-block__right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 4px;
+      }
+      .tr-block__lvl {
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        background: color-mix(in srgb, var(--bc) 12%, #fff);
+        color: var(--bc, #3949ab);
+        white-space: nowrap;
+      }
+      .tr-block__score {
+        font-family: "DM Mono", monospace;
+        font-size: 0.76rem;
+        color: #9ba3c9;
+      }
+
+      .tr-block-detail {
+        display: none;
+        background: #f8f9ff;
+        border-top: 1px solid #eef0fb;
+        padding: 12px 18px 12px 72px;
+        font-size: 0.83rem;
+        color: #5c6690;
+        line-height: 1.6;
+        border-radius: 0 0 12px 12px;
+        margin-top: -10px;
+      }
+      .tr-block-wrap.is-open .tr-block-detail {
+        display: block;
+      }
+      .tr-block-wrap.is-open .tr-block {
+        border-radius: 12px 12px 0 0;
+      }
+
+      .tr-empty {
+        background: #fff;
+        border: 1.5px dashed #dde1f5;
+        border-radius: 16px;
+        padding: 36px 24px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+      .tr-empty__icon {
+        font-size: 2.4rem;
+      }
+      .tr-empty__title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a1f36;
+      }
+      .tr-empty__desc {
+        font-size: 0.85rem;
+        color: #9ba3c9;
+      }
+      .tr-empty__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 10px 22px;
+        background: #1a237e;
+        color: #fff;
+        border-radius: 999px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 700;
+        margin-top: 4px;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .tr-empty__btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(26, 35, 126, 0.3);
+      }
+
+      .tr-ai {
+        background: #fff;
+        border: 1.5px solid #c5cae9;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 20px rgba(57, 73, 171, 0.1);
+      }
+      .tr-ai__trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 24px;
+        background: linear-gradient(135deg, #e8eaf6 0%, #f3e5f5 100%);
+      }
+      .tr-ai__trigger-left {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .tr-ai__icon {
+        width: 48px;
+        height: 48px;
+        background: #fff;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        font-size: 1.6rem;
+        box-shadow: 0 2px 8px rgba(57, 73, 171, 0.15);
+        flex-shrink: 0;
+      }
+      .tr-ai__title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #1a1f36;
+      }
+      .tr-ai__desc {
+        font-size: 0.8rem;
+        color: #5c6690;
+        margin-top: 2px;
+      }
+      .tr-ai__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #3949ab, #7b1fa2);
+        color: #fff;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .tr-ai__btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(57, 73, 171, 0.4);
+      }
+      .tr-ai__btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+      }
+
+      .tr-ai__loading {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+        padding: 32px 24px;
+        background: #fafbff;
+        border-top: 1px solid #e8eaf6;
+      }
+      .tr-ai__loading.show {
+        display: flex;
+      }
+      .tr-ai__spinner {
+        width: 36px;
+        height: 36px;
+        border: 3px solid #e8eaf6;
+        border-top-color: #3949ab;
+        border-radius: 50%;
+        animation: aiSpin 0.7s linear infinite;
+      }
+      @keyframes aiSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      .tr-ai__loading-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #3949ab;
+      }
+      .tr-ai__loading-sub {
+        font-size: 0.78rem;
+        color: #9ba3c9;
+      }
+
+      .tr-ai__result {
+        display: none;
+        border-top: 1px solid #e8eaf6;
+        background: #fafbff;
+      }
+      .tr-ai__result.show {
+        display: block;
+      }
+      .tr-ai__result-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 24px 10px;
+        border-bottom: 1px solid #eef0fb;
+      }
+      .tr-ai__result-title {
+        font-size: 0.9rem;
+        font-weight: 700;
+        color: #1a1f36;
+        flex: 1;
+      }
+      .tr-ai__result-badge {
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, #3949ab, #7b1fa2);
+        color: #fff;
+      }
+      .tr-ai__result-body {
+        padding: 16px 24px;
+        font-size: 0.88rem;
+        color: #1a1f36;
+        line-height: 1.7;
+      }
+      .tr-ai__result-body .ai-h {
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        margin: 14px 0 6px;
+      }
+      .tr-ai__result-body .ai-h:first-child {
+        margin-top: 0;
+      }
+      .tr-ai__result-body p {
+        margin: 0 0 8px;
+      }
+      .tr-ai__result-body ul {
+        margin: 0 0 8px;
+        padding-left: 18px;
+      }
+      .tr-ai__result-body ul li {
+        margin-bottom: 5px;
+      }
+      .tr-ai__result-footer {
+        padding: 10px 24px 14px;
+        border-top: 1px solid #f0f4ff;
+      }
+      .tr-ai__retry {
+        background: none;
+        border: 1px solid #c5cae9;
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #3949ab;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .tr-ai__retry:hover {
+        background: #e8eaf6;
+      }
+
+      .tr-ai__error {
+        display: none;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 24px;
+        background: #fff5f5;
+        border-top: 1px solid #ffcdd2;
+        font-size: 0.85rem;
+        color: #c62828;
+      }
+      .tr-ai__error.show {
+        display: flex;
+      }
+
       @media (max-width: 600px) {
         .quiz-start-banner {
           flex-direction: column;
           text-align: center;
         }
         .quiz-start-banner__btn {
+          width: 100%;
+          justify-content: center;
+        }
+        .tr-overall {
+          flex-direction: column;
+          text-align: center;
+        }
+        .tr-overall__right {
+          align-items: center;
+        }
+        .tr-block {
+          grid-template-columns: 36px 1fr;
+        }
+        .tr-block__right {
+          display: none;
+        }
+        .tr-ai__trigger {
+          flex-direction: column;
+          text-align: center;
+        }
+        .tr-ai__btn {
           width: 100%;
           justify-content: center;
         }
@@ -80,20 +512,17 @@
       <div class="app-header__inner">
         <div class="app-header__left">
           <a href="dashboard.html" class="app-logo">
-            <div class="app-logo__icon">
-              <span>◉</span>
-            </div>
+            <div class="app-logo__icon"><span>◉</span></div>
             <div class="app-logo__text" data-translate="siteName">
               Цифрлық сауаттылықты бағалау
             </div>
           </a>
         </div>
         <nav class="app-header__right">
-          <a href="test.html" class="btn btn-primary">
+          <a href="test.html" class="btn btn-primary btn-active">
             <span>📋</span>
             <span data-translate="takeTest">Тест тапсыру</span>
           </a>
-
           <a href="profile.html" class="btn btn-ghost">
             <span class="nav-icon profile-icon" aria-hidden="true">
               <svg
@@ -108,7 +537,6 @@
             </span>
             <span data-translate="profile">Профиль</span>
           </a>
-
           <div class="lang-dropdown">
             <button
               type="button"
@@ -118,7 +546,7 @@
               aria-haspopup="true"
               title="Тілді таңдау"
             >
-              <span class="lang-dropdown-label">EN</span>
+              <span class="lang-dropdown-label">KK</span>
               <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
             </button>
             <div
@@ -130,18 +558,18 @@
               <button
                 type="button"
                 class="lang-option"
-                data-lang="en"
-                role="menuitem"
-              >
-                EN
-              </button>
-              <button
-                type="button"
-                class="lang-option"
                 data-lang="kk"
                 role="menuitem"
               >
                 KK
+              </button>
+              <button
+                type="button"
+                class="lang-option"
+                data-lang="en"
+                role="menuitem"
+              >
+                EN
               </button>
               <button
                 type="button"
@@ -153,7 +581,6 @@
               </button>
             </div>
           </div>
-
           <button
             type="button"
             class="btn btn-outline"
@@ -167,18 +594,15 @@
     </header>
 
     <main class="page-main">
-      <!-- Page title + overall progress -->
       <section class="page-header">
         <div class="page-header__text">
           <h1 class="page-header__title">Тест тапсыру</h1>
-          <p class="page-header__subtitle">Цифрлық сауаттылық деңгейіңізді анықтаңыз</p>
-        </div>
-        </div>
+          <p class="page-header__subtitle">
+            Цифрлық сауаттылық деңгейіңізді анықтаңыз
+          </p>
         </div>
       </section>
 
-      <!-- Horizontal test cards list -->
-      <!-- Start quiz button -->
       <div class="quiz-start-banner">
         <div class="quiz-start-banner__text">
           <h2 class="quiz-start-banner__title">Тестті бастауға дайынсыз ба?</h2>
@@ -197,6 +621,73 @@
           </svg>
           Сынақты бастау
         </a>
+      </div>
+
+      <div class="tr-section" id="resultsSection">
+        <h2 class="tr-section__title">📊 Соңғы нәтижелер</h2>
+        <p class="tr-section__sub">
+          DigComp 2.2 негізінде тапсырылған соңғы тест деректері
+        </p>
+        <div id="overallCard"></div>
+        <div class="tr-blocks" id="blockRows"></div>
+      </div>
+
+      <div class="tr-section">
+        <h2 class="tr-section__title">🤖 ИИ талдауы мен ұсыныстары</h2>
+        <p class="tr-section__sub">
+          Нәтижеңізді талдап, мамандығыңызға сай жеке кеңес береді
+        </p>
+
+        <div class="tr-ai">
+          <div class="tr-ai__trigger" id="aiTrigger">
+            <div class="tr-ai__trigger-left">
+              <div class="tr-ai__icon">🤖</div>
+              <div>
+                <div class="tr-ai__title">Claude AI жеке талдауы</div>
+                <div class="tr-ai__desc">
+                  Барлық блоктар бойынша нәтижеңізді талдап, оқу жоспары жасайды
+                </div>
+              </div>
+            </div>
+            <button class="tr-ai__btn" id="aiBtn">
+              Талдауды бастау
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M5 12h14M13 6l6 6-6 6"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div class="tr-ai__loading" id="aiLoading">
+            <div class="tr-ai__spinner"></div>
+            <div class="tr-ai__loading-text">Claude AI талдап жатыр...</div>
+            <div class="tr-ai__loading-sub">10–20 секунд алуы мүмкін</div>
+          </div>
+
+          <div class="tr-ai__result" id="aiResult">
+            <div class="tr-ai__result-header">
+              <span>🤖</span>
+              <span class="tr-ai__result-title">Claude AI талдауы</span>
+              <span class="tr-ai__result-badge">Жеке</span>
+            </div>
+            <div class="tr-ai__result-body" id="aiResultBody"></div>
+            <div class="tr-ai__result-footer">
+              <button class="tr-ai__retry" id="aiRetryBtn">
+                🔄 Қайта талдау
+              </button>
+            </div>
+          </div>
+
+          <div class="tr-ai__error" id="aiError">
+            <span>⚠️</span>
+            <span id="aiErrorText">Қате шықты. Қайталап көріңіз.</span>
+            <button class="tr-ai__retry" id="aiErrorRetryBtn">Қайталау</button>
+          </div>
+        </div>
       </div>
     </main>
   </body>

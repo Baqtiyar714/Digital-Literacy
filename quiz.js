@@ -1,9 +1,6 @@
 (function () {
   "use strict";
 
-  /* ═══════════════════════════════
-       CONSTANTS
-    ═══════════════════════════════ */
   var RESULTS_KEY = "diq_block_results";
   var HISTORY_KEY = "diq_test_history";
   var USER_KEY = "diq_user";
@@ -43,9 +40,6 @@
     8: "Бұл деңгейде сіз жоғары мамандандырылған деңгейде жұмыс жасайсыз.",
   };
 
-  /* ═══════════════════════════════
-       BLOCKS
-    ═══════════════════════════════ */
   var BLOCKS = [
     { id: "info-search", title: "Ақпарат іздеу", color: "#0097a7", icon: "🔍" },
     {
@@ -69,9 +63,6 @@
     },
   ];
 
-  /* ═══════════════════════════════
-       ANSWER OPTIONS
-    ═══════════════════════════════ */
   var OPTIONS = [
     { score: 0, text: "Мен мұны қалай істейтінімді білмеймін" },
     { score: 1, text: "Мен мұны көмекпен жасай аламын" },
@@ -82,9 +73,6 @@
     },
   ];
 
-  /* ═══════════════════════════════
-       30 QUESTIONS (6 per block)
-    ═══════════════════════════════ */
   var QUESTIONS_MAP = {
     "info-search": [
       "Мен интернетте керекті ақпаратты табу үшін дұрыс кілт сөздерді таңдай аламын.",
@@ -128,7 +116,6 @@
     ],
   };
 
-  /* ─── Flatten into 30 questions array ─── */
   var ALL_QUESTIONS = [];
   BLOCKS.forEach(function (block) {
     var qs = QUESTIONS_MAP[block.id] || [];
@@ -138,27 +125,20 @@
         blockTitle: block.title,
         blockColor: block.color,
         blockIcon: block.icon,
-        blockQIdx: qi, // 0-5 within block
+        blockQIdx: qi,
         text: text,
       });
     });
   });
 
-  var TOTAL = ALL_QUESTIONS.length; // 30
-
-  /* ═══════════════════════════════
-       STATE
-    ═══════════════════════════════ */
+  var TOTAL = ALL_QUESTIONS.length;
   var state = {
-    current: 0, // current question index 0-29
-    answers: [], // answers[i] = score (0-3) or null
+    current: 0,
+    answers: [],
     userInfo: null,
     started: false,
   };
 
-  /* ═══════════════════════════════
-       DOM REFS
-    ═══════════════════════════════ */
   var screenIntro = document.getElementById("screenIntro");
   var screenQuestion = document.getElementById("screenQuestion");
   var screenResult = document.getElementById("screenResult");
@@ -179,11 +159,7 @@
   var downloadBtn = document.getElementById("downloadBtn");
   var retakeBtn = document.getElementById("retakeBtn");
 
-  /* ═══════════════════════════════
-       INIT
-    ═══════════════════════════════ */
   function init() {
-    // Auth check
     try {
       if (
         !localStorage.getItem(USER_KEY) &&
@@ -194,7 +170,6 @@
       }
     } catch (_) {}
 
-    // Prefill name from localStorage
     try {
       var raw =
         localStorage.getItem(USER_KEY) || localStorage.getItem(LEGACY_KEY);
@@ -214,9 +189,6 @@
     showScreen("intro");
   }
 
-  /* ═══════════════════════════════
-       SCREEN SWITCHER
-    ═══════════════════════════════ */
   function showScreen(name) {
     screenIntro.classList.add("quiz-screen--hidden");
     screenQuestion.classList.add("quiz-screen--hidden");
@@ -232,7 +204,6 @@
       screenResult.classList.remove("quiz-screen--hidden");
     }
 
-    // Re-trigger animation
     var target =
       name === "intro"
         ? screenIntro
@@ -240,14 +211,10 @@
           ? screenQuestion
           : screenResult;
     target.style.animation = "none";
-    // eslint-disable-next-line no-void
     void target.offsetWidth;
     target.style.animation = "";
   }
 
-  /* ═══════════════════════════════
-       START
-    ═══════════════════════════════ */
   function onStart() {
     var name = (document.getElementById("introName").value || "").trim();
     var age = document.getElementById("introAge").value;
@@ -269,20 +236,14 @@
     renderQuestion();
   }
 
-  /* ═══════════════════════════════
-       RENDER QUESTION
-    ═══════════════════════════════ */
   function renderQuestion() {
     var idx = state.current;
     var q = ALL_QUESTIONS[idx];
-    var saved = state.answers[idx]; // null or 0-3
+    var saved = state.answers[idx];
 
-    // Progress
     var pct = (idx / TOTAL) * 100;
     progressFill.style.width = pct + "%";
     topbarCounter.textContent = idx + 1 + " / " + TOTAL;
-
-    // Block label
     var blockInGroup = BLOCKS.findIndex(function (b) {
       return b.id === q.blockId;
     });
@@ -291,10 +252,8 @@
     blockQNum.textContent = q.blockQIdx + 1 + " / 6";
     blockLabel.style.borderColor = q.blockColor + "66";
 
-    // Question
     questionText.textContent = q.text;
 
-    // Options
     optionsWrap.innerHTML = "";
     OPTIONS.forEach(function (opt) {
       var btn = document.createElement("button");
@@ -320,7 +279,6 @@
       optionsWrap.appendChild(btn);
     });
 
-    // Nav buttons
     prevBtn.style.visibility = idx === 0 ? "hidden" : "visible";
 
     var isLast = idx === TOTAL - 1;
@@ -341,7 +299,6 @@
   function selectOption(score) {
     state.answers[state.current] = score;
 
-    // Update UI
     document.querySelectorAll(".quiz-option").forEach(function (btn) {
       var s = Number(btn.getAttribute("data-score"));
       btn.classList.toggle("quiz-option--selected", s === score);
@@ -350,9 +307,6 @@
     nextBtn.disabled = false;
   }
 
-  /* ═══════════════════════════════
-       NAVIGATION
-    ═══════════════════════════════ */
   function onPrev() {
     if (state.current > 0) {
       state.current--;
@@ -371,11 +325,7 @@
     }
   }
 
-  /* ═══════════════════════════════
-       FINISH & RESULTS
-    ═══════════════════════════════ */
   function finishQuiz() {
-    // Compute per-block scores
     var blockScores = {};
     BLOCKS.forEach(function (b) {
       blockScores[b.id] = 0;
@@ -390,11 +340,8 @@
       return s + v;
     }, 0);
 
-    // Save to localStorage
     saveResults(blockScores);
     saveHistory(blockScores, totalScore);
-
-    // Progress bar to 100%
     progressFill.style.width = "100%";
     topbarCounter.textContent = TOTAL + " / " + TOTAL;
 
@@ -436,13 +383,9 @@
     } catch (_) {}
   }
 
-  /* ═══════════════════════════════
-       RENDER RESULT
-    ═══════════════════════════════ */
   function renderResult(blockScores, totalScore) {
     var lvl = getLevelForScore(totalScore);
 
-    // Overall
     document.getElementById("overallLevelText").textContent = lvl.kk;
     document.getElementById("overallLevelNum").textContent =
       lvl.num + "-деңгей";
@@ -452,7 +395,6 @@
     var overall = document.getElementById("resultOverall");
     overall.style.borderLeftColor = lvl.color;
 
-    // Segments
     var segsEl = document.getElementById("overallSegs");
     segsEl.innerHTML = "";
     for (var i = 1; i <= 8; i++) {
@@ -462,7 +404,6 @@
       segsEl.appendChild(seg);
     }
 
-    // Per-block
     var container = document.getElementById("resultBlocks");
     container.innerHTML = "";
 
@@ -471,7 +412,6 @@
       var bLvl = getLevelForScore(score);
       var bPct = Math.round((score / 18) * 100);
 
-      // Row
       var row = document.createElement("div");
       row.className = "result-block-row";
       row.style.setProperty("--block-color", block.color);
@@ -509,14 +449,12 @@
         " / 18 балл</div>" +
         "</div>";
 
-      // Detail (expand on click)
       var detail = document.createElement("div");
       detail.className = "result-block-detail";
       detail.innerHTML = "<p>" + (LEVEL_DESCS[bLvl.num] || "") + "</p>";
 
       row.addEventListener("click", function () {
         var isOpen = row.classList.contains("is-open");
-        // close all
         document
           .querySelectorAll(".result-block-row.is-open")
           .forEach(function (r) {
@@ -528,11 +466,9 @@
       container.appendChild(row);
       container.appendChild(detail);
     });
-  }
 
-  /* ═══════════════════════════════
-       RETAKE
-    ═══════════════════════════════ */
+    initAI(blockScores, totalScore);
+  }
   function onRetake() {
     state.current = 0;
     state.answers = new Array(TOTAL).fill(null);
@@ -540,9 +476,6 @@
     showScreen("intro");
   }
 
-  /* ═══════════════════════════════
-       DOWNLOAD REPORT
-    ═══════════════════════════════ */
   function onDownload() {
     var blockScores = {};
     BLOCKS.forEach(function (b) {
@@ -682,14 +615,267 @@
     URL.revokeObjectURL(url);
   }
 
-  /* ═══════════════════════════════
-       UTILS
-    ═══════════════════════════════ */
-  function getLevelForScore(score) {
-    for (var i = 0; i < LEVELS.length; i++) {
-      if (score >= LEVELS[i].min && score <= LEVELS[i].max) return LEVELS[i];
+  var CLAUDE_API_KEY = "YOUR_API_KEY_HERE";
+
+  var _aiBlockScores = null;
+  var _aiTotalScore = null;
+
+  function initAI(blockScores, totalScore) {
+    _aiBlockScores = blockScores;
+    _aiTotalScore = totalScore;
+
+    var aiBtn = document.getElementById("aiBtn");
+    var aiRetryBtn = document.getElementById("aiRetryBtn");
+    var aiErrorRetryBtn = document.getElementById("aiErrorRetryBtn");
+
+    if (aiBtn) aiBtn.addEventListener("click", runAIAnalysis);
+    if (aiRetryBtn) aiRetryBtn.addEventListener("click", runAIAnalysis);
+    if (aiErrorRetryBtn)
+      aiErrorRetryBtn.addEventListener("click", runAIAnalysis);
+  }
+
+  function showAIState(state) {
+    var loading = document.getElementById("aiLoading");
+    var result = document.getElementById("aiResult");
+    var error = document.getElementById("aiError");
+    var trigger = document.getElementById("aiTrigger");
+
+    [loading, result, error].forEach(function (el) {
+      if (el) el.classList.add("quiz-screen--hidden");
+    });
+
+    if (state === "loading") {
+      if (trigger) trigger.style.display = "none";
+      if (loading) loading.classList.remove("quiz-screen--hidden");
+    } else if (state === "result") {
+      if (trigger) trigger.style.display = "none";
+      if (result) result.classList.remove("quiz-screen--hidden");
+    } else if (state === "error") {
+      if (trigger) trigger.style.display = "none";
+      if (error) error.classList.remove("quiz-screen--hidden");
+    } else {
+      // reset
+      if (trigger) trigger.style.display = "";
     }
-    return LEVELS[LEVELS.length - 1];
+  }
+
+  function buildPrompt(blockScores, totalScore) {
+    var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
+    var age = (state.userInfo && state.userInfo.age) || "белгісіз";
+    var edu = (state.userInfo && state.userInfo.education) || "белгісіз";
+    var field = (state.userInfo && state.userInfo.field) || "белгісіз";
+
+    var overallLvl = getLevelForScore(totalScore);
+
+    var blockLines = BLOCKS.map(function (b) {
+      var sc = blockScores[b.id] || 0;
+      var lvl = getLevelForScore(sc);
+      return (
+        "- " +
+        b.title +
+        ": " +
+        sc +
+        "/18 балл (" +
+        lvl.num +
+        "-деңгей, " +
+        lvl.kk +
+        ")"
+      );
+    }).join("\n");
+
+    return (
+      "Сен цифрлық сауаттылық бойынша кәсіби кеңесші боласың. Қазақ тілінде жауап бер.\n\n" +
+      "Пайдаланушы туралы:\n" +
+      "- Аты: " +
+      name +
+      "\n" +
+      "- Жасы: " +
+      age +
+      "\n" +
+      "- Білімі: " +
+      edu +
+      "\n" +
+      "- Мамандық саласы: " +
+      field +
+      "\n\n" +
+      "DigComp тест нәтижелері (максимум 18 балл/блок, 90 жалпы):\n" +
+      blockLines +
+      "\n" +
+      "Жалпы балл: " +
+      totalScore +
+      "/90 (" +
+      overallLvl.num +
+      "-деңгей, " +
+      overallLvl.kk +
+      ")\n\n" +
+      "Міндет: Осы нәтижелер негізінде 4 бөлімнен тұратын жеке талдау жаз:\n\n" +
+      "## 🎯 Жалпы баға\n" +
+      "(2-3 сөйлем: жалпы деңгейді " +
+      field +
+      " саласы контекстінде бағала)\n\n" +
+      "## 💪 Күшті жақтарыңыз\n" +
+      "(жоғары балл алған блоктарды мамандыққа байланыстыра атап өт, 2-3 тармақ)\n\n" +
+      "## 📚 Дамыту керек бағыттар\n" +
+      "(нашар блоктар бойынша нақты не үйрену керек, " +
+      field +
+      " саласына арналған мысалдармен, 3-4 тармақ)\n\n" +
+      "## 🗓️ Оқу жоспары\n" +
+      "(30 күнге арналған нақты, орындалатын 4-5 қадам, ресурс атауларымен)\n\n" +
+      "Маңызды: Жауап тек қазақ тілінде болсын. Markdown таңбалары (**, ##) қолданба — тек қарапайым мәтін. Нақты, жеке, мотивациялық болсын."
+    );
+  }
+
+  function parseAIResponse(text) {
+    var sections = [
+      { key: "🎯 Жалпы баға", icon: "🎯", color: "#1565c0" },
+      { key: "💪 Күшті жақтарыңыз", icon: "💪", color: "#1b8a4e" },
+      { key: "📚 Дамыту керек бағыттар", icon: "📚", color: "#f57c00" },
+      { key: "🗓️ Оқу жоспары", icon: "🗓️", color: "#5e35b1" },
+    ];
+
+    var html = "";
+    var remaining = text;
+
+    sections.forEach(function (sec, idx) {
+      var startIdx = remaining.indexOf(sec.key);
+      if (startIdx === -1) return;
+
+      var contentStart = startIdx + sec.key.length;
+      var nextIdx = remaining.length;
+
+      for (var ni = idx + 1; ni < sections.length; ni++) {
+        var npos = remaining.indexOf(sections[ni].key);
+        if (npos !== -1 && npos > startIdx) {
+          nextIdx = npos;
+          break;
+        }
+      }
+
+      var content = remaining.slice(contentStart, nextIdx).trim();
+
+      var lines = content.split("\n").filter(function (l) {
+        return l.trim();
+      });
+      var isListy = lines.some(function (l) {
+        return l.trim().startsWith("-") || l.trim().startsWith("•");
+      });
+
+      var bodyHtml;
+      if (isListy) {
+        bodyHtml =
+          "<ul>" +
+          lines
+            .map(function (l) {
+              var clean = l.trim().replace(/^[-•]\s*/, "");
+              return clean ? "<li>" + clean + "</li>" : "";
+            })
+            .filter(Boolean)
+            .join("") +
+          "</ul>";
+      } else {
+        bodyHtml = lines
+          .map(function (l) {
+            return "<p>" + l.trim() + "</p>";
+          })
+          .join("");
+      }
+
+      html +=
+        '<div class="ai-section-title" style="color:' +
+        sec.color +
+        '">' +
+        sec.icon +
+        " " +
+        sec.key.replace(sec.icon + " ", "") +
+        "</div>" +
+        bodyHtml;
+    });
+
+    if (!html) {
+      html = "<p>" + text.replace(/\n/g, "<br>") + "</p>";
+    }
+
+    return html;
+  }
+
+  async function runAIAnalysis() {
+    if (!_aiBlockScores) return;
+
+    var aiBtn = document.getElementById("aiBtn");
+    if (aiBtn) aiBtn.disabled = true;
+
+    showAIState("loading");
+
+    var prompt = buildPrompt(_aiBlockScores, _aiTotalScore);
+
+    try {
+      var response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": CLAUDE_API_KEY,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 1024,
+          messages: [{ role: "user", content: prompt }],
+        }),
+      });
+
+      if (!response.ok) {
+        var errData = await response.json().catch(function () {
+          return {};
+        });
+        throw new Error(
+          errData.error && errData.error.message
+            ? errData.error.message
+            : "API қате: " + response.status,
+        );
+      }
+
+      var data = await response.json();
+      var text =
+        data.content && data.content[0] && data.content[0].text
+          ? data.content[0].text
+          : "";
+
+      if (!text) throw new Error("Жауап бос келді");
+
+      var resultBodyEl = document.getElementById("aiResultBody");
+      if (resultBodyEl) {
+        resultBodyEl.innerHTML = parseAIResponse(text);
+      }
+
+      showAIState("result");
+    } catch (err) {
+      var errTextEl = document.getElementById("aiErrorText");
+      if (errTextEl) {
+        if (err.message && err.message.includes("YOUR_API_KEY")) {
+          errTextEl.textContent =
+            "⚠️ API кілтін quiz.js файлында CLAUDE_API_KEY айнымалысына орнатыңыз.";
+        } else {
+          errTextEl.textContent = "Қате: " + (err.message || "Белгісіз қате");
+        }
+      }
+      showAIState("error");
+      if (aiBtn) aiBtn.disabled = false;
+    }
+  }
+
+  function getLevelForScore(score, maxScore) {
+    var max = maxScore !== undefined ? maxScore : 18;
+    var pct = max > 0 ? (score / max) * 100 : 0;
+    if (pct <= 20) return { num: 1, kk: "Іргетас", color: "#ef5350" };
+    if (pct <= 35) return { num: 2, kk: "Іргетас", color: "#ef5350" };
+    if (pct <= 50) return { num: 3, kk: "Орташа", color: "#f9a825" };
+    if (pct <= 65) return { num: 4, kk: "Орташа", color: "#f9a825" };
+    if (pct <= 75) return { num: 5, kk: "Кеңейтілген", color: "#1b8a4e" };
+    if (pct <= 85) return { num: 6, kk: "Кеңейтілген", color: "#1b8a4e" };
+    if (pct <= 94)
+      return { num: 7, kk: "Жоғары мамандандырылған", color: "#1565c0" };
+    return { num: 8, kk: "Жоғары мамандандырылған", color: "#1565c0" };
   }
 
   function formatDate(iso) {
@@ -707,9 +893,6 @@
     }
   }
 
-  /* ═══════════════════════════════
-       BOOT
-    ═══════════════════════════════ */
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {
