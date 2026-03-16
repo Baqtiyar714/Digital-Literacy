@@ -1,216 +1,291 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="kk">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Профиль — Цифрлық сауаттылықты бағалау</title>
-
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Base + profile styles -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="profile.css">
-
-    <!-- Translations + profile logic -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="profile.css" />
     <script src="translations.js" defer></script>
     <script src="profile.js" defer></script>
-</head>
-<body class="profile-page" data-page="profile">
-    <!-- Navbar (same structure as dashboard) -->
+  </head>
+  <body class="profile-page" data-page="profile">
     <header class="dashboard-header">
-        <div class="header-inner">
-            <a href="dashboard.html" class="logo">
-                <span class="logo-icon">◉</span>
-                <span class="logo-text" data-translate="siteName">Цифрлық сауаттылықты бағалау</span>
-            </a>
-            <nav class="header-nav">
-                <a href="test.html" class="nav-btn nav-btn-primary">
-                    <span class="nav-btn-icon">📋</span>
-                    <span data-translate="takeTest">Тест тапсыру</span>
-                </a>
-                <a href="profile.html" class="nav-btn nav-btn-profile nav-btn-active">
-                    <span class="nav-btn-icon profile-icon-svg" aria-hidden="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                        </svg>
-                    </span>
-                    <span data-translate="profile">Профиль</span>
-                </a>
-                <div class="lang-dropdown">
-                    <button type="button" class="lang-dropdown-trigger nav-btn nav-btn-outline" id="langDropdownBtn" aria-expanded="false" aria-haspopup="true" title="Тілді таңдау">
-                        <span class="lang-dropdown-label">EN</span>
-                        <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
-                    </button>
-                    <div class="lang-dropdown-menu" id="langDropdownMenu" role="menu" aria-hidden="true">
-                        <button type="button" class="lang-option" data-lang="en" role="menuitem">EN</button>
-                        <button type="button" class="lang-option" data-lang="kk" role="menuitem">KK</button>
-                        <button type="button" class="lang-option" data-lang="ru" role="menuitem">RU</button>
-                    </div>
-                </div>
-                <button type="button" class="nav-btn nav-btn-outline" id="logoutBtn" data-translate="logout">Шығу</button>
-            </nav>
-        </div>
+      <div class="header-inner">
+        <a href="dashboard.html" class="logo">
+          <span class="logo-icon">◉</span>
+          <span class="logo-text" data-translate="siteName"
+            >Цифрлық сауаттылықты бағалау</span
+          >
+        </a>
+        <nav class="header-nav">
+          <a href="test.html" class="nav-btn nav-btn-primary">
+            <span class="nav-btn-icon">📋</span>
+            <span data-translate="takeTest">Тест тапсыру</span>
+          </a>
+          <a href="profile.html" class="nav-btn nav-btn-profile nav-btn-active">
+            <span class="nav-btn-icon profile-icon-svg" aria-hidden="true">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                width="20"
+                height="20"
+              >
+                <path
+                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                />
+              </svg>
+            </span>
+            <span data-translate="profile">Профиль</span>
+          </a>
+          <div class="lang-dropdown">
+            <button
+              type="button"
+              class="lang-dropdown-trigger nav-btn nav-btn-outline"
+              id="langDropdownBtn"
+              aria-expanded="false"
+              aria-haspopup="true"
+              title="Тілді таңдау"
+            >
+              <span class="lang-dropdown-label">EN</span>
+              <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
+            </button>
+            <div
+              class="lang-dropdown-menu"
+              id="langDropdownMenu"
+              role="menu"
+              aria-hidden="true"
+            >
+              <button
+                type="button"
+                class="lang-option"
+                data-lang="en"
+                role="menuitem"
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                class="lang-option"
+                data-lang="kk"
+                role="menuitem"
+              >
+                KK
+              </button>
+              <button
+                type="button"
+                class="lang-option"
+                data-lang="ru"
+                role="menuitem"
+              >
+                RU
+              </button>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="nav-btn nav-btn-outline"
+            id="logoutBtn"
+            data-translate="logout"
+          >
+            Шығу
+          </button>
+        </nav>
+      </div>
     </header>
 
     <main class="profile-main">
-        <div class="page-wrapper">
-            <!-- 1. Profile Hero Card -->
-            <div class="card profile-hero-card">
-                <div class="profile-hero">
-                    <div class="profile-hero-left">
-                        <div class="profile-avatar" id="profileAvatar">
-                            <span id="profileAvatarInitials">ПА</span>
-                        </div>
-                        <div class="profile-identity">
-                            <h1 class="profile-name" id="profileName">Пайдаланушы Аты</h1>
-                            <p class="profile-email" id="profileEmail">user@example.com</p>
-                            <p class="profile-registered" id="profileRegistered">Тіркелген: --.--.----</p>
-                        </div>
-                    </div>
-                    <div class="profile-hero-right">
-                        <div class="profile-level-badge" id="profileLevelBadge">Бастаушы</div>
-                        <div class="profile-score-chip" id="profileTotalScoreChip">0 / 25 балл</div>
-                    </div>
-                </div>
+      <div class="page-wrapper">
+        <div class="card profile-hero-card">
+          <div class="profile-hero">
+            <div class="profile-hero-left">
+              <div class="profile-avatar" id="profileAvatar">
+                <span id="profileAvatarInitials">ПА</span>
+              </div>
+              <div class="profile-identity">
+                <h1 class="profile-name" id="profileName">Пайдаланушы Аты</h1>
+                <p class="profile-email" id="profileEmail">user@example.com</p>
+                <p class="profile-registered" id="profileRegistered">
+                  Тіркелген: --.--.----
+                </p>
+              </div>
             </div>
-
-            <!-- 2. Stats Row Card -->
-            <div class="card stats-card">
-                <div class="stats-row">
-                    <div class="stats-item">
-                        <div class="stats-icon stats-icon--tests">📝</div>
-                        <div class="stats-value" id="profileStatCompleted">0 / 5</div>
-                        <div class="stats-label">Тапсырылған</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stats-icon stats-icon--score">⭐</div>
-                        <div class="stats-value" id="profileStatTotalScore">0 / 25</div>
-                        <div class="stats-label">Жалпы балл</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stats-icon stats-icon--avg">🎯</div>
-                        <div class="stats-value stats-value--avg" id="profileStatAverage">0%</div>
-                        <div class="stats-label">Орташа нәтиже</div>
-                    </div>
-                    <div class="stats-item">
-                        <div class="stats-icon stats-icon--best">🏅</div>
-                        <div class="stats-value" id="profileStatBestBlock">—</div>
-                        <div class="stats-label">Үздік нәтиже</div>
-                    </div>
-                </div>
+            <div class="profile-hero-right">
+              <div class="profile-level-badge" id="profileLevelBadge">
+                Бастаушы
+              </div>
+              <div class="profile-score-chip" id="profileTotalScoreChip">
+                0 / 25 балл
+              </div>
             </div>
-
-            <!-- 3. Level & Achievements Card -->
-            <div class="card profile-card-level">
-                <div class="profile-card-header">
-                    <h2 class="profile-card-title">Деңгей & Жетістіктер</h2>
-                </div>
-                <div class="profile-level-progress">
-                    <div class="profile-level-progress__labels">
-                        <span id="profileLevelLabel">Бастаушы</span>
-                        <span id="profileLevelScoreLabel">0 / 25 балл</span>
-                    </div>
-                    <div class="profile-level-progress__bar">
-                        <div class="profile-level-progress__bar-fill" id="profileLevelProgressFill"></div>
-                    </div>
-                    <p class="profile-level-progress__hint" id="profileLevelHint">Озат деңгейіне 18 балл жетіспейді</p>
-                </div>
-                <div class="profile-achievements">
-                    <div class="profile-achievement-badge" data-block-id="info-search">
-                        <div class="profile-achievement-circle" title="Ақпарат іздеу">🔍</div>
-                        <span class="profile-achievement-label">Ақпарат</span>
-                    </div>
-                    <div class="profile-achievement-badge" data-block-id="financial-security">
-                        <div class="profile-achievement-circle" title="Қаржылық қауіпсіздік">🛡️</div>
-                        <span class="profile-achievement-label">Қаржы</span>
-                    </div>
-                    <div class="profile-achievement-badge" data-block-id="egov">
-                        <div class="profile-achievement-circle" title="eGov қызметтері">🏛️</div>
-                        <span class="profile-achievement-label">eGov</span>
-                    </div>
-                    <div class="profile-achievement-badge" data-block-id="network-culture">
-                        <div class="profile-achievement-circle" title="Желі мәдениеті">💬</div>
-                        <span class="profile-achievement-label">Желі</span>
-                    </div>
-                    <div class="profile-achievement-badge" data-block-id="device-care">
-                        <div class="profile-achievement-circle" title="Құрылғыларды күту">⚙️</div>
-                        <span class="profile-achievement-label">Құрылғы</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4. Test Results Card -->
-            <div class="card">
-                <div class="profile-card-header">
-                    <h2 class="profile-card-title">Тест нәтижелері</h2>
-                </div>
-                <div class="profile-results" id="profileResultsContainer">
-                    <!-- Rows rendered via JS -->
-                </div>
-            </div>
-
-            <!-- 5. Statistics Card -->
-            <div class="card">
-                <div class="profile-card-header">
-                    <h2 class="profile-card-title">Толық статистика</h2>
-                </div>
-                <div class="stats-grid">
-                    <div class="profile-stats-item">
-                        <span class="profile-stats-label">📊 Орташа нәтиже</span>
-                        <span class="profile-stats-value" id="profileStatsAvg">0%</span>
-                    </div>
-                    <div class="profile-stats-item">
-                        <span class="profile-stats-label">🏆 Үздік блок</span>
-                        <span class="profile-stats-value" id="profileStatsBestBlock">—</span>
-                    </div>
-                    <div class="profile-stats-item">
-                        <span class="profile-stats-label">📉 Нашар блок</span>
-                        <span class="profile-stats-value" id="profileStatsWorstBlock">—</span>
-                    </div>
-                    <div class="profile-stats-item">
-                        <span class="profile-stats-label">⏱️ Соңғы белсенділік</span>
-                        <span class="profile-stats-value" id="profileStatsLastActivity">—</span>
-                    </div>
-                    <div class="profile-stats-item">
-                        <span class="profile-stats-label">🔢 Жалпы балл</span>
-                        <span class="profile-stats-value" id="profileStatsTotalScore">0 / 25</span>
-                    </div>
-                    <div class="profile-stats-item">
-                        <span class="profile-stats-label">📈 Прогресс</span>
-                        <span class="profile-stats-value" id="profileStatsCompletion">0 / 5 блок</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 6. AI Recommendations Card -->
-            <div class="card profile-card-ai">
-                <div class="profile-card-header profile-card-header--ai">
-                    <h2 class="profile-card-title">🎯 Жеке ұсыныстар</h2>
-                    <span class="profile-ai-badge">ИИ талдауы</span>
-                </div>
-                <div class="profile-ai-list" id="profileAiList">
-                    <!-- Recommendations filled by JS -->
-                </div>
-                <div class="profile-ai-footer">
-                    <button type="button" class="profile-ai-button" disabled>
-                        🤖 ИИ толық талдауы — жақында
-                    </button>
-                </div>
-            </div>
-
-            <!-- 7. Activity History Card -->
-            <div class="card">
-                <div class="profile-card-header">
-                    <h2 class="profile-card-title">Белсенділік тарихы</h2>
-                </div>
-                <div class="profile-activity" id="profileActivityList">
-                    <!-- Activity rows rendered via JS -->
-                </div>
-            </div>
+          </div>
         </div>
+
+        <div class="card stats-card">
+          <div class="stats-row">
+            <div class="stats-item">
+              <div class="stats-icon stats-icon--tests">📝</div>
+              <div class="stats-value" id="profileStatCompleted">0 / 5</div>
+              <div class="stats-label">Тапсырылған</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-icon stats-icon--score">⭐</div>
+              <div class="stats-value" id="profileStatTotalScore">0 / 25</div>
+              <div class="stats-label">Жалпы балл</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-icon stats-icon--avg">🎯</div>
+              <div class="stats-value stats-value--avg" id="profileStatAverage">
+                0%
+              </div>
+              <div class="stats-label">Орташа нәтиже</div>
+            </div>
+            <div class="stats-item">
+              <div class="stats-icon stats-icon--best">🏅</div>
+              <div class="stats-value" id="profileStatBestBlock">—</div>
+              <div class="stats-label">Үздік нәтиже</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card profile-card-level">
+          <div class="profile-card-header">
+            <h2 class="profile-card-title">Деңгей & Жетістіктер</h2>
+          </div>
+          <div class="profile-level-progress">
+            <div class="profile-level-progress__labels">
+              <span id="profileLevelLabel">Бастаушы</span>
+              <span id="profileLevelScoreLabel">0 / 25 балл</span>
+            </div>
+            <div class="profile-level-progress__bar">
+              <div
+                class="profile-level-progress__bar-fill"
+                id="profileLevelProgressFill"
+              ></div>
+            </div>
+            <p class="profile-level-progress__hint" id="profileLevelHint">
+              Озат деңгейіне 18 балл жетіспейді
+            </p>
+          </div>
+          <div class="profile-achievements">
+            <div class="profile-achievement-badge" data-block-id="info-search">
+              <div class="profile-achievement-circle" title="Ақпарат іздеу">
+                🔍
+              </div>
+              <span class="profile-achievement-label">Ақпарат</span>
+            </div>
+            <div
+              class="profile-achievement-badge"
+              data-block-id="financial-security"
+            >
+              <div
+                class="profile-achievement-circle"
+                title="Қаржылық қауіпсіздік"
+              >
+                🛡️
+              </div>
+              <span class="profile-achievement-label">Қаржы</span>
+            </div>
+            <div class="profile-achievement-badge" data-block-id="egov">
+              <div class="profile-achievement-circle" title="eGov қызметтері">
+                🏛️
+              </div>
+              <span class="profile-achievement-label">eGov</span>
+            </div>
+            <div
+              class="profile-achievement-badge"
+              data-block-id="network-culture"
+            >
+              <div class="profile-achievement-circle" title="Желі мәдениеті">
+                💬
+              </div>
+              <span class="profile-achievement-label">Желі</span>
+            </div>
+            <div class="profile-achievement-badge" data-block-id="device-care">
+              <div class="profile-achievement-circle" title="Құрылғыларды күту">
+                ⚙️
+              </div>
+              <span class="profile-achievement-label">Құрылғы</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="profile-card-header">
+            <h2 class="profile-card-title">Тест нәтижелері</h2>
+          </div>
+          <div class="profile-results" id="profileResultsContainer"></div>
+        </div>
+
+        <div class="card">
+          <div class="profile-card-header">
+            <h2 class="profile-card-title">Толық статистика</h2>
+          </div>
+          <div class="stats-grid">
+            <div class="profile-stats-item">
+              <span class="profile-stats-label">📊 Орташа нәтиже</span>
+              <span class="profile-stats-value" id="profileStatsAvg">0%</span>
+            </div>
+            <div class="profile-stats-item">
+              <span class="profile-stats-label">🏆 Үздік блок</span>
+              <span class="profile-stats-value" id="profileStatsBestBlock"
+                >—</span
+              >
+            </div>
+            <div class="profile-stats-item">
+              <span class="profile-stats-label">📉 Нашар блок</span>
+              <span class="profile-stats-value" id="profileStatsWorstBlock"
+                >—</span
+              >
+            </div>
+            <div class="profile-stats-item">
+              <span class="profile-stats-label">⏱️ Соңғы белсенділік</span>
+              <span class="profile-stats-value" id="profileStatsLastActivity"
+                >—</span
+              >
+            </div>
+            <div class="profile-stats-item">
+              <span class="profile-stats-label">🔢 Жалпы балл</span>
+              <span class="profile-stats-value" id="profileStatsTotalScore"
+                >0 / 25</span
+              >
+            </div>
+            <div class="profile-stats-item">
+              <span class="profile-stats-label">📈 Прогресс</span>
+              <span class="profile-stats-value" id="profileStatsCompletion"
+                >0 / 5 блок</span
+              >
+            </div>
+          </div>
+        </div>
+
+        <div class="card profile-card-ai">
+          <div class="profile-card-header profile-card-header--ai">
+            <h2 class="profile-card-title">🎯 Жеке ұсыныстар</h2>
+            <span class="profile-ai-badge">ИИ талдауы</span>
+          </div>
+          <div class="profile-ai-list" id="profileAiList"></div>
+          <div class="profile-ai-footer">
+            <button type="button" class="profile-ai-button" disabled>
+              🤖 ИИ толық талдауы — жақында
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="profile-card-header">
+            <h2 class="profile-card-title">Белсенділік тарихы</h2>
+          </div>
+          <div class="profile-activity" id="profileActivityList"></div>
+        </div>
+      </div>
     </main>
-</body>
+  </body>
 </html>

@@ -4,8 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Тест блоктарын таңдау — Цифрлық сауаттылықты бағалау</title>
-
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -13,15 +11,71 @@
       rel="stylesheet"
     />
 
-    <!-- Page styles -->
     <link rel="stylesheet" href="test.css" />
-
-    <!-- Translations + page script -->
     <script src="translations.js" defer></script>
-    <script src="test.js" defer></script>
+
+    <style>
+      .quiz-start-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        background: linear-gradient(
+          135deg,
+          #1a237e 0%,
+          #1a5276 60%,
+          #0e6655 100%
+        );
+        border-radius: 16px;
+        padding: 20px 28px;
+        margin: 0 0 20px;
+      }
+      .quiz-start-banner__title {
+        font-size: 1.1rem;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 4px;
+      }
+      .quiz-start-banner__desc {
+        font-size: 0.82rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin: 0;
+      }
+      .quiz-start-banner__btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 24px;
+        background: #fff;
+        color: #1a237e;
+        font-family: "Plus Jakarta Sans", sans-serif;
+        font-size: 0.95rem;
+        font-weight: 700;
+        border-radius: 999px;
+        text-decoration: none;
+        white-space: nowrap;
+        flex-shrink: 0;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      .quiz-start-banner__btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
+      }
+      @media (max-width: 600px) {
+        .quiz-start-banner {
+          flex-direction: column;
+          text-align: center;
+        }
+        .quiz-start-banner__btn {
+          width: 100%;
+          justify-content: center;
+        }
+      }
+    </style>
   </head>
   <body data-page="test">
-    <!-- Sticky top navbar -->
     <header class="app-header">
       <div class="app-header__inner">
         <div class="app-header__left">
@@ -116,120 +170,34 @@
       <!-- Page title + overall progress -->
       <section class="page-header">
         <div class="page-header__text">
-          <h1 class="page-header__title">Тест блоктарын таңдаңыз</h1>
-          <p class="page-header__subtitle">
-            Әр блокты тапсырып, жалпы деңгейіңізді анықтаңыз
-          </p>
+          <h1 class="page-header__title">Тест тапсыру</h1>
+          <p class="page-header__subtitle">Цифрлық сауаттылық деңгейіңізді анықтаңыз</p>
         </div>
-
-        <div class="overall-progress">
-          <div class="overall-progress__top">
-            <span class="overall-progress__label">
-              Блоктардың жалпы прогресі
-            </span>
-            <span class="overall-progress__value">
-              <span id="overallCompletedCount">0</span>/5 блок аяқталды
-            </span>
-          </div>
-          <div class="overall-progress__bar">
-            <div
-              class="overall-progress__bar-fill"
-              id="overallProgressBar"
-            ></div>
-          </div>
+        </div>
         </div>
       </section>
 
       <!-- Horizontal test cards list -->
-      <section class="blocks-list" id="blocksList">
-        <!-- Cards are rendered by test.js -->
-      </section>
-
-      <!-- Bottom summary card -->
-      <section class="summary-card" aria-label="Жалпы нәтиже">
-        <div class="summary-card__top">
-          <div>
-            <h2 class="summary-card__title">Жалпы нәтиже</h2>
-            <p class="summary-card__hint">
-              Блоктарды аяқтаған сайын нәтиже осында жаңартылады
-            </p>
-          </div>
-          <div class="summary-card__score">
-            <span id="totalScore">0</span>
-            <span class="summary-card__score-max">/ 25 балл</span>
-          </div>
-        </div>
-
-        <div class="summary-card__middle">
-          <div class="summary-progress">
-            <div class="summary-progress__label">Жалпы прогресс</div>
-            <div class="summary-progress__bar">
-              <div
-                class="summary-progress__bar-fill"
-                id="summaryProgressBar"
-              ></div>
-            </div>
-          </div>
-          <div class="summary-card__level">
-            <span class="summary-card__level-label">Деңгей:</span>
-            <span class="level-badge level-badge--beginner" id="levelBadge">
-              Бастаушы
-            </span>
-          </div>
-        </div>
-
-        <div class="summary-card__bottom">
-          <button class="btn btn-disabled ai-button" type="button" disabled>
-            <span class="nav-icon" aria-hidden="true">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  d="M17 10h-1V8a4 4 0 0 0-8 0v2H7a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-9a1 1 0 0 0-1-1Zm-7-2a2 2 0 0 1 4 0v2h-4Zm6 11H8v-7h8Z"
-                />
-              </svg>
-            </span>
-            <span>ИИ талдауы — жақында</span>
-          </button>
-        </div>
-      </section>
-    </main>
-
-    <!-- Modal placeholder for future questions -->
-    <div class="modal-backdrop" id="testModal" aria-hidden="true">
-      <div
-        class="modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="testModalTitle"
-      >
-        <div class="modal__header">
-          <h2 class="modal__title" id="testModalTitle">
-            Тест сұрақтары жақында қосылады
-          </h2>
-        </div>
-        <div class="modal__body">
-          <p id="testModalDescription">
-            Әзірге тек блоктарды таңдауды және прогресті көруді сынап көре
-            аласыз. Толық сұрақтар мен талдау кейінірек қосылады.
+      <!-- Start quiz button -->
+      <div class="quiz-start-banner">
+        <div class="quiz-start-banner__text">
+          <h2 class="quiz-start-banner__title">Тестті бастауға дайынсыз ба?</h2>
+          <p class="quiz-start-banner__desc">
+            30 сұрақ · 5 блок · ~25 минут · DigComp 2.2 негізінде
           </p>
         </div>
-        <div class="modal__footer">
-          <button
-            type="button"
-            class="btn btn-ghost-secondary"
-            id="modalCancelBtn"
-          >
-            Жабу
-          </button>
-          <button type="button" class="btn btn-primary" id="modalPrimaryBtn">
-            Түсінікті
-          </button>
-        </div>
+        <a href="quiz.html" class="quiz-start-banner__btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M5 12h14M13 6l6 6-6 6"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+          </svg>
+          Сынақты бастау
+        </a>
       </div>
-    </div>
-    <a href="quiz.html" class="btn btn-primary">Тест тапсыру</a>
+    </main>
   </body>
 </html>
