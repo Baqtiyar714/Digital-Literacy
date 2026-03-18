@@ -59,9 +59,7 @@
         localStorage.setItem(USER_KEY, JSON.stringify(diqUser));
         return diqUser;
       }
-    } catch (_e) {
-      // ignore
-    }
+    } catch (_e) {}
     window.location.href = "login.html";
     return null;
   }
@@ -109,13 +107,13 @@
     if (pct <= 94)
       return {
         num: 7,
-        kk: "Жоғары мамандандырылған",
+        kk: "Жоғары көрсеткіш",
         en: "Highly specialised",
         color: "#1565c0",
       };
     return {
       num: 8,
-      kk: "Жоғары мамандандырылған",
+      kk: "Жоғары деңгей",
       en: "Highly specialised",
       color: "#1565c0",
     };
@@ -279,7 +277,6 @@
         "profile-avg-high",
       );
       if (aggregates.avgPercent === 0) {
-        // leave default color
       } else if (aggregates.avgPercent < 40) {
         avgEl.classList.add("profile-avg-low");
       } else if (aggregates.avgPercent < 75) {
@@ -346,7 +343,6 @@
       }
     }
 
-    // Achievements
     const completedIds = Object.keys(results).filter(function (id) {
       const entry = results[id];
       return entry && Number(entry.score) >= 0;

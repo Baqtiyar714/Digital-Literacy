@@ -5,15 +5,18 @@
 ### 1-қадам: Terminal/Command Prompt ашу / Открыть терминал / Open Terminal
 
 **Әдіс 1: Command Prompt**
+
 - `Windows + R` басыңыз
 - `cmd` енгізіп, Enter басыңыз
 - Немесе Start менюден "Command Prompt" табыңыз
 
 **Әдіс 2: PowerShell**
+
 - `Windows + X` басыңыз
 - "Windows PowerShell" немесе "Terminal" таңдаңыз
 
 **Әдіс 3: VS Code Terminal**
+
 - VS Code-ты ашыңыз
 - `Ctrl + ~` (тильда) басыңыз
 - Немесе менюден: Terminal → New Terminal
@@ -56,12 +59,15 @@ node --version
 ```
 
 **Күту керек / Ожидаемый вывод / Expected output:**
+
 ```
 v18.17.0
 ```
+
 (немесе басқа версия / или другая версия / or another version)
 
 **Егер қате шықса / Если ошибка / If error:**
+
 - Node.js орнатылмаған / Node.js не установлен / Node.js not installed
 - [Node.js сайтынан](https://nodejs.org/) орнатыңыз / Установите с сайта / Install from website
 
@@ -74,9 +80,11 @@ npm --version
 ```
 
 **Күту керек / Ожидаемый вывод / Expected output:**
+
 ```
 9.6.7
 ```
+
 (немесе басқа версия / или другая версия / or another version)
 
 ---
@@ -94,6 +102,7 @@ npm install
 / This command installs all packages from `package.json`.
 
 **Күту керек / Ожидаемый вывод / Expected output:**
+
 ```
 added 50 packages, and audited 51 packages in 5s
 ```
@@ -107,6 +116,7 @@ npm start
 ```
 
 **Күту керек / Ожидаемый вывод / Expected output:**
+
 ```
 ✅ Connected to PostgreSQL database
 🚀 Server is running on http://localhost:5000
@@ -135,25 +145,32 @@ npm start
 ## ⚠️ Егер қате шықса / Если ошибка / If Error
 
 ### Қате 1: "npm is not recognized"
+
 **Себебі / Причина / Cause:** Node.js орнатылмаған
 **Шешу / Решение / Solution:** Node.js орнатыңыз: https://nodejs.org/
 
 ### Қате 2: "Cannot find module"
+
 **Себебі / Причина / Cause:** Dependencies орнатылмаған
 **Шешу / Решение / Solution:**
+
 ```bash
 npm install
 ```
 
 ### Қате 3: "Port 5000 already in use"
+
 **Себебі / Причина / Cause:** Порт бос емес
 **Шешу / Решение / Solution:**
+
 - `.env` файлында `PORT=5001` деп өзгертіңіз
 - Немесе / Или / Or: басқа портты пайдаланыңыз
 
 ### Қате 4: PostgreSQL connection error
+
 **Себебі / Причина / Cause:** PostgreSQL іске қосылмаған немесе пароль дұрыс емес
 **Шешу / Решение / Solution:**
+
 1. PostgreSQL-ді іске қосыңыз
 2. `.env` файлында парольді тексеріңіз
 3. БД `auth_db` құрылған ба тексеріңіз
@@ -177,20 +194,6 @@ npm install
 # 5. Серверді іске қосу / Запустить сервер / Start server
 npm start
 ```
-
----
-
-## 🔄 Серверді тоқтату / Остановить сервер / Stop Server
-
-Terminal-да:
-/ В терминале:
-/ In terminal:
-
-```
-Ctrl + C
-```
-
----
 
 ## 💡 Кеңес / Совет / Tip
 
@@ -227,5 +230,3 @@ npm run dev
 3. `npm --version` нәтижесі
    / Результат `npm --version`
    / Result of `npm --version`
-
-
