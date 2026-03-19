@@ -276,12 +276,11 @@
     if (aiRetryBtn) aiRetryBtn.addEventListener("click", runAI);
     if (aiErrorRetry) aiErrorRetry.addEventListener("click", runAI);
 
-    // Сақталған талдауды жүктеу
     var cached = loadAIResult();
     if (cached && cached.html) {
       var resultBodyEl = document.getElementById("aiResultBody");
       if (resultBodyEl) resultBodyEl.innerHTML = cached.html;
-      // Күнін көрсету
+
       var footer = document.querySelector(".tr-ai__result-footer");
       if (footer && cached.date) {
         var dateStr = formatDate(cached.date);

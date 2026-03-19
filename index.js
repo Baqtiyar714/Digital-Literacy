@@ -188,6 +188,90 @@ app.get("/users/:id", async (req, res) => {
   }
 });
 
+app.put("/profile", async (req, res) => {
+  try {
+    const { id, email, name, currentPassword, newPassword } = req.body;
+
+    if (!name || (!id && !email)) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Name and user identifier are required",
+        });
+    }
+
+    const userResult = id
+      ? await pool.query(
+          "SELECT id, name, email, password FROM users WHERE id = $1",
+          [id],
+        )
+      : await pool.query(
+          "SELECT id, name, email, password FROM users WHERE email = $1",
+          [email],
+        );
+
+    if (userResult.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const user = userResult.rows[0];
+
+    if (newPassword) {
+      if (!currentPassword) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Current password is required" });
+      }
+      const isValid = await bcrypt.compare(currentPassword, user.password);
+      if (!isValid) {
+        return res
+          .status(401)
+          .json({ success: false, message: "Ағымдағы құпия сөз қате" });
+      }
+      if (newPassword.length < 6) {
+        return res
+          .status(400)
+          .json({
+            success: false,
+            message: "Жаңа құпия сөз кемінде 6 таңба болуы керек",
+          });
+      }
+      const hashed = await bcrypt.hash(newPassword, 10);
+      const result = await pool.query(
+        "UPDATE users SET name = $1, password = $2 WHERE id = $3 RETURNING id, name, email, created_at",
+        [name.trim(), hashed, id],
+      );
+      return res
+        .status(200)
+        .json({
+          success: true,
+          message: "Профиль жаңартылды",
+          data: result.rows[0],
+        });
+    }
+
+    const result = await pool.query(
+      "UPDATE users SET name = $1 WHERE id = $2 RETURNING id, name, email, created_at",
+      [name.trim(), id],
+    );
+    return res
+      .status(200)
+      .json({
+        success: true,
+        message: "Профиль жаңартылды",
+        data: result.rows[0],
+      });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server error", error: error.message });
+  }
+});
+
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,

@@ -3,7 +3,7 @@
   const LEGACY_USER_KEY = "user";
   const RESULTS_KEY = "diq_block_results";
 
-  const MAX_PER_BLOCK = 5;
+  const MAX_PER_BLOCK = 18;
   const BLOCKS = [
     {
       id: "info-search",
@@ -457,67 +457,96 @@
   }
 
   function fillStatsCard(aggregates) {
-    const avgEl = document.getElementById("profileStatsAvg");
-    const bestEl = document.getElementById("profileStatsBestBlock");
-    const worstEl = document.getElementById("profileStatsWorstBlock");
-    const lastEl = document.getElementById("profileStatsLastActivity");
-    const totalScoreEl = document.getElementById("profileStatsTotalScore");
-    const completionEl = document.getElementById("profileStatsCompletion");
+    var avgEl = document.getElementById("profileStatsAvg");
+    var bestEl = document.getElementById("profileStatsBestBlock");
+    var worstEl = document.getElementById("profileStatsWorstBlock");
+    var lastEl = document.getElementById("profileStatsLastActivity");
+    var totalScoreEl = document.getElementById("profileStatsTotalScore");
+    var completionEl = document.getElementById("profileStatsCompletion");
 
     if (avgEl) avgEl.textContent = aggregates.avgPercent + "%";
 
-    const best = BLOCKS.find(function (b) {
+    var best = BLOCKS.find(function (b) {
       return b.id === aggregates.bestBlockId;
     });
-    if (bestEl) bestEl.textContent = best ? best.name : "—";
+    if (bestEl) bestEl.textContent = best ? best.name : "\u2014";
 
-    const worst = BLOCKS.find(function (b) {
+    var worst = BLOCKS.find(function (b) {
       return b.id === aggregates.worstBlockId;
     });
-    if (worstEl) worstEl.textContent = worst ? worst.name : "—";
+    if (worstEl) worstEl.textContent = worst ? worst.name : "\u2014";
 
     if (lastEl) {
       lastEl.textContent = aggregates.lastActivityDate
         ? formatDate(aggregates.lastActivityDate.toISOString())
-        : "—";
+        : "\u2014";
     }
 
-    if (totalScoreEl) {
-      totalScoreEl.textContent =
-        aggregates.totalScore + " / " + MAX_PER_BLOCK * BLOCKS.length;
-    }
-
-    if (completionEl) {
+    var totalMax = MAX_PER_BLOCK * BLOCKS.length;
+    if (totalScoreEl)
+      totalScoreEl.textContent = aggregates.totalScore + " / " + totalMax;
+    if (completionEl)
       completionEl.textContent =
-        aggregates.completedCount + " / " + BLOCKS.length + " блок";
-    }
+        aggregates.completedCount +
+        " / " +
+        BLOCKS.length +
+        " \u0431\u043b\u043e\u043a";
   }
-
   function fillAiRecommendations(results, aggregates) {
-    const list = document.getElementById("profileAiList");
+    var list = document.getElementById("profileAiList");
+    var footerBtn = document.querySelector(".profile-ai-button");
     if (!list) return;
-
     list.innerHTML = "";
 
-    const items = [];
+    var cached = null;
+    try {
+      var rawAi = localStorage.getItem("diq_ai_result");
+      cached = rawAi ? JSON.parse(rawAi) : null;
+    } catch (_e) {}
 
-    const lowBlocks = BLOCKS.filter(function (b) {
-      const entry = results[b.id];
-      if (!entry) return false;
-      const score = Number(entry.score) || 0;
-      return score < 3;
-    });
-
-    if (lowBlocks.length > 0) {
-      const target = lowBlocks[0];
-      items.push({
-        icon: "📚",
-        text: target.name + " блогын қайталауды ұсынамыз.",
-      });
+    if (cached && cached.html) {
+      var dateStr = cached.date ? formatDate(cached.date) : "";
+      var header = document.createElement("div");
+      header.style.cssText =
+        "display:flex;align-items:center;gap:8px;margin-bottom:10px;";
+      header.innerHTML =
+        '<span style="font-size:1rem;">🤖</span>' +
+        '<span style="font-size:0.88rem;font-weight:700;color:#1a1f36;">AI талдауы</span>' +
+        (dateStr
+          ? '<span style="font-size:0.75rem;color:#9ba3c9;margin-left:auto;">Сақталған: ' +
+            dateStr +
+            "</span>"
+          : "");
+      list.appendChild(header);
+      var body = document.createElement("div");
+      body.style.cssText = "font-size:0.85rem;color:#1a1f36;line-height:1.7;";
+      body.innerHTML = cached.html;
+      list.appendChild(body);
+      if (footerBtn) {
+        footerBtn.disabled = false;
+        footerBtn.style.cssText =
+          "width:100%;padding:10px 14px;border-radius:999px;border:1.5px solid #c5cae9;background:#e8eaf6;color:#3949ab;font-size:0.85rem;font-weight:600;cursor:pointer;margin-top:10px;";
+        footerBtn.textContent = "🔄 Жаңа талдау алу — тест бетінде";
+        footerBtn.onclick = function () {
+          window.location.href = "test.html";
+        };
+      }
+      return;
     }
 
-    const allCompleted = aggregates.completedCount === BLOCKS.length;
-    if (allCompleted) {
+    var items = [];
+    var lowBlocks = BLOCKS.filter(function (b) {
+      var entry = results[b.id];
+      if (!entry) return false;
+      return (Number(entry.score) || 0) < 9;
+    });
+    if (lowBlocks.length > 0) {
+      items.push({
+        icon: "📚",
+        text: lowBlocks[0].name + " блоктын қайталауды ұсынамыз.",
+      });
+    }
+    if (aggregates.completedCount === BLOCKS.length) {
       items.push({
         icon: "🏆",
         text: "Барлық блоктарды аяқтадыңыз! Керемет нәтиже.",
@@ -528,95 +557,159 @@
         text: "Қалған блоктарды аяқтау арқылы нәтижеңізді арттыра аласыз.",
       });
     }
-
     items.push({
       icon: "💡",
       text: "Күн сайын жаттықсаңыз, нәтижеңіз 30%-ға артады.",
     });
-
     items.slice(0, 3).forEach(function (item) {
-      const row = document.createElement("div");
+      var row = document.createElement("div");
       row.className = "profile-ai-item";
-
-      const icon = document.createElement("div");
+      var icon = document.createElement("div");
       icon.className = "profile-ai-item-icon";
       icon.textContent = item.icon;
-
-      const text = document.createElement("div");
+      var text = document.createElement("div");
       text.className = "profile-ai-item-text";
       text.textContent = item.text;
-
       row.appendChild(icon);
       row.appendChild(text);
       list.appendChild(row);
     });
+    if (footerBtn) {
+      footerBtn.disabled = false;
+      footerBtn.style.cssText =
+        "width:100%;padding:10px 14px;border-radius:999px;border:1.5px solid #c5cae9;background:#e8eaf6;color:#3949ab;font-size:0.85rem;font-weight:600;cursor:pointer;margin-top:10px;";
+      footerBtn.textContent = "🤖 AI талдауын алу — тест бетінде";
+      footerBtn.onclick = function () {
+        window.location.href = "test.html";
+      };
+    }
   }
-
   function fillActivityHistory(results) {
-    const container = document.getElementById("profileActivityList");
+    var container = document.getElementById("profileActivityList");
     if (!container) return;
 
-    const events = [];
-
-    BLOCKS.forEach(function (block) {
-      const entry = results[block.id];
-      if (!entry) return;
-      const date = entry.date ? new Date(entry.date) : null;
-      if (!date || Number.isNaN(date.getTime())) return;
-      events.push({
-        blockId: block.id,
-        blockName: block.name,
-        color: block.color,
-        date: date,
-        action: "Тест тапсырды",
-      });
-    });
-
-    events.sort(function (a, b) {
-      return b.date.getTime() - a.date.getTime();
-    });
-
-    const lastFive = events.slice(0, 5);
-
-    if (!lastFive.length) {
-      container.innerHTML = "";
-      const wrap = document.createElement("div");
-      wrap.className = "profile-activity-empty";
-      const icon = document.createElement("div");
-      icon.className = "profile-activity-empty-icon";
-      icon.textContent = "🕒";
-      const text = document.createElement("div");
-      text.textContent = "Әлі белсенділік жоқ";
-      wrap.appendChild(icon);
-      wrap.appendChild(text);
-      container.appendChild(wrap);
-      return;
+    var HISTORY_KEY = "diq_test_history";
+    var allHistory = [];
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      allHistory = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(allHistory)) allHistory = [];
+    } catch (_e) {
+      allHistory = [];
     }
 
-    container.innerHTML = "";
-    lastFive.forEach(function (ev) {
-      const row = document.createElement("div");
-      row.className = "profile-activity-row";
+    if (!allHistory.length) {
+      var entry = null;
+      BLOCKS.forEach(function (b) {
+        var e = results[b.id];
+        if (e && e.date) {
+          if (!entry || new Date(e.date) > new Date(entry.date)) entry = e;
+        }
+      });
 
-      const dot = document.createElement("div");
-      dot.className = "profile-activity-dot";
-      dot.style.backgroundColor = ev.color;
+      if (!entry) {
+        container.innerHTML = "";
+        var wrap = document.createElement("div");
+        wrap.className = "profile-activity-empty";
+        var icon = document.createElement("div");
+        icon.className = "profile-activity-empty-icon";
+        icon.textContent = "\u{1F550}";
+        var text = document.createElement("div");
+        text.textContent =
+          "\u04d8\u043b\u0456 \u0431\u0435\u043b\u0441\u0435\u043d\u0434\u0456\u043b\u0456\u043a \u0436\u043e\u049b";
+        wrap.appendChild(icon);
+        wrap.appendChild(text);
+        container.appendChild(wrap);
+        return;
+      }
+    }
 
-      const text = document.createElement("div");
-      text.className = "profile-activity-text";
-      text.textContent = ev.blockName + " — " + ev.action;
+    function formatDateTime(iso) {
+      try {
+        var d = new Date(iso);
+        var dd = String(d.getDate()).padStart(2, "0");
+        var mm = String(d.getMonth() + 1).padStart(2, "0");
+        var yyyy = d.getFullYear();
+        var hh = String(d.getHours()).padStart(2, "0");
+        var min = String(d.getMinutes()).padStart(2, "0");
+        return dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+      } catch (_e) {
+        return "\u2014";
+      }
+    }
 
-      const date = document.createElement("div");
-      date.className = "profile-activity-date";
-      date.textContent = formatDate(ev.date.toISOString());
+    function renderList(items) {
+      container.innerHTML = "";
 
-      row.appendChild(dot);
-      row.appendChild(text);
-      row.appendChild(date);
-      container.appendChild(row);
-    });
+      items.forEach(function (ev) {
+        var row = document.createElement("div");
+        row.className = "profile-activity-row";
+
+        var dot = document.createElement("div");
+        dot.className = "profile-activity-dot";
+        dot.style.backgroundColor = "#3949ab";
+
+        var text = document.createElement("div");
+        text.className = "profile-activity-text";
+        var lvlText = ev.levelKk
+          ? " \u2014 " +
+            ev.levelNum +
+            "-\u0434\u0435\u04a3\u0433\u0435\u0439, " +
+            ev.levelKk
+          : "";
+        text.textContent =
+          "\u0422\u0435\u0441\u0442 \u0442\u0430\u043f\u0441\u044b\u0440\u0434\u044b" +
+          lvlText +
+          " (" +
+          ev.totalScore +
+          "/90)";
+
+        var date = document.createElement("div");
+        date.className = "profile-activity-date";
+        date.textContent = formatDateTime(ev.date);
+
+        row.appendChild(dot);
+        row.appendChild(text);
+        row.appendChild(date);
+        container.appendChild(row);
+      });
+    }
+
+    var showCount = 5;
+    var maxCount = 20;
+    var limited = allHistory.slice(0, maxCount);
+    var first5 = limited.slice(0, showCount);
+
+    renderList(first5);
+
+    if (limited.length > showCount) {
+      var moreBtn = document.createElement("button");
+      moreBtn.style.cssText =
+        "margin-top:10px;width:100%;padding:8px 16px;border-radius:999px;border:1px solid #dde1f5;background:#f0f4ff;color:#3949ab;font-size:0.82rem;font-weight:600;cursor:pointer;";
+      moreBtn.textContent =
+        "\u{1F4CB} \u0422\u043e\u043b\u044b\u0493\u044b\u0440\u0430\u049b (" +
+        (limited.length - showCount) +
+        " \u0442\u0430\u0493\u044b)";
+      var expanded = false;
+      moreBtn.addEventListener("click", function () {
+        if (!expanded) {
+          renderList(limited);
+          container.appendChild(moreBtn);
+          moreBtn.textContent = "\u25b2 \u0416\u0438\u044e";
+          expanded = true;
+        } else {
+          renderList(first5);
+          container.appendChild(moreBtn);
+          moreBtn.textContent =
+            "\u{1F4CB} \u0422\u043e\u043b\u044b\u0493\u044b\u0440\u0430\u049b (" +
+            (limited.length - showCount) +
+            " \u0442\u0430\u0493\u044b)";
+          expanded = false;
+        }
+      });
+      container.appendChild(moreBtn);
+    }
   }
-
   function initLogout() {
     const btn = document.getElementById("logoutBtn");
     if (!btn) return;
@@ -627,6 +720,166 @@
       } catch (_e) {}
       window.location.href = "login.html";
     });
+  }
+
+  function initEditModal() {
+    var editBtn = document.getElementById("profileEditBtn");
+    var modal = document.getElementById("profileEditModal");
+    var closeBtn = document.getElementById("profileEditClose");
+    var form = document.getElementById("profileEditForm");
+    var msgEl = document.getElementById("profileEditMsg");
+    var newPassInput = document.getElementById("editNewPassword");
+    var curPassWrap = document.getElementById("editCurrentPasswordWrap");
+
+    if (!editBtn || !modal) return;
+
+    editBtn.addEventListener("click", function () {
+      var user = null;
+      try {
+        user = JSON.parse(
+          localStorage.getItem("diq_user") ||
+            localStorage.getItem("user") ||
+            "{}",
+        );
+      } catch (_) {}
+      document.getElementById("editName").value = user.name || "";
+      document.getElementById("editCurrentPassword").value = "";
+      document.getElementById("editNewPassword").value = "";
+      document.getElementById("editConfirmPassword").value = "";
+      if (msgEl) {
+        msgEl.textContent = "";
+        msgEl.style.color = "";
+      }
+      curPassWrap.style.display = "none";
+      modal.style.display = "flex";
+    });
+
+    if (newPassInput) {
+      newPassInput.addEventListener("input", function () {
+        curPassWrap.style.display = newPassInput.value ? "block" : "none";
+      });
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        modal.style.display = "none";
+      });
+    }
+
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) modal.style.display = "none";
+    });
+
+    if (form) {
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        if (msgEl) {
+          msgEl.textContent = "";
+        }
+
+        var user = null;
+        try {
+          user = JSON.parse(
+            localStorage.getItem("diq_user") ||
+              localStorage.getItem("user") ||
+              "{}",
+          );
+        } catch (_) {}
+
+        var name = document.getElementById("editName").value.trim();
+        var currentPassword = document.getElementById(
+          "editCurrentPassword",
+        ).value;
+        var newPassword = document.getElementById("editNewPassword").value;
+        var confirmPassword = document.getElementById(
+          "editConfirmPassword",
+        ).value;
+
+        if (!name) {
+          if (msgEl) {
+            msgEl.textContent = "Атыңызды енгізіңіз";
+            msgEl.style.color = "#e53935";
+          }
+          return;
+        }
+
+        if (newPassword && newPassword !== confirmPassword) {
+          if (msgEl) {
+            msgEl.textContent = "Жаңа құпия сөздер сәйкес келмейді";
+            msgEl.style.color = "#e53935";
+          }
+          return;
+        }
+
+        var submitBtn = form.querySelector("button[type=submit]");
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.textContent = "Сақталуда...";
+        }
+
+        try {
+          if (newPassword) {
+            var reqBody = {
+              name: name,
+              currentPassword: currentPassword,
+              newPassword: newPassword,
+            };
+            if (user.id) reqBody.id = user.id;
+            else if (user.email) reqBody.email = user.email;
+            var resp = await fetch("http://localhost:5000/profile", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(reqBody),
+            });
+            var data = await resp.json();
+            if (!data.success) {
+              if (msgEl) {
+                msgEl.textContent = data.message || "Қате шықты";
+                msgEl.style.color = "#e53935";
+              }
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "Сақтау";
+              }
+              return;
+            }
+          }
+
+          var updated = Object.assign({}, user, { name: name });
+          localStorage.setItem("diq_user", JSON.stringify(updated));
+          localStorage.setItem("user", JSON.stringify(updated));
+
+          var nameEl = document.getElementById("profileName");
+          if (nameEl) nameEl.textContent = name;
+          var initialsEl = document.getElementById("profileAvatarInitials");
+          if (initialsEl) {
+            var parts = name.trim().split(/\s+/);
+            initialsEl.textContent =
+              parts.length >= 2
+                ? (parts[0][0] + parts[1][0]).toUpperCase()
+                : (name[0] + (name[1] || "")).toUpperCase();
+          }
+
+          if (msgEl) {
+            msgEl.textContent = "Сәтті сақталды!";
+            msgEl.style.color = "#1b8a4e";
+          }
+          setTimeout(function () {
+            modal.style.display = "none";
+          }, 1200);
+        } catch (err) {
+          if (msgEl) {
+            msgEl.textContent = "Сервермен байланыс жоқ";
+            msgEl.style.color = "#e53935";
+          }
+        }
+
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = "Сақтау";
+        }
+      });
+    }
   }
 
   function init() {
@@ -644,6 +897,7 @@
     fillAiRecommendations(results, aggregates);
     fillActivityHistory(results);
     initLogout();
+    initEditModal();
 
     if (typeof applyTranslations === "function") {
       applyTranslations();
