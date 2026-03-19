@@ -6,30 +6,7 @@
   var USER_KEY = "diq_user";
   var LEGACY_KEY = "user";
 
-  var CLAUDE_API_KEY = "YOUR_API_KEY_HERE";
-
-  var LEVELS = [
-    { min: 0, max: 8, num: 1, kk: "Іргетас", color: "#ef5350" },
-    { min: 9, max: 18, num: 2, kk: "Іргетас", color: "#ef5350" },
-    { min: 19, max: 27, num: 3, kk: "Орташа", color: "#f9a825" },
-    { min: 28, max: 36, num: 4, kk: "Орташа", color: "#f9a825" },
-    { min: 37, max: 45, num: 5, kk: "Кеңейтілген", color: "#1b8a4e" },
-    { min: 46, max: 54, num: 6, kk: "Кеңейтілген", color: "#1b8a4e" },
-    {
-      min: 55,
-      max: 63,
-      num: 7,
-      kk: "Жоғары мамандандырылған",
-      color: "#1565c0",
-    },
-    {
-      min: 64,
-      max: 90,
-      num: 8,
-      kk: "Жоғары мамандандырылған",
-      color: "#1565c0",
-    },
-  ];
+  var GROQ_API_KEY = "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";
 
   var BLOCKS = [
     {
@@ -144,10 +121,9 @@
       results = {};
     }
 
-    var completed = 0;
-    var totalScore = 0;
-    var lastDate = null;
-
+    var completed = 0,
+      totalScore = 0,
+      lastDate = null;
     BLOCKS.forEach(function (b) {
       var e = results[b.id];
       if (e) {
@@ -160,12 +136,7 @@
 
     if (completed === 0) {
       overallCard.innerHTML =
-        '<div class="tr-empty">' +
-        '  <div class="tr-empty__icon">📋</div>' +
-        '  <div class="tr-empty__title">Әлі тест тапсырылмаған</div>' +
-        '  <div class="tr-empty__desc">Жоғарыдағы батырманы басып тестті бастаңыз</div>' +
-        '  <a href="quiz.html" class="tr-empty__btn">→ Сынақты бастау</a>' +
-        "</div>";
+        '<div class="tr-empty"><div class="tr-empty__icon">📋</div><div class="tr-empty__title">Әлі тест тапсырылмаған</div><div class="tr-empty__desc">Жоғарыдағы батырманы басып тестті бастаңыз</div><a href="quiz.html" class="tr-empty__btn">→ Сынақты бастау</a></div>';
       blockRows.innerHTML = "";
       var aiBtn = document.getElementById("aiBtn");
       if (aiBtn) {
@@ -176,7 +147,6 @@
     }
 
     var overallLvl = getLevelForScore(totalScore);
-
     var segHtml = "";
     for (var i = 1; i <= 8; i++) {
       segHtml +=
@@ -191,42 +161,34 @@
       '<div class="tr-overall" style="border-left:4px solid ' +
       overallLvl.color +
       '">' +
-      '  <div class="tr-overall__left">' +
-      '    <div class="tr-overall__label">Жалпы балл</div>' +
-      '    <div class="tr-overall__score">' +
+      '<div class="tr-overall__left"><div class="tr-overall__label">Жалпы балл</div>' +
+      '<div class="tr-overall__score">' +
       totalScore +
       "<span> / 90</span></div>" +
-      '    <div class="tr-overall__level" style="color:' +
+      '<div class="tr-overall__level" style="color:' +
       overallLvl.color +
       '">' +
-      "      " +
       overallLvl.num +
       "-деңгей · " +
       overallLvl.kk +
-      "    </div>" +
-      "  </div>" +
-      '  <div class="tr-overall__right">' +
-      '    <div class="tr-segs">' +
+      "</div></div>" +
+      '<div class="tr-overall__right"><div class="tr-segs">' +
       segHtml +
       "</div>" +
-      '    <div class="tr-overall__date">' +
+      '<div class="tr-overall__date">' +
       (lastDate ? formatDate(lastDate.toISOString()) : "—") +
       "</div>" +
-      '    <div style="font-size:.78rem;color:#9ba3c9">' +
+      '<div style="font-size:.78rem;color:#9ba3c9">' +
       completed +
-      " / 5 блок аяқталды</div>" +
-      "  </div>" +
-      "</div>";
+      " / 5 блок аяқталды</div></div></div>";
 
     blockRows.innerHTML = "";
     BLOCKS.forEach(function (block) {
       var entry = results[block.id];
       var score = entry ? entry.score || 0 : null;
       var lvl = score !== null ? getLevelForScore(score) : null;
-
       var wrap = document.createElement("div");
       wrap.className = "tr-block-wrap";
-
       var bSegHtml = "";
       for (var n = 1; n <= 8; n++) {
         bSegHtml +=
@@ -236,37 +198,30 @@
             : '"') +
           "></div>";
       }
-
-      var rowHtml =
+      wrap.innerHTML =
         '<div class="tr-block" style="--bc:' +
         block.color +
         '">' +
-        '  <div class="tr-block__icon">' +
+        '<div class="tr-block__icon">' +
         block.icon +
-        "</div>" +
-        "  <div>" +
-        '    <div class="tr-block__name">' +
+        "</div><div>" +
+        '<div class="tr-block__name">' +
         block.title +
         "</div>" +
-        '    <div class="tr-block__segs">' +
+        '<div class="tr-block__segs">' +
         bSegHtml +
-        "</div>" +
-        "  </div>" +
-        '  <div class="tr-block__right">' +
+        "</div></div>" +
+        '<div class="tr-block__right">' +
         (lvl
           ? '<div class="tr-block__lvl">' +
             lvl.num +
             "-деңгей · " +
             lvl.kk +
-            "</div>" +
-            '<div class="tr-block__score">' +
+            '</div><div class="tr-block__score">' +
             score +
             " / 18 балл</div>"
           : '<div class="tr-block__score" style="color:#9ba3c9">Тапсырылмаған</div>') +
-        "  </div>" +
-        "</div>";
-
-      var detailHtml =
+        "</div></div>" +
         '<div class="tr-block-detail">' +
         (lvl
           ? (LEVEL_DESCS[lvl.num] || "") +
@@ -277,9 +232,6 @@
             "</span>"
           : 'Бұл блокты тапсыру үшін жоғарыдағы "Сынақты бастау" батырмасын басыңыз.') +
         "</div>";
-
-      wrap.innerHTML = rowHtml + detailHtml;
-
       wrap.querySelector(".tr-block").addEventListener("click", function () {
         var isOpen = wrap.classList.contains("is-open");
         document
@@ -289,19 +241,57 @@
           });
         if (!isOpen) wrap.classList.add("is-open");
       });
-
       blockRows.appendChild(wrap);
     });
+  }
+
+  var AI_CACHE_KEY = "diq_ai_result";
+
+  function saveAIResult(html) {
+    try {
+      localStorage.setItem(
+        AI_CACHE_KEY,
+        JSON.stringify({
+          html: html,
+          date: new Date().toISOString(),
+        }),
+      );
+    } catch (_) {}
+  }
+
+  function loadAIResult() {
+    try {
+      var raw = localStorage.getItem(AI_CACHE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (_) {
+      return null;
+    }
   }
 
   function initAI() {
     var aiBtn = document.getElementById("aiBtn");
     var aiRetryBtn = document.getElementById("aiRetryBtn");
     var aiErrorRetry = document.getElementById("aiErrorRetryBtn");
-
     if (aiBtn) aiBtn.addEventListener("click", runAI);
     if (aiRetryBtn) aiRetryBtn.addEventListener("click", runAI);
     if (aiErrorRetry) aiErrorRetry.addEventListener("click", runAI);
+
+    // Сақталған талдауды жүктеу
+    var cached = loadAIResult();
+    if (cached && cached.html) {
+      var resultBodyEl = document.getElementById("aiResultBody");
+      if (resultBodyEl) resultBodyEl.innerHTML = cached.html;
+      // Күнін көрсету
+      var footer = document.querySelector(".tr-ai__result-footer");
+      if (footer && cached.date) {
+        var dateStr = formatDate(cached.date);
+        var dateEl = document.createElement("div");
+        dateEl.style.cssText = "font-size:.75rem;color:#9ba3c9;margin-top:6px;";
+        dateEl.textContent = "Сақталған: " + dateStr;
+        footer.appendChild(dateEl);
+      }
+      showAIState("result");
+    }
   }
 
   function showAIState(s) {
@@ -323,7 +313,6 @@
         localStorage.getItem(USER_KEY) || localStorage.getItem(LEGACY_KEY);
       user = raw ? JSON.parse(raw) : null;
     } catch (_) {}
-
     var field = "белгісіз",
       age = "белгісіз",
       edu = "белгісіз",
@@ -358,7 +347,6 @@
         ")"
       );
     }).join("\n");
-
     var overallLvl = getLevelForScore(totalScore);
 
     return (
@@ -383,18 +371,14 @@
       overallLvl.kk +
       "\n\n" +
       "4 бөлімнен тұратын жеке талдау жаз:\n\n" +
-      "🎯 Жалпы баға\n" +
-      "(2-3 сөйлем, " +
+      "🎯 Жалпы баға\n(2-3 сөйлем, " +
       field +
       " саласы үшін баға)\n\n" +
-      "💪 Күшті жақтарыңыз\n" +
-      "(жоғары балл алған блоктар, мамандыққа байланыстыра, 2-3 тармақ)\n\n" +
-      "📚 Дамыту керек бағыттар\n" +
-      "(нашар блоктар, " +
+      "💪 Күшті жақтарыңыз\n(жоғары балл алған блоктар, мамандыққа байланыстыра, 2-3 тармақ)\n\n" +
+      "📚 Дамыту керек бағыттар\n(нашар блоктар, " +
       field +
       " мамандығына арналған мысалдармен, 3 тармақ)\n\n" +
-      "🗓️ 30 күнге оқу жоспары\n" +
-      "(4-5 нақты қадам, ресурс атауларымен)\n\n" +
+      "🗓️ 30 күнге оқу жоспары\n(4-5 нақты қадам, ресурс атауларымен)\n\n" +
       "Маңызды: тек қазақ тілінде, ** немесе ## таңбалар жоқ, нақты және мотивациялық болсын."
     );
   }
@@ -425,10 +409,8 @@
       var isListy = lines.some(function (l) {
         return /^[-•]/.test(l.trim());
       });
-      var bodyHtml;
-      if (isListy) {
-        bodyHtml =
-          "<ul>" +
+      var bodyHtml = isListy
+        ? "<ul>" +
           lines
             .map(function (l) {
               var c = l.trim().replace(/^[-•]\s*/, "");
@@ -436,14 +418,12 @@
             })
             .filter(Boolean)
             .join("") +
-          "</ul>";
-      } else {
-        bodyHtml = lines
-          .map(function (l) {
-            return "<p>" + l.trim() + "</p>";
-          })
-          .join("");
-      }
+          "</ul>"
+        : lines
+            .map(function (l) {
+              return "<p>" + l.trim() + "</p>";
+            })
+            .join("");
       html +=
         '<div class="ai-h" style="color:' +
         sec.color +
@@ -469,20 +449,21 @@
     showAIState("loading");
 
     try {
-      var resp = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": CLAUDE_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
+      var resp = await fetch(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + GROQ_API_KEY,
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            max_tokens: 1024,
+            messages: [{ role: "user", content: buildPrompt(results) }],
+          }),
         },
-        body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
-          max_tokens: 1024,
-          messages: [{ role: "user", content: buildPrompt(results) }],
-        }),
-      });
+      );
 
       if (!resp.ok) {
         var e = await resp.json().catch(function () {
@@ -497,21 +478,22 @@
 
       var data = await resp.json();
       var text =
-        data.content && data.content[0] && data.content[0].text
-          ? data.content[0].text
+        data.choices &&
+        data.choices[0] &&
+        data.choices[0].message &&
+        data.choices[0].message.content
+          ? data.choices[0].message.content
           : "";
       if (!text) throw new Error("Жауап бос келді");
 
-      document.getElementById("aiResultBody").innerHTML = parseAI(text);
+      var parsedHtml = parseAI(text);
+      document.getElementById("aiResultBody").innerHTML = parsedHtml;
+      saveAIResult(parsedHtml);
       showAIState("result");
     } catch (err) {
       var errEl = document.getElementById("aiErrorText");
-      if (errEl) {
-        errEl.textContent =
-          err.message && err.message.includes("YOUR_API_KEY")
-            ? "API кілтін test-results.js файлында CLAUDE_API_KEY-ге орнатыңыз."
-            : "Қате: " + (err.message || "Белгісіз қате");
-      }
+      if (errEl)
+        errEl.textContent = "Қате: " + (err.message || "Белгісіз қате");
       showAIState("error");
       if (aiBtn) aiBtn.disabled = false;
     }

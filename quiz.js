@@ -615,7 +615,7 @@
     URL.revokeObjectURL(url);
   }
 
-  var CLAUDE_API_KEY = "YOUR_API_KEY_HERE";
+  var GROQ_API_KEY = "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";
 
   var _aiBlockScores = null;
   var _aiTotalScore = null;
@@ -809,20 +809,21 @@
     var prompt = buildPrompt(_aiBlockScores, _aiTotalScore);
 
     try {
-      var response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": CLAUDE_API_KEY,
-          "anthropic-version": "2023-06-01",
-          "anthropic-dangerous-direct-browser-access": "true",
+      var response = await fetch(
+        "https://api.groq.com/openai/v1/chat/completions",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: "Bearer " + GROQ_API_KEY,
+          },
+          body: JSON.stringify({
+            model: "llama-3.3-70b-versatile",
+            max_tokens: 1024,
+            messages: [{ role: "user", content: prompt }],
+          }),
         },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1024,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
+      );
 
       if (!response.ok) {
         var errData = await response.json().catch(function () {
@@ -837,8 +838,11 @@
 
       var data = await response.json();
       var text =
-        data.content && data.content[0] && data.content[0].text
-          ? data.content[0].text
+        data.choices &&
+        data.choices[0] &&
+        data.choices[0].message &&
+        data.choices[0].message.content
+          ? data.choices[0].message.content
           : "";
 
       if (!text) throw new Error("Жауап бос келді");
@@ -854,7 +858,7 @@
       if (errTextEl) {
         if (err.message && err.message.includes("YOUR_API_KEY")) {
           errTextEl.textContent =
-            "⚠️ API кілтін quiz.js файлында CLAUDE_API_KEY айнымалысына орнатыңыз.";
+            "⚠️ API кілтін quiz.js файлында GROQ_API_KEY айнымалысына орнатыңыз.";
         } else {
           errTextEl.textContent = "Қате: " + (err.message || "Белгісіз қате");
         }
