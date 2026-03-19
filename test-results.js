@@ -6,7 +6,7 @@
   var USER_KEY = "diq_user";
   var LEGACY_KEY = "user";
 
-  var GROQ_API_KEY = "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";
+  // var GROQ_API_KEY = "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";
 
   var BLOCKS = [
     {
