@@ -11,6 +11,7 @@
       rel="stylesheet"
     />
 
+    <link rel="stylesheet" href="test.css" />
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="dashboard.css" />
 
@@ -18,30 +19,31 @@
     <script src="dashboard.js" defer></script>
   </head>
   <body class="dashboard-page" data-page="dashboard">
-    <header class="dashboard-header">
-      <div class="header-inner">
-        <a href="dashboard.html" class="logo">
-          <span class="logo-icon">◉</span>
-          <span class="logo-text" data-translate="siteName"
-            >Цифрлық сауаттылықты бағалау</span
-          >
-        </a>
-        <nav class="header-nav">
-          <a href="test.html" class="nav-btn nav-btn-primary">
-            <span class="nav-btn-icon">📋</span>
+    <header class="app-header">
+      <div class="app-header__inner">
+        <div class="app-header__left">
+          <a href="dashboard.html" class="app-logo">
+            <div class="app-logo__icon"><span>◉</span></div>
+            <div class="app-logo__text" data-translate="siteName">
+              Цифрлық сауаттылықты бағалау
+            </div>
+          </a>
+        </div>
+        <nav class="app-header__right">
+          <a href="test.html" class="btn btn-ghost">
+            <span>📋</span>
             <span data-translate="takeTest">Тест тапсыру</span>
           </a>
-          <a href="profile.html" class="nav-btn nav-btn-profile">
-            <span class="nav-btn-icon profile-icon-svg" aria-hidden="true">
+          <a href="profile.html" class="btn btn-ghost">
+            <span class="nav-icon profile-icon" aria-hidden="true">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 24 24"
-                fill="currentColor"
-                width="20"
-                height="20"
+                aria-hidden="true"
               >
                 <path
-                  d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"
+                  fill="currentColor"
+                  d="M12 12c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4Zm0 2c-2.8 0-8 1.4-8 4v2h16v-2c0-2.6-5.2-4-8-4Z"
                 />
               </svg>
             </span>
@@ -50,13 +52,13 @@
           <div class="lang-dropdown">
             <button
               type="button"
-              class="lang-dropdown-trigger nav-btn nav-btn-outline"
+              class="lang-dropdown-trigger btn btn-outline"
               id="langDropdownBtn"
               aria-expanded="false"
               aria-haspopup="true"
               title="Тілді таңдау"
             >
-              <span class="lang-dropdown-label">EN</span>
+              <span class="lang-dropdown-label">KK</span>
               <span class="lang-dropdown-arrow" aria-hidden="true">▼</span>
             </button>
             <div
@@ -68,18 +70,18 @@
               <button
                 type="button"
                 class="lang-option"
-                data-lang="en"
-                role="menuitem"
-              >
-                EN
-              </button>
-              <button
-                type="button"
-                class="lang-option"
                 data-lang="kk"
                 role="menuitem"
               >
                 KK
+              </button>
+              <button
+                type="button"
+                class="lang-option"
+                data-lang="en"
+                role="menuitem"
+              >
+                EN
               </button>
               <button
                 type="button"
@@ -93,7 +95,7 @@
           </div>
           <button
             type="button"
-            class="nav-btn nav-btn-outline"
+            class="btn btn-outline"
             id="logoutBtn"
             data-translate="logout"
           >

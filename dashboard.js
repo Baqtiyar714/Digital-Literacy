@@ -1,6 +1,6 @@
 (function () {
   var RESULTS_KEY = "diq_block_results";
-  var MAX_PER_BLOCK = 5;
+  var MAX_PER_BLOCK = 18;
   var BLOCK_IDS = [
     "info-search",
     "financial-security",
@@ -173,91 +173,105 @@
     var container = document.getElementById("activityList");
     if (!container) return;
 
-    var entries = [];
+    var HISTORY_KEY = "diq_test_history";
+    var allHistory = [];
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      allHistory = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(allHistory)) allHistory = [];
+    } catch (_e) {
+      allHistory = [];
+    }
 
-    BLOCK_IDS.forEach(function (id) {
-      var entry = results[id];
-      if (!entry) return;
-      var meta = BLOCK_META[id];
-      if (!meta) return;
-
-      var date = entry.date ? new Date(entry.date) : null;
-      entries.push({
-        id: id,
-        title: meta.title,
-        icon: meta.icon,
-        color: meta.color,
-        score: Number(entry.score) || 0,
-        total: Number(entry.total) || MAX_PER_BLOCK,
-        date: date,
-        dateRaw: entry.date || "",
-      });
-    });
-
-    entries.sort(function (a, b) {
-      if (!a.date && !b.date) return 0;
-      if (!a.date) return 1;
-      if (!b.date) return -1;
-      return b.date.getTime() - a.date.getTime();
-    });
-
-    var lastThree = entries.slice(0, 3);
-
-    if (lastThree.length === 0) {
+    if (!allHistory.length) {
       container.innerHTML =
         '<p class="activity-empty">Әлі тест тапсырылмаған. Бастаңыз! →</p>';
       return;
     }
 
-    container.innerHTML = "";
-
-    lastThree.forEach(function (item) {
-      var row = document.createElement("div");
-      row.className = "activity-list-item";
-
-      var main = document.createElement("div");
-      main.className = "activity-main";
-
-      var icon = document.createElement("div");
-      icon.className = "activity-icon";
-      icon.style.background =
-        "linear-gradient(135deg, " + item.color + "55, " + item.color + "AA)";
-      icon.textContent = item.icon;
-
-      var name = document.createElement("div");
-      name.className = "activity-name";
-      name.textContent = item.title;
-
-      main.appendChild(icon);
-      main.appendChild(name);
-
-      var meta = document.createElement("div");
-      meta.className = "activity-meta";
-
-      var scoreChip = document.createElement("div");
-      scoreChip.className = "activity-score-chip";
-      scoreChip.textContent = item.score + " / " + item.total + " балл";
-
-      var dateEl = document.createElement("div");
-      dateEl.className = "activity-date";
-      if (item.date) {
-        dateEl.textContent = item.date.toLocaleDateString();
-      } else if (item.dateRaw) {
-        dateEl.textContent = item.dateRaw;
-      } else {
-        dateEl.textContent = "";
+    function formatDateTime(iso) {
+      try {
+        var d = new Date(iso);
+        var dd = String(d.getDate()).padStart(2, "0");
+        var mm = String(d.getMonth() + 1).padStart(2, "0");
+        var yyyy = d.getFullYear();
+        var hh = String(d.getHours()).padStart(2, "0");
+        var min = String(d.getMinutes()).padStart(2, "0");
+        return dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+      } catch (_e) {
+        return "—";
       }
+    }
 
-      meta.appendChild(scoreChip);
-      meta.appendChild(dateEl);
+    function renderList(items) {
+      container.innerHTML = "";
+      items.forEach(function (ev) {
+        var row = document.createElement("div");
+        row.className = "activity-list-item";
 
-      row.appendChild(main);
-      row.appendChild(meta);
+        var main = document.createElement("div");
+        main.className = "activity-main";
 
-      container.appendChild(row);
-    });
+        var dot = document.createElement("div");
+        dot.style.cssText =
+          "width:10px;height:10px;border-radius:999px;background:#3949ab;flex-shrink:0;";
+
+        var name = document.createElement("div");
+        name.className = "activity-name";
+        var lvlText = ev.levelKk
+          ? " — " + ev.levelNum + "-деңгей, " + ev.levelKk
+          : "";
+        name.textContent =
+          "Тест тапсырды" + lvlText + " (" + ev.totalScore + "/90)";
+
+        main.appendChild(dot);
+        main.appendChild(name);
+
+        var meta = document.createElement("div");
+        meta.className = "activity-meta";
+
+        var dateEl = document.createElement("div");
+        dateEl.className = "activity-date";
+        dateEl.textContent = formatDateTime(ev.date);
+
+        meta.appendChild(dateEl);
+        row.appendChild(main);
+        row.appendChild(meta);
+        container.appendChild(row);
+      });
+    }
+
+    var showCount = 5;
+    var maxCount = 20;
+    var limited = allHistory.slice(0, maxCount);
+    var first5 = limited.slice(0, showCount);
+
+    renderList(first5);
+
+    if (limited.length > showCount) {
+      var moreBtn = document.createElement("button");
+      moreBtn.style.cssText =
+        "margin-top:10px;width:100%;padding:8px 16px;border-radius:999px;border:1px solid #dde1f5;background:#f0f4ff;color:#3949ab;font-size:0.82rem;font-weight:600;cursor:pointer;";
+      moreBtn.textContent =
+        "📋 Толығырақ (" + (limited.length - showCount) + " тағы)";
+      var expanded = false;
+      moreBtn.addEventListener("click", function () {
+        if (!expanded) {
+          renderList(limited);
+          container.appendChild(moreBtn);
+          moreBtn.textContent = "▲ Жию";
+          expanded = true;
+        } else {
+          renderList(first5);
+          container.appendChild(moreBtn);
+          moreBtn.textContent =
+            "📋 Толығырақ (" + (limited.length - showCount) + " тағы)";
+          expanded = false;
+        }
+      });
+      container.appendChild(moreBtn);
+    }
   }
-
   function initAccordion() {
     var cards = Array.prototype.slice.call(
       document.querySelectorAll(".literacy-card"),
@@ -357,7 +371,8 @@
 
   function initAuthAndName() {
     try {
-      var userStr = localStorage.getItem("user");
+      var userStr =
+        localStorage.getItem("diq_user") || localStorage.getItem("user");
       if (!userStr) {
         window.location.href = "index.html";
         return false;

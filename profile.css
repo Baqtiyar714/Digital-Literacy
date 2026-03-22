@@ -1,4 +1,3 @@
-/* Color tokens */
 :root {
   --clr-bg: #f0f4ff;
   --clr-surface: #ffffff;
@@ -13,7 +12,6 @@
   --clr-error: #e53935;
 }
 
-/* Base layout */
 body.profile-page {
   min-height: 100vh;
   margin: 0;
@@ -35,17 +33,15 @@ body.profile-page {
   flex: 1;
 }
 
-/* Page wrapper — full-width stacked */
 .page-wrapper {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: 32px 24px;
+  max-width: 100%;
+  margin: 0;
+  padding: 32px 40px;
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* Every card is full width */
 .card {
   width: 100%;
   background: var(--clr-surface);
@@ -55,7 +51,6 @@ body.profile-page {
   box-shadow: 0 4px 20px rgba(57, 73, 171, 0.08);
 }
 
-/* Navbar (match dashboard) */
 .profile-page .dashboard-header {
   background-color: #ffffff;
   border-bottom: 1px solid var(--clr-border);
@@ -142,7 +137,6 @@ body.profile-page {
   border-color: var(--clr-border);
 }
 
-/* 1. Profile Hero Card */
 .profile-hero {
   display: flex;
   align-items: center;
@@ -239,7 +233,6 @@ body.profile-page {
   color: var(--clr-primary);
 }
 
-/* 2. Stats Row Card — 4 items in one row with dividers */
 .stats-row {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -314,7 +307,6 @@ body.profile-page {
   color: var(--clr-success);
 }
 
-/* 3. Level & Achievements */
 .profile-card-header {
   display: flex;
   align-items: center;
@@ -416,7 +408,6 @@ body.profile-page {
   color: var(--clr-muted);
 }
 
-/* 4. Test Results — full-width rows */
 .profile-results {
   display: flex;
   flex-direction: column;
@@ -524,7 +515,6 @@ body.profile-page {
   color: var(--clr-muted);
 }
 
-/* 5. Statistics — 3-column grid */
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -548,7 +538,6 @@ body.profile-page {
   color: var(--clr-text);
 }
 
-/* 6. AI Recommendations */
 .profile-card-ai {
   border-left: 4px solid var(--clr-primary);
 }
@@ -603,7 +592,6 @@ body.profile-page {
   cursor: not-allowed;
 }
 
-/* 7. Activity History */
 .profile-activity {
   font-size: 0.85rem;
 }
@@ -654,7 +642,6 @@ body.profile-page {
   font-size: 1.8rem;
 }
 
-/* Responsive */
 @media (max-width: 600px) {
   .page-wrapper {
     padding: 16px;
