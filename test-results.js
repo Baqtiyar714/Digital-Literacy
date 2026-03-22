@@ -6,8 +6,6 @@
   var USER_KEY = "diq_user";
   var LEGACY_KEY = "user";
 
-  // var GROQ_API_KEY = "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";
-
   var BLOCKS = [
     {
       id: "info-search",
@@ -270,25 +268,52 @@
 
   function initAI() {
     var aiBtn = document.getElementById("aiBtn");
-    var aiRetryBtn = document.getElementById("aiRetryBtn");
     var aiErrorRetry = document.getElementById("aiErrorRetryBtn");
-    if (aiBtn) aiBtn.addEventListener("click", runAI);
-    if (aiRetryBtn) aiRetryBtn.addEventListener("click", runAI);
+    var aiDesc = document.querySelector(".tr-ai__desc");
+
     if (aiErrorRetry) aiErrorRetry.addEventListener("click", runAI);
 
     var cached = loadAIResult();
+
+    var lastTestDate = null;
+    try {
+      var hist = JSON.parse(localStorage.getItem("diq_test_history") || "[]");
+      if (hist.length && hist[0].date) lastTestDate = new Date(hist[0].date);
+    } catch (_) {}
+
+    var lastAiDate = cached && cached.date ? new Date(cached.date) : null;
+    var canAnalyze = !lastAiDate || (lastTestDate && lastTestDate > lastAiDate);
+
+    if (aiBtn) {
+      if (canAnalyze) {
+        aiBtn.disabled = false;
+        aiBtn.addEventListener("click", runAI);
+        if (aiDesc)
+          aiDesc.textContent =
+            "Барлық блоктар бойынша нәтижеңізді талдап, оқу жоспары жасайды";
+      } else {
+        aiBtn.disabled = true;
+        aiBtn.style.opacity = "0.5";
+        aiBtn.style.cursor = "not-allowed";
+        aiBtn.title = "Жаңа талдау алу үшін тестті қайта тапсырыңыз";
+        if (aiDesc) {
+          var aiDateStr = lastAiDate
+            ? formatDate(lastAiDate.toISOString())
+            : "";
+          aiDesc.textContent =
+            "Соңғы талдау: " +
+            aiDateStr +
+            ". Жаңа талдау алу үшін тестті қайта тапсырыңыз";
+        }
+      }
+    }
+
     if (cached && cached.html) {
       var resultBodyEl = document.getElementById("aiResultBody");
       if (resultBodyEl) resultBodyEl.innerHTML = cached.html;
-
-      var footer = document.querySelector(".tr-ai__result-footer");
-      if (footer && cached.date) {
-        var dateStr = formatDate(cached.date);
-        var dateEl = document.createElement("div");
-        dateEl.style.cssText = "font-size:.75rem;color:#9ba3c9;margin-top:6px;";
-        dateEl.textContent = "Сақталған: " + dateStr;
-        footer.appendChild(dateEl);
-      }
+      var dateEl = document.getElementById("aiResultDate");
+      if (dateEl && cached.date)
+        dateEl.textContent = "Сақталған: " + formatDate(cached.date);
       showAIState("result");
     }
   }
@@ -349,36 +374,58 @@
     var overallLvl = getLevelForScore(totalScore);
 
     return (
-      "Сен цифрлық сауаттылық бойынша кәсіби кеңесшісің. Тек қазақ тілінде жауап бер.\n\n" +
-      "Пайдаланушы: " +
+      "Сен цифрлық сауаттылық бойынша тәжірибелі кеңесшісің. Тек қазақ тілінде жауап бер.\n\n" +
+      "Пайдаланушы туралы:\n" +
+      "- Аты: " +
       name +
-      ", жасы: " +
+      "\n" +
+      "- Жасы: " +
       age +
-      ", білімі: " +
+      "\n" +
+      "- Білімі: " +
       edu +
-      ", саласы: " +
+      "\n" +
+      "- Мамандық саласы: " +
       field +
       "\n\n" +
-      "DigComp тест нәтижелері (макс 18 балл/блок, 90 жалпы):\n" +
+      "DigComp 2.2 тест нәтижелері (макс 18 балл/блок, 90 жалпы):\n" +
       blockLines +
-      "\n" +
-      "Жалпы: " +
+      "\nЖалпы: " +
       totalScore +
       "/90 — " +
       overallLvl.num +
       "-деңгей, " +
       overallLvl.kk +
       "\n\n" +
-      "4 бөлімнен тұратын жеке талдау жаз:\n\n" +
-      "🎯 Жалпы баға\n(2-3 сөйлем, " +
+      "Міндет: төмендегі 4 бөлімді нақты, жеке, мазмұнды етіп жаз. Жалпы сөздер емес — нақты мысалдар, нақты сілтемелер, нақты атаулар қолдан.\n\n" +
+      "🎯 Жалпы баға\n" +
+      "- " +
+      name +
+      "-ның нәтижесін " +
       field +
-      " саласы үшін баға)\n\n" +
-      "💪 Күшті жақтарыңыз\n(жоғары балл алған блоктар, мамандыққа байланыстыра, 2-3 тармақ)\n\n" +
-      "📚 Дамыту керек бағыттар\n(нашар блоктар, " +
+      " саласы тұрғысынан 2-3 сөйлеммен бағала.\n" +
+      "- Қандай деңгейде тұрғанын нақты айт, салыстыра сөйле.\n\n" +
+      "💪 Күшті жақтарыңыз\n" +
+      "- Жоғары балл алған блоктарды атап, " +
       field +
-      " мамандығына арналған мысалдармен, 3 тармақ)\n\n" +
-      "🗓️ 30 күнге оқу жоспары\n(4-5 нақты қадам, ресурс атауларымен)\n\n" +
-      "Маңызды: тек қазақ тілінде, ** немесе ## таңбалар жоқ, нақты және мотивациялық болсын."
+      " мамандығында бұл дағдылар қалай пайдаланылатынын нақты мысалмен түсіндір.\n" +
+      "- Мысалы: егер eGov жоғары болса — мемлекеттік тендерлерге онлайн қатысу, электрондық есеп беру т.б.\n\n" +
+      "📚 Дамыту керек бағыттар\n" +
+      "- Ең төмен балл алған 2-3 блокты атап, неге нашар екенін түсіндір.\n" +
+      "- " +
+      field +
+      " саласына тікелей байланысты нақты мысалдар кел: қандай жағдайларда осы білім жетіспейді.\n" +
+      "- Әр бағыт үшін 1-2 нақты онлайн ресурс атауын жаз (Coursera, Khan Academy, YouTube арна аты, egov.kz бөлімі, Kaspersky Academy т.б.).\n\n" +
+      "🗓️ 30 күнге оқу жоспары\n" +
+      "- 5 нақты қадам жаз, әрқайсысының мерзімін, не істейтінін, қай ресурсты қолданатынын нақты атап өт.\n" +
+      "- Мысал: 1-қадам (1-7 күн): Kaspersky's Cybersecurity for Beginners курсын (опен.edu.ru) өту — фишинг, вирус, пароль қауіпсіздігін үйрен.\n\n" +
+      "Маңызды ережелер:\n" +
+      "- Тек қазақ тілінде жаз\n" +
+      "- ** немесе ## таңбалар қолданба\n" +
+      "- Жалпы кеңес емес — нақты, жеке, " +
+      name +
+      "-ға арналған болсын\n" +
+      "- Нақты сілтеме, нақты курс атауы, нақты мерзім болсын"
     );
   }
 

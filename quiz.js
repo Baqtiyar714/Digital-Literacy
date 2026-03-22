@@ -615,8 +615,6 @@
     URL.revokeObjectURL(url);
   }
 
-  //var GROQ_API_KEY = "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";
-
   var _aiBlockScores = null;
   var _aiTotalScore = null;
 
