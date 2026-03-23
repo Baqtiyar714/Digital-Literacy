@@ -4,6 +4,16 @@ const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const pool = require("./db");
 
+const { Pool } = require("pg");
+const questionsPool = new Pool({
+  user: process.env.DB_USER || "postgres",
+  host: process.env.DB_HOST || "localhost",
+  database: process.env.QUESTIONS_DB_NAME || "questions_db",
+  password: process.env.DB_PASSWORD || "1234",
+  port: process.env.DB_PORT || 5432,
+});
+questionsPool.on("connect", () => console.log("✅ Connected to questions_db"));
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -188,87 +198,268 @@ app.get("/users/:id", async (req, res) => {
   }
 });
 
-app.put("/profile", async (req, res) => {
-  try {
-    const { id, email, name, currentPassword, newPassword } = req.body;
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
-    if (!name || (!id && !email)) {
+function checkAdmin(req, res, next) {
+  const pwd = req.headers["x-admin-password"] || req.body.adminPassword;
+  if (pwd !== ADMIN_PASSWORD) {
+    return res
+      .status(401)
+      .json({ success: false, message: "Қатынас тыйым салынған" });
+  }
+  next();
+}
+
+app.get("/admin/questions", checkAdmin, async (req, res) => {
+  try {
+    const { competency, age_group, education, field, search } = req.query;
+    let query = "SELECT * FROM questions WHERE 1=1";
+    const params = [];
+    let i = 1;
+    if (competency) {
+      query += ` AND competency = $${i++}`;
+      params.push(competency);
+    }
+    if (age_group) {
+      query += ` AND (age_group = $${i++} OR age_group = 'all')`;
+      params.push(age_group);
+    }
+    if (education) {
+      query += ` AND (education = $${i++} OR education = 'all')`;
+      params.push(education);
+    }
+    if (field) {
+      query += ` AND (field = $${i++} OR field = 'all')`;
+      params.push(field);
+    }
+    if (search) {
+      query += ` AND text ILIKE $${i++}`;
+      params.push(`%${search}%`);
+    }
+    query += " ORDER BY id DESC";
+    const result = await questionsPool.query(query, params);
+    res.json({ success: true, count: result.rows.length, data: result.rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/admin/questions", checkAdmin, async (req, res) => {
+  try {
+    const {
+      text,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_answer,
+      competency,
+      age_group,
+      education,
+      field,
+    } = req.body;
+    if (
+      !text ||
+      !option_a ||
+      !option_b ||
+      !option_c ||
+      !option_d ||
+      !correct_answer ||
+      !competency
+    ) {
       return res
         .status(400)
         .json({
           success: false,
-          message: "Name and user identifier are required",
+          message: "Барлық міндетті өрістерді толтырыңыз",
         });
     }
+    const result = await questionsPool.query(
+      `INSERT INTO questions (text, option_a, option_b, option_c, option_d, correct_answer, competency, age_group, education, field)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [
+        text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_answer.toUpperCase(),
+        competency,
+        age_group || "all",
+        education || "all",
+        field || "all",
+      ],
+    );
+    res.status(201).json({ success: true, data: result.rows[0] });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 
-    const userResult = id
-      ? await pool.query(
-          "SELECT id, name, email, password FROM users WHERE id = $1",
-          [id],
-        )
-      : await pool.query(
-          "SELECT id, name, email, password FROM users WHERE email = $1",
-          [email],
-        );
-
-    if (userResult.rows.length === 0) {
+app.put("/admin/questions/:id", checkAdmin, async (req, res) => {
+  try {
+    const {
+      text,
+      option_a,
+      option_b,
+      option_c,
+      option_d,
+      correct_answer,
+      competency,
+      age_group,
+      education,
+      field,
+    } = req.body;
+    const result = await questionsPool.query(
+      `UPDATE questions SET text=$1, option_a=$2, option_b=$3, option_c=$4, option_d=$5,
+       correct_answer=$6, competency=$7, age_group=$8, education=$9, field=$10
+       WHERE id=$11 RETURNING *`,
+      [
+        text,
+        option_a,
+        option_b,
+        option_c,
+        option_d,
+        correct_answer.toUpperCase(),
+        competency,
+        age_group || "all",
+        education || "all",
+        field || "all",
+        req.params.id,
+      ],
+    );
+    if (result.rows.length === 0)
       return res
         .status(404)
-        .json({ success: false, message: "User not found" });
-    }
-
-    const user = userResult.rows[0];
-
-    if (newPassword) {
-      if (!currentPassword) {
-        return res
-          .status(400)
-          .json({ success: false, message: "Current password is required" });
-      }
-      const isValid = await bcrypt.compare(currentPassword, user.password);
-      if (!isValid) {
-        return res
-          .status(401)
-          .json({ success: false, message: "Ағымдағы құпия сөз қате" });
-      }
-      if (newPassword.length < 6) {
-        return res
-          .status(400)
-          .json({
-            success: false,
-            message: "Жаңа құпия сөз кемінде 6 таңба болуы керек",
-          });
-      }
-      const hashed = await bcrypt.hash(newPassword, 10);
-      const result = await pool.query(
-        "UPDATE users SET name = $1, password = $2 WHERE id = $3 RETURNING id, name, email, created_at",
-        [name.trim(), hashed, id],
-      );
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "Профиль жаңартылды",
-          data: result.rows[0],
-        });
-    }
-
-    const result = await pool.query(
-      "UPDATE users SET name = $1 WHERE id = $2 RETURNING id, name, email, created_at",
-      [name.trim(), id],
-    );
-    return res
-      .status(200)
-      .json({
-        success: true,
-        message: "Профиль жаңартылды",
-        data: result.rows[0],
-      });
+        .json({ success: false, message: "Сұрақ табылмады" });
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
-    console.error("Error updating profile:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Server error", error: error.message });
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.delete("/admin/questions/:id", checkAdmin, async (req, res) => {
+  try {
+    const result = await questionsPool.query(
+      "DELETE FROM questions WHERE id=$1 RETURNING id",
+      [req.params.id],
+    );
+    if (result.rows.length === 0)
+      return res
+        .status(404)
+        .json({ success: false, message: "Сұрақ табылмады" });
+    res.json({ success: true, message: "Сұрақ жойылды" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/test/questions", async (req, res) => {
+  try {
+    const { age_group, education, field } = req.body;
+    const competencies = [
+      "information",
+      "communication",
+      "content",
+      "safety",
+      "problem",
+    ];
+    let allQuestions = [];
+    for (const comp of competencies) {
+      const result = await questionsPool.query(
+        `SELECT * FROM questions
+         WHERE competency = $1
+         AND (age_group = $2 OR age_group = 'all')
+         AND (education = $3 OR education = 'all')
+         AND (field = $4 OR field = 'all')
+         ORDER BY RANDOM() LIMIT 4`,
+        [comp, age_group || "all", education || "all", field || "all"],
+      );
+      allQuestions = allQuestions.concat(result.rows);
+    }
+    allQuestions.sort(() => Math.random() - 0.5);
+    const sanitized = allQuestions.map((q) => ({
+      id: q.id,
+      text: q.text,
+      option_a: q.option_a,
+      option_b: q.option_b,
+      option_c: q.option_c,
+      option_d: q.option_d,
+      competency: q.competency,
+    }));
+    res.json({ success: true, count: sanitized.length, data: sanitized });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.post("/test/submit", async (req, res) => {
+  try {
+    const { user_id, answers, age_group, education, field } = req.body;
+    const ids = answers.map((a) => a.question_id);
+    const qResult = await questionsPool.query(
+      "SELECT id, correct_answer, competency FROM questions WHERE id = ANY($1)",
+      [ids],
+    );
+    const qMap = {};
+    qResult.rows.forEach((q) => {
+      qMap[q.id] = q;
+    });
+    let total = 0,
+      scores = {
+        information: 0,
+        communication: 0,
+        content: 0,
+        safety: 0,
+        problem: 0,
+      };
+    answers.forEach((a) => {
+      const q = qMap[a.question_id];
+      if (q && a.answer === q.correct_answer) {
+        total++;
+        scores[q.competency]++;
+      }
+    });
+    const result = await questionsPool.query(
+      `INSERT INTO test_results (user_id, total_score, max_score, information_score, communication_score, content_score, safety_score, problem_score, age_group, education, field)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
+      [
+        user_id || null,
+        total,
+        answers.length,
+        scores.information,
+        scores.communication,
+        scores.content,
+        scores.safety,
+        scores.problem,
+        age_group,
+        education,
+        field,
+      ],
+    );
+    res.json({ success: true, data: result.rows[0], scores, total });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get("/admin/stats", checkAdmin, async (req, res) => {
+  try {
+    const qCount = await questionsPool.query("SELECT COUNT(*) FROM questions");
+    const rCount = await questionsPool.query(
+      "SELECT COUNT(*) FROM test_results",
+    );
+    const avgScore = await questionsPool.query(
+      "SELECT AVG(total_score::float/max_score*100) as avg FROM test_results",
+    );
+    res.json({
+      success: true,
+      questions: parseInt(qCount.rows[0].count),
+      results: parseInt(rCount.rows[0].count),
+      avgPercent: Math.round(avgScore.rows[0].avg || 0),
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 });
 

@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="kk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin панель — Цифрлық сауаттылық</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="admin.css" />
+  </head>
+  <body>
+    <!-- ── LOGIN ── -->
+    <div class="login-wrap" id="loginWrap">
+      <div class="login-card">
+        <div class="login-card__icon">⚙️</div>
+        <h1>Admin панель</h1>
+        <p>Цифрлық сауаттылық — сұрақтар базасы</p>
+
+        <div class="form-group" style="margin-bottom: 14px">
+          <label>Аты-жөні</label>
+          <input type="text" id="adminUsername" placeholder="Мысалы: Бақтияр" />
+        </div>
+        <div class="form-group" style="margin-bottom: 16px">
+          <label>Пароль</label>
+          <input type="password" id="adminPwd" placeholder="Admin пароль" />
+        </div>
+        <div class="msg" id="loginMsg"></div>
+        <button
+          class="btn btn-primary"
+          style="width: 100%; margin-top: 14px; height: 48px"
+          onclick="doLogin()"
+        >
+          Кіру →
+        </button>
+      </div>
+    </div>
+
+    <!-- ── ADMIN APP ── -->
+    <div id="adminApp" class="hidden">
+      <header class="admin-header">
+        <div class="admin-header__left">
+          <div class="admin-header__logo">⚙️</div>
+          <div class="admin-header__title">Admin панель</div>
+        </div>
+        <div class="admin-header__right">
+          <div class="admin-header__user">
+            <div class="admin-header__avatar" id="headerAvatar">А</div>
+            <div>
+              <div class="admin-header__name" id="headerName">Admin</div>
+              <div class="admin-header__role">Администратор</div>
+            </div>
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="doLogout()">
+            Шығу
+          </button>
+        </div>
+      </header>
+
+      <main class="admin-main">
+        <!-- STATS -->
+        <div class="stats-row">
+          <div class="stat-box">
+            <div class="stat-box__icon">📋</div>
+            <div class="stat-box__val" id="statQuestions">—</div>
+            <div class="stat-box__lbl">Жалпы сұрақ</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box__icon">✅</div>
+            <div class="stat-box__val" id="statResults">—</div>
+            <div class="stat-box__lbl">Тапсырылған тест</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-box__icon">📊</div>
+            <div class="stat-box__val" id="statAvg">—</div>
+            <div class="stat-box__lbl">Орташа нәтиже</div>
+          </div>
+        </div>
+
+        <!-- TABS -->
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('list', this)">
+            📋 Сұрақтар тізімі
+          </button>
+          <button class="tab" onclick="switchTab('add', this)">
+            ➕ Жаңа сұрақ қосу
+          </button>
+        </div>
+
+        <!-- ── LIST TAB ── -->
+        <div id="tabList">
+          <div class="filters">
+            <div class="filter-group">
+              <label>Іздеу</label>
+              <input
+                type="text"
+                id="filterSearch"
+                placeholder="Сұрақ мәтіні..."
+                style="width: 220px"
+                oninput="loadQuestions()"
+              />
+            </div>
+            <div class="filter-group">
+              <label>Құзыреттілік</label>
+              <select id="filterComp" onchange="loadQuestions()">
+                <option value="">Барлығы</option>
+                <option value="information">Ақпарат іздеу</option>
+                <option value="communication">Коммуникация</option>
+                <option value="content">Контент жасау</option>
+                <option value="safety">Қауіпсіздік</option>
+                <option value="problem">Проблема шешу</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Жас тобы</label>
+              <select id="filterAge" onchange="loadQuestions()">
+                <option value="">Барлығы</option>
+                <option value="10-18">10–18</option>
+                <option value="18-25">18–25</option>
+                <option value="26-35">26–35</option>
+                <option value="36-50">36–50</option>
+                <option value="50+">50+</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label>Мамандық</label>
+              <select id="filterField" onchange="loadQuestions()">
+                <option value="">Барлығы</option>
+                <option value="IT">IT</option>
+                <option value="Медицина">Медицина</option>
+                <option value="Білім">Білім</option>
+                <option value="Бизнес">Бизнес</option>
+                <option value="Мемлекет">Мемлекет</option>
+                <option value="Студент">Студент</option>
+                <option value="Басқа">Басқа</option>
+              </select>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="resetFilters()">
+              Тазалау
+            </button>
+          </div>
+
+          <div class="table-wrap">
+            <div class="table-header">
+              <h2>Сұрақтар</h2>
+              <span class="count-chip" id="questionsCount">—</span>
+            </div>
+            <div id="questionsTable">
+              <div class="loading">Жүктелуде...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ADD TAB ── -->
+        <div id="tabAdd" class="hidden">
+          <div class="form-card">
+            <h2>➕ Жаңа сұрақ қосу</h2>
+            <div class="form-grid">
+              <div class="form-group full">
+                <label>Сұрақ мәтіні *</label>
+                <textarea
+                  id="addText"
+                  placeholder="Сұрақты қазақ тілінде жазыңыз..."
+                ></textarea>
+              </div>
+              <div class="form-group full">
+                <label>Жауап нұсқалары *</label>
+                <div class="options-grid">
+                  <div class="option-row">
+                    <span class="option-label">A)</span>
+                    <input type="text" id="addA" placeholder="A нұсқасы" />
+                  </div>
+                  <div class="option-row">
+                    <span class="option-label">B)</span>
+                    <input type="text" id="addB" placeholder="B нұсқасы" />
+                  </div>
+                  <div class="option-row">
+                    <span class="option-label">C)</span>
+                    <input type="text" id="addC" placeholder="C нұсқасы" />
+                  </div>
+                  <div class="option-row">
+                    <span class="option-label">D)</span>
+                    <input type="text" id="addD" placeholder="D нұсқасы" />
+                  </div>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Дұрыс жауап *</label>
+                <select id="addCorrect">
+                  <option value="">Таңдаңыз</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                  <option value="D">D</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Құзыреттілік *</label>
+                <select id="addComp">
+                  <option value="">Таңдаңыз</option>
+                  <option value="information">Ақпарат іздеу</option>
+                  <option value="communication">Коммуникация</option>
+                  <option value="content">Контент жасау</option>
+                  <option value="safety">Қауіпсіздік</option>
+                  <option value="problem">Проблема шешу</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Жас тобы</label>
+                <select id="addAge">
+                  <option value="all">Барлығына</option>
+                  <option value="10-18">10–18</option>
+                  <option value="18-25">18–25</option>
+                  <option value="26-35">26–35</option>
+                  <option value="36-50">36–50</option>
+                  <option value="50+">50+</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Білім деңгейі</label>
+                <select id="addEdu">
+                  <option value="all">Барлығына</option>
+                  <option value="Орта">Орта мектеп</option>
+                  <option value="Техникалық">Техникалық</option>
+                  <option value="Жоғары">Жоғары</option>
+                  <option value="Магистр">Магистр/PhD</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Мамандық саласы</label>
+                <select id="addField">
+                  <option value="all">Барлығына</option>
+                  <option value="IT">IT/технология</option>
+                  <option value="Медицина">Медицина</option>
+                  <option value="Білім">Білім беру</option>
+                  <option value="Бизнес">Бизнес</option>
+                  <option value="Мемлекет">Мемлекеттік қызмет</option>
+                  <option value="Студент">Студент</option>
+                  <option value="Басқа">Басқа</option>
+                </select>
+              </div>
+            </div>
+            <div class="msg" id="addMsg" style="margin-top: 16px"></div>
+            <div style="margin-top: 24px; display: flex; gap: 12px">
+              <button class="btn btn-primary" onclick="addQuestion()">
+                ✅ Сұрақты сақтау
+              </button>
+              <button class="btn btn-outline" onclick="clearForm()">
+                Тазалау
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- ── EDIT MODAL ── -->
+    <div class="modal-overlay" id="editModal">
+      <div class="modal">
+        <button class="modal-close" onclick="closeEdit()">✕</button>
+        <h2>✏️ Сұрақты өзгерту</h2>
+        <input type="hidden" id="editId" />
+        <div class="form-grid">
+          <div class="form-group full">
+            <label>Сұрақ мәтіні</label>
+            <textarea id="editText"></textarea>
+          </div>
+          <div class="form-group full">
+            <label>Жауап нұсқалары</label>
+            <div class="options-grid">
+              <div class="option-row">
+                <span class="option-label">A)</span
+                ><input type="text" id="editA" />
+              </div>
+              <div class="option-row">
+                <span class="option-label">B)</span
+                ><input type="text" id="editB" />
+              </div>
+              <div class="option-row">
+                <span class="option-label">C)</span
+                ><input type="text" id="editC" />
+              </div>
+              <div class="option-row">
+                <span class="option-label">D)</span
+                ><input type="text" id="editD" />
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Дұрыс жауап</label>
+            <select id="editCorrect">
+              <option value="A">A</option>
+              <option value="B">B</option>
+              <option value="C">C</option>
+              <option value="D">D</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Құзыреттілік</label>
+            <select id="editComp">
+              <option value="information">Ақпарат іздеу</option>
+              <option value="communication">Коммуникация</option>
+              <option value="content">Контент жасау</option>
+              <option value="safety">Қауіпсіздік</option>
+              <option value="problem">Проблема шешу</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Жас тобы</label>
+            <select id="editAge">
+              <option value="all">Барлығына</option>
+              <option value="10-18">10–18</option>
+              <option value="18-25">18–25</option>
+              <option value="26-35">26–35</option>
+              <option value="36-50">36–50</option>
+              <option value="50+">50+</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Білім деңгейі</label>
+            <select id="editEdu">
+              <option value="all">Барлығына</option>
+              <option value="Орта">Орта мектеп</option>
+              <option value="Техникалық">Техникалық</option>
+              <option value="Жоғары">Жоғары</option>
+              <option value="Магистр">Магистр/PhD</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Мамандық саласы</label>
+            <select id="editField">
+              <option value="all">Барлығына</option>
+              <option value="IT">IT/технология</option>
+              <option value="Медицина">Медицина</option>
+              <option value="Білім">Білім беру</option>
+              <option value="Бизнес">Бизнес</option>
+              <option value="Мемлекет">Мемлекеттік қызмет</option>
+              <option value="Студент">Студент</option>
+              <option value="Басқа">Басқа</option>
+            </select>
+          </div>
+        </div>
+        <div class="msg" id="editMsg" style="margin-top: 16px"></div>
+        <div style="margin-top: 24px; display: flex; gap: 12px">
+          <button class="btn btn-primary" onclick="saveEdit()">
+            ✅ Сақтау
+          </button>
+          <button class="btn btn-outline" onclick="closeEdit()">
+            Болдырмау
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="admin.js"></script>
+  </body>
+</html>

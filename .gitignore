@@ -26,3 +26,4 @@ build/
 
 config.js
 config.js
+.env
