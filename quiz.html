@@ -15,7 +15,6 @@
     <script src="quiz.js"></script>
   </head>
   <body>
-    <!-- Top progress bar -->
     <div class="quiz-topbar">
       <div class="quiz-topbar__inner">
         <a href="test.html" class="quiz-topbar__logo">
@@ -34,9 +33,7 @@
       </div>
     </div>
 
-    <!-- Main content -->
     <main class="quiz-main" id="quizMain">
-      <!-- INTRO SCREEN -->
       <div class="quiz-screen" id="screenIntro">
         <div class="quiz-intro">
           <div class="quiz-intro__icon">📋</div>
@@ -46,20 +43,16 @@
             30 сұрақ · 5 блок · ~25 минут
           </p>
           <div class="quiz-intro__blocks">
-            <div class="quiz-intro__block" style="--c: #0097a7">
-              🔍 Ақпарат іздеу
-            </div>
+            <div class="quiz-intro__block" style="--c: #0097a7">🔍 Ақпарат</div>
             <div class="quiz-intro__block" style="--c: #f57c00">
-              🛡️ Қаржылық қауіпсіздік
+              🛡️ Коммуникация
             </div>
-            <div class="quiz-intro__block" style="--c: #5e35b1">
-              🏛️ eGov қызметтері
-            </div>
+            <div class="quiz-intro__block" style="--c: #5e35b1">🏛️ Контент</div>
             <div class="quiz-intro__block" style="--c: #c62828">
-              💬 Желі мәдениеті
+              💬 Қауіпсіздік
             </div>
             <div class="quiz-intro__block" style="--c: #2e7d32">
-              ⚙️ Құрылғыларды күту
+              ⚙️ Проблемаларды шешу
             </div>
           </div>
           <div class="quiz-intro__form">
@@ -124,31 +117,23 @@
         </div>
       </div>
 
-      <!-- QUESTION SCREEN -->
       <div class="quiz-screen quiz-screen--hidden" id="screenQuestion">
         <div class="quiz-question-wrap">
-          <!-- Block label -->
           <div class="quiz-block-label" id="blockLabel">
             <span class="quiz-block-label__icon" id="blockIcon">🔍</span>
-            <span class="quiz-block-label__text" id="blockName"
-              >Ақпарат іздеу</span
-            >
+            <span class="quiz-block-label__text" id="blockName">Ақпарат</span>
             <span class="quiz-block-label__num" id="blockQNum">1 / 6</span>
           </div>
 
-          <!-- Question card -->
           <div class="quiz-card">
             <p class="quiz-card__statement">
               Төмендегі тұжырымды оқып, өзіңізге сәйкес жауапты таңдаңыз:
             </p>
             <p class="quiz-card__question" id="questionText">Сұрақ мәтіні</p>
 
-            <div class="quiz-options" id="optionsWrap">
-              <!-- rendered by JS -->
-            </div>
+            <div class="quiz-options" id="optionsWrap"></div>
           </div>
 
-          <!-- Navigation -->
           <div class="quiz-nav">
             <button class="quiz-btn quiz-btn--ghost" id="prevBtn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -176,10 +161,8 @@
         </div>
       </div>
 
-      <!-- RESULT SCREEN -->
       <div class="quiz-screen quiz-screen--hidden" id="screenResult">
         <div class="quiz-result-wrap">
-          <!-- Congrats -->
           <div class="quiz-result-header">
             <div class="quiz-result-trophy">🏆</div>
             <h1 class="quiz-result-title">Құттықтаймыз!</h1>
@@ -188,7 +171,6 @@
             </p>
           </div>
 
-          <!-- Overall level -->
           <div class="quiz-result-overall" id="resultOverall">
             <div class="quiz-result-overall__left">
               <div class="quiz-result-overall__label">
@@ -209,12 +191,8 @@
             </div>
           </div>
 
-          <!-- Per-block results -->
-          <div class="quiz-result-blocks" id="resultBlocks">
-            <!-- rendered by JS -->
-          </div>
+          <div class="quiz-result-blocks" id="resultBlocks"></div>
 
-          <!-- Actions -->
           <div class="quiz-result-actions">
             <button class="quiz-btn quiz-btn--ghost" id="retakeBtn">
               Қайталау

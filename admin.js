@@ -346,5 +346,220 @@ function switchTab(tab, btn) {
   btn.classList.add("active");
   document.getElementById("tabList").classList.toggle("hidden", tab !== "list");
   document.getElementById("tabAdd").classList.toggle("hidden", tab !== "add");
+  document
+    .getElementById("tabImport")
+    .classList.toggle("hidden", tab !== "import");
   if (tab === "list") loadQuestions();
+}
+
+// ── IMPORT ──
+
+let importData = [];
+
+document.addEventListener("DOMContentLoaded", () => {
+  const fileInput = document.getElementById("importFile");
+  if (fileInput) {
+    fileInput.addEventListener("change", handleFileSelect);
+  }
+});
+
+function handleFileSelect(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function (ev) {
+    try {
+      const parsed = JSON.parse(ev.target.result);
+      if (!Array.isArray(parsed)) {
+        showMsg("importMsg", "❌ JSON массив болуы керек [ ]", "error");
+        return;
+      }
+      importData = parsed;
+      const preview = document.getElementById("importPreview");
+      const previewText = document.getElementById("importPreviewText");
+      preview.classList.remove("hidden");
+
+      // Статистика
+      const comps = {};
+      parsed.forEach((q) => {
+        comps[q.competency] = (comps[q.competency] || 0) + 1;
+      });
+      const compStr = Object.entries(comps)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join(" | ");
+      previewText.innerHTML = `✅ <strong>${parsed.length} сұрақ</strong> табылды<br><span style="font-size:0.8rem;opacity:0.8;">${compStr}</span>`;
+    } catch (err) {
+      showMsg("importMsg", "❌ JSON форматы қате: " + err.message, "error");
+    }
+  };
+  reader.readAsText(file, "UTF-8");
+}
+
+async function startImport() {
+  if (!importData.length) {
+    showMsg("importMsg", "⚠️ Алдымен JSON файлын таңдаңыз", "error");
+    return;
+  }
+
+  const total = importData.length;
+  let success = 0;
+  let failed = 0;
+  const errors = [];
+
+  document.getElementById("importProgress").classList.remove("hidden");
+  document.getElementById("importResult").classList.add("hidden");
+
+  // Batch — 10 сұрақтан жіберу
+  const BATCH = 10;
+  for (let i = 0; i < total; i += BATCH) {
+    const batch = importData.slice(i, i + BATCH);
+
+    await Promise.all(
+      batch.map(async (q, idx) => {
+        try {
+          const resp = await fetch(API + "/admin/questions", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "x-admin-password": adminPassword,
+            },
+            body: JSON.stringify({
+              text: q.text,
+              option_a: q.option_a,
+              option_b: q.option_b,
+              option_c: q.option_c,
+              option_d: q.option_d,
+              correct_answer: (q.correct_answer || "A").toUpperCase(),
+              competency: q.competency || "information",
+              age_group: q.age_group || "all",
+              education: q.education || "all",
+              field: q.field || "all",
+            }),
+          });
+          const data = await resp.json();
+          if (data.success) {
+            success++;
+          } else {
+            failed++;
+            errors.push(`#${i + idx + 1}: ${data.message}`);
+          }
+        } catch (err) {
+          failed++;
+          errors.push(`#${i + idx + 1}: желі қатесі`);
+        }
+      }),
+    );
+
+    // Прогресс жаңарту
+    const done = Math.min(i + BATCH, total);
+    const pct = Math.round((done / total) * 100);
+    document.getElementById("importProgressBar").style.width = pct + "%";
+    document.getElementById("importProgressText").textContent =
+      done + " / " + total;
+  }
+
+  // Нәтиже
+  document.getElementById("importResult").classList.remove("hidden");
+  const body = document.getElementById("importResultBody");
+  body.innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="padding:14px;background:#e8f5e9;border-radius:10px;border:1px solid #a5d6a7;text-align:center;">
+        <div style="font-size:1.6rem;font-weight:700;color:#1b8a4e;">${success}</div>
+        <div style="font-size:0.8rem;color:#2e7d32;">Сәтті қосылды</div>
+      </div>
+      <div style="padding:14px;background:${failed ? "#ffebee" : "#f0f4ff"};border-radius:10px;border:1px solid ${failed ? "#ffcdd2" : "#dde1f5"};text-align:center;">
+        <div style="font-size:1.6rem;font-weight:700;color:${failed ? "#e53935" : "#9ba3c9"};">${failed}</div>
+        <div style="font-size:0.8rem;color:${failed ? "#c62828" : "#9ba3c9"};">Қате</div>
+      </div>
+    </div>
+    ${errors.length ? `<details style="font-size:0.78rem;color:#e53935;"><summary>Қателер тізімі</summary><pre style="margin-top:8px;">${errors.slice(0, 20).join("\n")}</pre></details>` : ""}
+  `;
+
+  if (failed === 0) {
+    showMsg("importMsg", `✅ ${success} сұрақ сәтті жүктелді!`, "success");
+  } else {
+    showMsg("importMsg", `⚠️ ${success} сәтті, ${failed} қате`, "error");
+  }
+
+  loadStats();
+  importData = [];
+  document.getElementById("importFile").value = "";
+  document.getElementById("importPreview").classList.add("hidden");
+  document.getElementById("importProgress").classList.add("hidden");
+}
+
+function downloadTemplate() {
+  const template = [
+    {
+      text: "Интернетте ақпарат іздегенде қай іздеу жүйесі ең кеңінен қолданылады?",
+      option_a: "Yahoo",
+      option_b: "Google",
+      option_c: "Bing",
+      option_d: "DuckDuckGo",
+      correct_answer: "B",
+      competency: "information",
+      age_group: "all",
+      education: "all",
+      field: "all",
+    },
+    {
+      text: "Email арқылы ресми хат жазғанда қандай тіл қолдану керек?",
+      option_a: "Сленг тіл",
+      option_b: "Ресми, сыпайы тіл",
+      option_c: "Қысқартулар мен эмодзи",
+      option_d: "Бейресми тіл",
+      correct_answer: "B",
+      competency: "communication",
+      age_group: "all",
+      education: "all",
+      field: "all",
+    },
+    {
+      text: "Интернетке жарияланған мазмұнды (сурет, мақала) пайдаланғанда не істеу керек?",
+      option_a: "Тікелей пайдалану",
+      option_b: "Авторды көрсету және рұқсат алу",
+      option_c: "Атауын өзгерту",
+      option_d: "Басқа сайтқа жою",
+      correct_answer: "B",
+      competency: "content",
+      age_group: "all",
+      education: "all",
+      field: "all",
+    },
+    {
+      text: "Фишинг шабуылынан сақтанудың ең тиімді жолы қандай?",
+      option_a: "Барлық электрондық хаттарды оқу",
+      option_b: "Күдікті сілтемелерді баспау",
+      option_c: "Антивирус орнату",
+      option_d: "Парольді жиі ауыстыру",
+      correct_answer: "B",
+      competency: "safety",
+      age_group: "all",
+      education: "all",
+      field: "all",
+    },
+    {
+      text: "Компьютер баяу жұмыс істесе алдымен не тексеру керек?",
+      option_a: "Жаңа компьютер сатып алу",
+      option_b: "Қажетсіз бағдарламаларды жою және дискіні тазалау",
+      option_c: "Интернетті өшіру",
+      option_d: "Барлық файлдарды жою",
+      correct_answer: "B",
+      competency: "problem",
+      age_group: "all",
+      education: "all",
+      field: "all",
+    },
+  ];
+
+  const blob = new Blob([JSON.stringify(template, null, 2)], {
+    type: "application/json",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "questions_template.json";
+  a.click();
+  URL.revokeObjectURL(url);
 }

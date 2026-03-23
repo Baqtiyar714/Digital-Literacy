@@ -12,19 +12,23 @@
   var TOTAL_MAX = MAX_PER_BLOCK * TOTAL_BLOCKS;
 
   var BLOCK_META = {
-    "info-search": { title: "Ақпарат іздеу", icon: "🔍", color: "#0097a7" },
+    "info-search": { title: "Ақпарат", icon: "🔍", color: "#0097a7" },
     "financial-security": {
-      title: "Қаржылық қауіпсіздік",
+      title: "Коммуникация",
       icon: "🛡️",
       color: "#f57c00",
     },
-    egov: { title: "eGov қызметтері", icon: "🏛️", color: "#5e35b1" },
+    egov: { title: "Контент", icon: "🏛️", color: "#5e35b1" },
     "network-culture": {
-      title: "Желі мәдениеті",
+      title: "Қауіпсіздік",
       icon: "💬",
       color: "#c62828",
     },
-    "device-care": { title: "Құрылғыларды күту", icon: "⚙️", color: "#2e7d32" },
+    "device-care": {
+      title: "Проблемаларды шешу",
+      icon: "⚙️",
+      color: "#2e7d32",
+    },
   };
 
   function loadResults() {
@@ -389,9 +393,7 @@
       logoutBtn.addEventListener("click", function () {
         try {
           localStorage.removeItem("user");
-        } catch (_e) {
-          /* ignore */
-        }
+        } catch (_e) {}
         window.location.href = "index.html";
       });
     }

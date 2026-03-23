@@ -593,7 +593,6 @@ tr:hover td {
   color: var(--error);
 }
 
-/* ── UTILS ── */
 .hidden {
   display: none !important;
 }

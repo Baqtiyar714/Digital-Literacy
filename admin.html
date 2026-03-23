@@ -86,6 +86,9 @@
           <button class="tab" onclick="switchTab('add', this)">
             ➕ Жаңа сұрақ қосу
           </button>
+          <button class="tab" onclick="switchTab('import', this)">
+            📥 Жаппай жүктеу
+          </button>
         </div>
 
         <!-- ── LIST TAB ── -->
@@ -250,6 +253,154 @@
                 Тазалау
               </button>
             </div>
+          </div>
+        </div>
+
+        <!-- ── IMPORT TAB ── -->
+        <div id="tabImport" class="hidden">
+          <div class="form-card">
+            <h2>📥 Жаппай сұрақ жүктеу (JSON)</h2>
+
+            <div
+              style="
+                margin-bottom: 20px;
+                background: #f0f4ff;
+                border-radius: 12px;
+                padding: 16px;
+                font-size: 0.88rem;
+                color: #3949ab;
+                border: 1px solid #dde1f5;
+              "
+            >
+              <strong>📌 JSON форматы:</strong>
+              <pre
+                style="
+                  margin-top: 10px;
+                  background: #fff;
+                  border-radius: 8px;
+                  padding: 12px;
+                  font-size: 0.78rem;
+                  overflow-x: auto;
+                  border: 1px solid #dde1f5;
+                  color: #1a1f36;
+                "
+              >
+[
+  {
+    "text": "Сұрақ мәтіні",
+    "option_a": "A нұсқа",
+    "option_b": "B нұсқа",
+    "option_c": "C нұсқа",
+    "option_d": "D нұсқа",
+    "correct_answer": "A",
+    "competency": "information",
+    "age_group": "all",
+    "education": "all",
+    "field": "all"
+  }
+]</pre
+              >
+              <div style="margin-top: 10px; font-size: 0.8rem; color: #5c6690">
+                <strong>competency:</strong> information | communication |
+                content | safety | problem<br />
+                <strong>age_group:</strong> 10-18 | 18-25 | 26-35 | 36-50 | 50+
+                | all<br />
+                <strong>education:</strong> Орта | Техникалық | Жоғары | Магистр
+                | all<br />
+                <strong>field:</strong> Білім | Медицина | IT | Бизнес |
+                Мемлекет | Студент | Басқа | all
+              </div>
+            </div>
+
+            <div class="form-group full" style="margin-bottom: 16px">
+              <label>JSON файлын таңдаңыз</label>
+              <input
+                type="file"
+                id="importFile"
+                accept=".json"
+                style="height: auto; padding: 10px 14px; cursor: pointer"
+              />
+            </div>
+
+            <div
+              id="importPreview"
+              class="hidden"
+              style="
+                margin-bottom: 16px;
+                padding: 14px;
+                background: #f8f9ff;
+                border-radius: 10px;
+                border: 1px solid #dde1f5;
+                font-size: 0.88rem;
+                color: #3949ab;
+              "
+            >
+              <span id="importPreviewText"></span>
+            </div>
+
+            <div id="importProgress" class="hidden" style="margin-bottom: 16px">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  font-size: 0.82rem;
+                  color: #5c6690;
+                  margin-bottom: 6px;
+                "
+              >
+                <span>Жүктелуде...</span>
+                <span id="importProgressText">0 / 0</span>
+              </div>
+              <div
+                style="
+                  height: 10px;
+                  background: #e3e7ff;
+                  border-radius: 999px;
+                  overflow: hidden;
+                "
+              >
+                <div
+                  id="importProgressBar"
+                  style="
+                    height: 100%;
+                    width: 0%;
+                    background: linear-gradient(90deg, #3949ab, #5c6bc0);
+                    border-radius: 999px;
+                    transition: width 0.3s;
+                  "
+                ></div>
+              </div>
+            </div>
+
+            <div class="msg" id="importMsg"></div>
+
+            <div
+              style="
+                margin-top: 20px;
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+              "
+            >
+              <button class="btn btn-primary" onclick="startImport()">
+                📥 Жүктеуді бастау
+              </button>
+              <button class="btn btn-outline" onclick="downloadTemplate()">
+                📄 Үлгі файлды жүктеу
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="importResult"
+            class="hidden form-card"
+            style="margin-top: 16px"
+          >
+            <h2>✅ Жүктеу нәтижесі</h2>
+            <div
+              id="importResultBody"
+              style="font-size: 0.9rem; color: #1a1f36"
+            ></div>
           </div>
         </div>
       </main>

@@ -41,23 +41,23 @@
   };
 
   var BLOCKS = [
-    { id: "info-search", title: "Ақпарат іздеу", color: "#0097a7", icon: "🔍" },
+    { id: "info-search", title: "Ақпарат", color: "#0097a7", icon: "🔍" },
     {
       id: "financial-security",
-      title: "Қаржылық қауіпсіздік",
+      title: "Коммуникация",
       color: "#f57c00",
       icon: "🛡️",
     },
-    { id: "egov", title: "eGov қызметтері", color: "#5e35b1", icon: "🏛️" },
+    { id: "egov", title: "Контент", color: "#5e35b1", icon: "🏛️" },
     {
       id: "network-culture",
-      title: "Желі мәдениеті",
+      title: "Қауіпсіздік",
       color: "#c62828",
       icon: "💬",
     },
     {
       id: "device-care",
-      title: "Құрылғыларды күту",
+      title: "Проблемаларды шешу",
       color: "#2e7d32",
       icon: "⚙️",
     },
