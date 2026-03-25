@@ -144,10 +144,50 @@
             </button>
           </div>
 
+          <!-- ── Хабарлама ── -->
+          <div id="listMsg" class="msg" style="margin-bottom: 10px"></div>
+
+          <!-- ── Bulk action bar (жасырын, таңдалғанда шығады) ── -->
+          <div
+            id="bulkBar"
+            style="
+              display: none;
+              align-items: center;
+              gap: 12px;
+              background: #fff3e0;
+              border: 1.5px solid #ffb74d;
+              border-radius: 12px;
+              padding: 11px 18px;
+              margin-bottom: 12px;
+            "
+          >
+            <span style="font-size: 0.9rem; font-weight: 600; color: #e65100">
+              ☑️ <span id="bulkCount">0</span> сұрақ таңдалды
+            </span>
+            <button
+              id="bulkDeleteBtn"
+              class="btn btn-danger btn-sm"
+              onclick="deleteSelected()"
+            >
+              🗑️ Жою
+            </button>
+            <button class="btn btn-outline btn-sm" onclick="cancelSelection()">
+              ✕ Болдырмау
+            </button>
+          </div>
+
           <div class="table-wrap">
             <div class="table-header">
               <h2>Сұрақтар</h2>
               <span class="count-chip" id="questionsCount">—</span>
+              <button
+                class="btn btn-outline btn-sm"
+                id="selectAllBtn"
+                onclick="toggleSelectAll()"
+                style="margin-left: auto"
+              >
+                ☑️ Барлығын таңдау
+              </button>
             </div>
             <div id="questionsTable">
               <div class="loading">Жүктелуде...</div>

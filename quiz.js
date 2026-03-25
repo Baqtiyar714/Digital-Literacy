@@ -219,15 +219,13 @@
     var name = (document.getElementById("introName").value || "").trim();
     var age = document.getElementById("introAge").value;
     var edu = document.getElementById("introEducation").value;
-    var field = document.getElementById("introField").value;
-
     if (!name) {
       document.getElementById("introName").focus();
       document.getElementById("introName").style.borderColor = "#e53935";
       return;
     }
 
-    state.userInfo = { name: name, age: age, education: edu, field: field };
+    state.userInfo = { name: name, age: age, education: edu, field: "all" };
     state.current = 0;
     state.answers = new Array(TOTAL).fill(null);
     state.started = true;
@@ -243,7 +241,7 @@
 
     var pct = (idx / TOTAL) * 100;
     progressFill.style.width = pct + "%";
-    topbarCounter.textContent = idx + 1 + " / " + TOTAL;
+    if (topbarCounter) topbarCounter.textContent = idx + 1 + " / " + TOTAL;
     var blockInGroup = BLOCKS.findIndex(function (b) {
       return b.id === q.blockId;
     });
@@ -343,7 +341,7 @@
     saveResults(blockScores);
     saveHistory(blockScores, totalScore);
     progressFill.style.width = "100%";
-    topbarCounter.textContent = TOTAL + " / " + TOTAL;
+    if (topbarCounter) topbarCounter.textContent = TOTAL + " / " + TOTAL;
 
     showScreen("result");
     renderResult(blockScores, totalScore);
@@ -493,7 +491,6 @@
     var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
     var age = (state.userInfo && state.userInfo.age) || "—";
     var edu = (state.userInfo && state.userInfo.education) || "—";
-    var field = (state.userInfo && state.userInfo.field) || "—";
     var dateStr = formatDate(new Date().toISOString());
 
     var blocksHtml = BLOCKS.map(function (block) {
@@ -589,8 +586,6 @@
       age +
       " &nbsp;|&nbsp; Білімі: " +
       edu +
-      " &nbsp;|&nbsp; Сала: " +
-      field +
       "</p>" +
       blocksHtml +
       '<div class="footer"><span>' +
@@ -661,8 +656,6 @@
     var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
     var age = (state.userInfo && state.userInfo.age) || "белгісіз";
     var edu = (state.userInfo && state.userInfo.education) || "белгісіз";
-    var field = (state.userInfo && state.userInfo.field) || "белгісіз";
-
     var overallLvl = getLevelForScore(totalScore);
 
     var blockLines = BLOCKS.map(function (b) {
@@ -692,9 +685,6 @@
       "\n" +
       "- Білімі: " +
       edu +
-      "\n" +
-      "- Мамандық саласы: " +
-      field +
       "\n\n" +
       "DigComp тест нәтижелері (максимум 18 балл/блок, 90 жалпы):\n" +
       blockLines +
@@ -708,15 +698,11 @@
       ")\n\n" +
       "Міндет: Осы нәтижелер негізінде 4 бөлімнен тұратын жеке талдау жаз:\n\n" +
       "## 🎯 Жалпы баға\n" +
-      "(2-3 сөйлем: жалпы деңгейді " +
-      field +
-      " саласы контекстінде бағала)\n\n" +
+      "(2-3 сөйлем: жалпы деңгейіңізді бағала)\n\n" +
       "## 💪 Күшті жақтарыңыз\n" +
       "(жоғары балл алған блоктарды мамандыққа байланыстыра атап өт, 2-3 тармақ)\n\n" +
       "## 📚 Дамыту керек бағыттар\n" +
-      "(нашар блоктар бойынша нақты не үйрену керек, " +
-      field +
-      " саласына арналған мысалдармен, 3-4 тармақ)\n\n" +
+      "(нашар блоктар бойынша нақты не үйрену керек, мысалдармен, 3-4 тармақ)\n\n" +
       "## 🗓️ Оқу жоспары\n" +
       "(30 күнге арналған нақты, орындалатын 4-5 қадам, ресурс атауларымен)\n\n" +
       "Маңызды: Жауап тек қазақ тілінде болсын. Markdown таңбалары (**, ##) қолданба — тек қарапайым мәтін. Нақты, жеке, мотивациялық болсын."

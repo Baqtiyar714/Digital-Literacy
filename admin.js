@@ -150,6 +150,11 @@ async function loadQuestions() {
       .map(
         (q) => `
       <tr>
+        <td style="text-align:center;width:36px;">
+          <input type="checkbox" class="q-checkbox" data-id="${q.id}"
+            style="width:16px;height:16px;cursor:pointer;accent-color:var(--primary);"
+            onchange="onCheckboxChange()">
+        </td>
         <td style="font-family:monospace;color:var(--muted);font-size:0.75rem;">#${q.id}</td>
         <td>
           <div class="q-text" title="${q.text}">${q.text}</div>
@@ -173,6 +178,7 @@ async function loadQuestions() {
       <table>
         <thead>
           <tr>
+            <th style="width:36px;text-align:center;"></th>
             <th>#</th>
             <th>Сұрақ мәтіні</th>
             <th>Дұрыс</th>
@@ -183,6 +189,8 @@ async function loadQuestions() {
         </thead>
         <tbody>${rows}</tbody>
       </table>`;
+    // Таңдалған санды қалпына келтіру
+    updateBulkBar();
   } catch (e) {
     document.getElementById("questionsTable").innerHTML =
       '<div class="empty">❌ Қате шықты. Серверді тексеріңіз.</div>';
@@ -562,4 +570,111 @@ function downloadTemplate() {
   a.download = "questions_template.json";
   a.click();
   URL.revokeObjectURL(url);
+}
+
+let allSelected = false;
+
+function onCheckboxChange() {
+  const checkboxes = document.querySelectorAll(".q-checkbox");
+  const checked = document.querySelectorAll(".q-checkbox:checked");
+  allSelected = checkboxes.length > 0 && checked.length === checkboxes.length;
+  updateSelectAllBtn();
+  updateBulkBar();
+}
+
+function toggleSelectAll() {
+  const checkboxes = document.querySelectorAll(".q-checkbox");
+  if (checkboxes.length === 0) return;
+  const checked = document.querySelectorAll(".q-checkbox:checked");
+  const shouldSelect = checked.length < checkboxes.length;
+  checkboxes.forEach((c) => (c.checked = shouldSelect));
+  allSelected = shouldSelect;
+  updateSelectAllBtn();
+  updateBulkBar();
+}
+
+function updateSelectAllBtn() {
+  const btn = document.getElementById("selectAllBtn");
+  if (!btn) return;
+  const checkboxes = document.querySelectorAll(".q-checkbox");
+  const checked = document.querySelectorAll(".q-checkbox:checked");
+  if (checkboxes.length > 0 && checked.length === checkboxes.length) {
+    btn.textContent = "☐ Таңдауды алу";
+    btn.style.borderColor = "var(--error)";
+    btn.style.color = "var(--error)";
+  } else {
+    btn.textContent = "☑️ Барлығын таңдау";
+    btn.style.borderColor = "";
+    btn.style.color = "";
+  }
+}
+
+function updateBulkBar() {
+  const checked = document.querySelectorAll(".q-checkbox:checked");
+  const bar = document.getElementById("bulkBar");
+  const countEl = document.getElementById("bulkCount");
+  if (!bar) return;
+  if (checked.length > 0) {
+    bar.style.display = "flex";
+    countEl.textContent = checked.length;
+  } else {
+    bar.style.display = "none";
+  }
+}
+
+function cancelSelection() {
+  document.querySelectorAll(".q-checkbox").forEach((c) => (c.checked = false));
+  allSelected = false;
+  updateSelectAllBtn();
+  updateBulkBar();
+}
+
+async function deleteSelected() {
+  const checked = document.querySelectorAll(".q-checkbox:checked");
+  if (!checked.length) return;
+  const ids = Array.from(checked).map((c) => c.dataset.id);
+  if (
+    !confirm(
+      ids.length + " сұрақты жоясыз ба? Бұл әрекетті қайтару мүмкін емес!",
+    )
+  )
+    return;
+
+  const btn = document.getElementById("bulkDeleteBtn");
+  btn.disabled = true;
+  btn.textContent = "⏳ Жойылуда...";
+
+  let success = 0,
+    failed = 0;
+  for (const id of ids) {
+    try {
+      const resp = await fetch(API + "/admin/questions/" + id, {
+        method: "DELETE",
+        headers: { "x-admin-password": adminPassword },
+      });
+      const data = await resp.json();
+      if (data.success) success++;
+      else failed++;
+    } catch (e) {
+      failed++;
+    }
+  }
+
+  btn.disabled = false;
+  btn.textContent = "🗑️ Жою";
+
+  const bar = document.getElementById("bulkBar");
+  if (bar) bar.style.display = "none";
+
+  if (failed === 0) {
+    showMsg("listMsg", "✅ " + success + " сұрақ сәтті жойылды!", "success");
+  } else {
+    showMsg(
+      "listMsg",
+      "⚠️ " + success + " жойылды, " + failed + " қате шықты",
+      "error",
+    );
+  }
+  loadQuestions();
+  loadStats();
 }

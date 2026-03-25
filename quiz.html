@@ -24,7 +24,6 @@
           >
         </a>
         <div class="quiz-topbar__right">
-          <span class="quiz-topbar__counter" id="topbarCounter">1 / 30</span>
           <a href="test.html" class="quiz-topbar__exit" id="exitBtn">✕ Шығу</a>
         </div>
       </div>
@@ -37,10 +36,15 @@
       <div class="quiz-screen" id="screenIntro">
         <div class="quiz-intro">
           <div class="quiz-intro__icon">📋</div>
-          <h1 class="quiz-intro__title">Цифрлық сауаттылық тесті</h1>
+          <h1
+            class="quiz-intro__title"
+            style="font-family: &quot;Times New Roman &quot;, sans-serif"
+          >
+            Цифрлық сауаттылық тесті
+          </h1>
           <p class="quiz-intro__desc">
             Тест барысында өзіңіздің цифрлық дағдыларыңызды бағалайсыз.<br />
-            30 сұрақ · 5 блок · ~25 минут
+            5 құзыреттілік бойынша цифрлық сауаттылығыңызды бағалаңыз.
           </p>
           <div class="quiz-intro__blocks">
             <div class="quiz-intro__block" style="--c: #0097a7">🔍 Ақпарат</div>
@@ -69,10 +73,10 @@
               <label class="quiz-form-label">Жас тобы</label>
               <select class="quiz-form-select" id="introAge">
                 <option value="">Таңдаңыз</option>
-                <option value="18-25">18–25</option>
-                <option value="26-35">26–35</option>
-                <option value="36-50">36–50</option>
-                <option value="50+">50+</option>
+                <option value="10-18">10–18</option>
+                <option value="19-35">19–35</option>
+                <option value="36-60">36–60</option>
+                <option value="60+">60+</option>
               </select>
             </div>
             <div class="quiz-form-row">
@@ -80,22 +84,10 @@
               <select class="quiz-form-select" id="introEducation">
                 <option value="">Таңдаңыз</option>
                 <option value="Орта">Орта мектеп</option>
-                <option value="Техникалық">Техникалық/кәсіптік</option>
-                <option value="Жоғары">Жоғары (бакалавр)</option>
-                <option value="Магистр">Магистр/PhD</option>
-              </select>
-            </div>
-            <div class="quiz-form-row">
-              <label class="quiz-form-label">Мамандық саласы</label>
-              <select class="quiz-form-select" id="introField">
-                <option value="">Таңдаңыз</option>
-                <option value="Білім">Білім беру</option>
-                <option value="Медицина">Медицина/денсаулық</option>
-                <option value="IT">IT/технология</option>
-                <option value="Бизнес">Бизнес/сауда</option>
-                <option value="Мемлекет">Мемлекеттік қызмет</option>
-                <option value="Студент">Студент</option>
-                <option value="Басқа">Басқа</option>
+                <option value="Колледж">Колледж/техникалық</option>
+                <option value="Жоғары">
+                  Жоғары білім (бакалавр, магистратура, докторантура)
+                </option>
               </select>
             </div>
           </div>
