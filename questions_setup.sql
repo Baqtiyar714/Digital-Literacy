@@ -7,9 +7,8 @@ CREATE TABLE IF NOT EXISTS questions (
   option_d TEXT NOT NULL,
   correct_answer CHAR(1) NOT NULL CHECK (correct_answer IN ('A','B','C','D')),
   competency VARCHAR(50) NOT NULL CHECK (competency IN ('information','communication','content','safety','problem')),
-  age_group VARCHAR(20) CHECK (age_group IN ('10-18','18-25','26-35','36-50','50+','all')),
-  education VARCHAR(30) CHECK (education IN ('Орта','Техникалық','Жоғары','Магистр','all')),
-  field VARCHAR(30) CHECK (field IN ('Білім','Медицина','IT','Бизнес','Мемлекет','Студент','Басқа','all')),
+  age_group VARCHAR(20) CHECK (age_group IN ('10-18','19-35','36-60','60+')),
+  education VARCHAR(30) CHECK (education IN ('Орта мектеп','Колледж','Жоғары')),
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -25,11 +24,9 @@ CREATE TABLE IF NOT EXISTS test_results (
   problem_score INTEGER DEFAULT 0,
   age_group VARCHAR(20),
   education VARCHAR(30),
-  field VARCHAR(30),
   taken_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Admin table
 CREATE TABLE IF NOT EXISTS admins (
   id SERIAL PRIMARY KEY,
   password_hash TEXT NOT NULL

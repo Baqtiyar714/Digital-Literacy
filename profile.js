@@ -3,42 +3,42 @@
   const LEGACY_USER_KEY = "user";
   const RESULTS_KEY = "diq_block_results";
 
-  const MAX_PER_BLOCK = 18;
+  const MAX_PER_BLOCK = 20;
   const BLOCKS = [
     {
-      id: "info-search",
+      id: "information",
       name: "Ақпарат",
       shortLabel: "Ақпарат",
       color: "#0097a7",
-      icon: "🔍",
+      icon: "📚",
     },
     {
-      id: "financial-security",
+      id: "communication",
       name: "Коммуникация",
       shortLabel: "Коммуникация",
       color: "#f57c00",
-      icon: "🛡️",
+      icon: "🤝",
     },
     {
-      id: "egov",
+      id: "content",
       name: "Контент",
       shortLabel: "Контент",
       color: "#5e35b1",
-      icon: "🏛️",
+      icon: "✏️",
     },
     {
-      id: "network-culture",
+      id: "safety",
       name: "Қауіпсіздік",
       shortLabel: "Қауіпсіздік",
       color: "#c62828",
-      icon: "💬",
+      icon: "🛡️",
     },
     {
-      id: "device-care",
+      id: "problem",
       name: "Проблемаларды шешу",
       shortLabel: "Проблема",
       color: "#2e7d32",
-      icon: "⚙️",
+      icon: "💡",
     },
   ];
 
@@ -90,37 +90,15 @@
   }
 
   function getLevelForScore(score, maxScore) {
-    var max = maxScore !== undefined ? maxScore : 18;
+    var max = maxScore !== undefined ? maxScore : 20;
     var pct = max > 0 ? (score / max) * 100 : 0;
-    if (pct <= 20)
-      return { num: 1, kk: "Іргетас", en: "Foundation", color: "#ef5350" };
-    if (pct <= 35)
-      return { num: 2, kk: "Іргетас", en: "Foundation", color: "#ef5350" };
-    if (pct <= 50)
-      return { num: 3, kk: "Орташа", en: "Intermediate", color: "#f9a825" };
-    if (pct <= 65)
-      return { num: 4, kk: "Орташа", en: "Intermediate", color: "#f9a825" };
-    if (pct <= 75)
-      return { num: 5, kk: "Кеңейтілген", en: "Advanced", color: "#1b8a4e" };
-    if (pct <= 85)
-      return { num: 6, kk: "Кеңейтілген", en: "Advanced", color: "#1b8a4e" };
-    if (pct <= 94)
-      return {
-        num: 7,
-        kk: "Жоғары көрсеткіш",
-        en: "Highly specialised",
-        color: "#1565c0",
-      };
-    return {
-      num: 8,
-      kk: "Жоғары деңгей",
-      en: "Highly specialised",
-      color: "#1565c0",
-    };
+    if (pct < 34) return { num: 1, kk: "Төмен", color: "#ef5350" };
+    if (pct < 67) return { num: 2, kk: "Орташа", color: "#f9a825" };
+    return { num: 3, kk: "Жоғары", color: "#1b8a4e" };
   }
 
   function levelFromScore(score) {
-    return getLevelForScore(score, 18);
+    return getLevelForScore(score, MAX_PER_BLOCK * BLOCKS.length);
   }
 
   function levelLabel(level) {
@@ -130,25 +108,15 @@
 
   function levelLabelWithEmoji(level) {
     if (typeof level === "object") {
-      var emojis = {
-        1: "🌱",
-        2: "🌱",
-        3: "⚡",
-        4: "⚡",
-        5: "🌟",
-        6: "🌟",
-        7: "🏆",
-        8: "🏆",
-      };
+      var emojis = { 1: "📉", 2: "⚡", 3: "🏆" };
       return level.kk + " " + (emojis[level.num] || "");
     }
-    return "Іргетас 🌱";
+    return "Төмен 📉";
   }
 
   function computeAggregates(results) {
     let completedCount = 0;
     let totalScore = 0;
-
     let bestBlockId = null;
     let bestScore = -1;
     let worstBlockId = null;
@@ -177,9 +145,7 @@
       if (entry.date) {
         const d = new Date(entry.date);
         if (!Number.isNaN(d.getTime())) {
-          if (!lastActivityDate || d > lastActivityDate) {
-            lastActivityDate = d;
-          }
+          if (!lastActivityDate || d > lastActivityDate) lastActivityDate = d;
         }
       }
     });
@@ -189,13 +155,49 @@
     const avgPercent =
       totalMax > 0 ? Math.round((totalScore / totalMax) * 100) : 0;
 
+    const lastTest = results._lastTest || null;
+    const lastTotal = lastTest ? lastTest.total || 0 : 0;
+    const lastMaxScore = lastTest ? lastTest.maxScore || 100 : 100;
+    const lastDate = lastTest ? lastTest.date : null;
+
+    let lastDateFormatted = "—";
+    if (lastDate) {
+      try {
+        const d = new Date(lastDate);
+        const dd = String(d.getDate()).padStart(2, "0");
+        const mm = String(d.getMonth() + 1).padStart(2, "0");
+        const yyyy = d.getFullYear();
+        const hh = String(d.getHours()).padStart(2, "0");
+        const min = String(d.getMinutes()).padStart(2, "0");
+        lastDateFormatted = dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+      } catch (_) {}
+    }
+
+    const HISTORY_KEY = "diq_test_history";
+    let allTimeBest = 0;
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      const hist = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(hist)) {
+        hist.forEach(function (h) {
+          if (h.totalScore && h.totalScore > allTimeBest)
+            allTimeBest = h.totalScore;
+        });
+      }
+    } catch (_) {}
+
     return {
-      completedCount: completedCount,
-      totalScore: totalScore,
-      avgPercent: avgPercent,
-      bestBlockId: bestBlockId,
+      completedCount,
+      totalScore,
+      avgPercent,
+      bestBlockId,
       worstBlockId: completedCount > 0 ? worstBlockId : null,
-      lastActivityDate: lastActivityDate,
+      lastActivityDate,
+      lastTotal,
+      lastMaxScore,
+      lastDate,
+      lastDateFormatted,
+      allTimeBest,
     };
   }
 
@@ -229,7 +231,7 @@
       regEl.textContent = "Тіркелген: " + formatDate(regDateStr);
     }
 
-    const level = levelFromScore(aggregates.totalScore);
+    const level = levelFromScore(aggregates.lastTotal);
     if (levelBadgeEl) {
       levelBadgeEl.textContent = levelLabelWithEmoji(level);
       levelBadgeEl.classList.remove(
@@ -237,10 +239,9 @@
         "profile-level-badge--intermediate",
         "profile-level-badge--advanced",
       );
-      const lnum = level.num || 1;
-      if (lnum <= 2) {
+      if (level.num === 1) {
         levelBadgeEl.classList.add("profile-level-badge--beginner");
-      } else if (lnum <= 4) {
+      } else if (level.num === 2) {
         levelBadgeEl.classList.add("profile-level-badge--intermediate");
       } else {
         levelBadgeEl.classList.add("profile-level-badge--advanced");
@@ -250,8 +251,12 @@
     }
 
     if (totalScoreChipEl) {
-      totalScoreChipEl.textContent =
-        aggregates.totalScore + " / " + MAX_PER_BLOCK * BLOCKS.length + " балл";
+      if (aggregates.lastTotal > 0) {
+        totalScoreChipEl.textContent =
+          aggregates.lastTotal + " / " + aggregates.lastMaxScore + " балл";
+      } else {
+        totalScoreChipEl.textContent = "0 / 100 балл";
+      }
     }
   }
 
@@ -262,91 +267,56 @@
     const bestBlockEl = document.getElementById("profileStatBestBlock");
 
     if (completedEl) {
-      completedEl.textContent =
-        aggregates.completedCount + " / " + BLOCKS.length;
+      if (aggregates.lastDate) {
+        completedEl.textContent = aggregates.lastDateFormatted;
+      } else {
+        completedEl.textContent = "—";
+      }
     }
     if (totalScoreEl) {
-      totalScoreEl.textContent =
-        aggregates.totalScore + " / " + MAX_PER_BLOCK * BLOCKS.length;
+      if (aggregates.lastTotal > 0) {
+        totalScoreEl.textContent =
+          aggregates.lastTotal + " / " + aggregates.lastMaxScore;
+      } else {
+        totalScoreEl.textContent = "— / 100";
+      }
     }
     if (avgEl) {
-      avgEl.textContent = aggregates.avgPercent + "%";
-      avgEl.classList.remove(
-        "profile-avg-low",
-        "profile-avg-medium",
-        "profile-avg-high",
-      );
-      if (aggregates.avgPercent === 0) {
-      } else if (aggregates.avgPercent < 40) {
-        avgEl.classList.add("profile-avg-low");
-      } else if (aggregates.avgPercent < 75) {
-        avgEl.classList.add("profile-avg-medium");
+      if (aggregates.lastTotal > 0) {
+        const lvl = getLevelForScore(
+          aggregates.lastTotal,
+          aggregates.lastMaxScore,
+        );
+        avgEl.textContent = lvl.kk;
+        avgEl.classList.remove(
+          "profile-avg-low",
+          "profile-avg-medium",
+          "profile-avg-high",
+        );
+        if (lvl.num === 1) avgEl.classList.add("profile-avg-low");
+        else if (lvl.num === 2) avgEl.classList.add("profile-avg-medium");
+        else avgEl.classList.add("profile-avg-high");
       } else {
-        avgEl.classList.add("profile-avg-high");
+        avgEl.textContent = "—";
       }
     }
     if (bestBlockEl) {
-      const block =
-        BLOCKS.find(function (b) {
-          return b.id === aggregates.bestBlockId;
-        }) || null;
-      bestBlockEl.textContent = block ? block.name : "—";
+      if (aggregates.allTimeBest > 0) {
+        bestBlockEl.textContent = aggregates.allTimeBest + " балл";
+      } else {
+        bestBlockEl.textContent = "—";
+      }
     }
   }
 
   function fillLevelAndAchievements(aggregates, results) {
-    const levelLabelEl = document.getElementById("profileLevelLabel");
-    const levelScoreLabelEl = document.getElementById("profileLevelScoreLabel");
-    const progressFillEl = document.getElementById("profileLevelProgressFill");
-    const levelHintEl = document.getElementById("profileLevelHint");
-
-    const level = levelFromScore(aggregates.totalScore);
-    const totalMax = MAX_PER_BLOCK * BLOCKS.length;
-
-    if (levelLabelEl) {
-      levelLabelEl.textContent = levelLabel(level);
-    }
-    if (levelScoreLabelEl) {
-      levelScoreLabelEl.textContent =
-        aggregates.totalScore + " / " + totalMax + " балл";
-    }
-
-    if (progressFillEl) {
-      progressFillEl.classList.remove(
-        "level-beginner",
-        "level-intermediate",
-        "level-advanced",
-      );
-      const pct = totalMax > 0 ? (aggregates.totalScore / totalMax) * 100 : 0;
-      const lnum = level.num || 1;
-      if (lnum <= 2) {
-        progressFillEl.classList.add("level-beginner");
-      } else if (lnum <= 4) {
-        progressFillEl.classList.add("level-intermediate");
-      } else {
-        progressFillEl.classList.add("level-advanced");
-      }
-      progressFillEl.style.background = level.color || "#ef5350";
-      progressFillEl.style.width = "0";
-      setTimeout(function () {
-        progressFillEl.style.width = pct.toFixed(1) + "%";
-      }, 300);
-    }
-
-    if (levelHintEl) {
-      if (aggregates.totalScore >= totalMax) {
-        levelHintEl.textContent = "🏆 Максималды деңгей!";
-      } else {
-        const missing = Math.max(0, totalMax - aggregates.totalScore);
-        levelHintEl.textContent =
-          "Озат деңгейіне " + missing + " балл жетіспейді";
-      }
-    }
-
-    const completedIds = Object.keys(results).filter(function (id) {
-      const entry = results[id];
-      return entry && Number(entry.score) >= 0;
-    });
+    const lastTest = results._lastTest || null;
+    const completedIds =
+      lastTest && lastTest.blockScores
+        ? Object.keys(lastTest.blockScores).filter(function (id) {
+            return lastTest.blockScores[id] >= 0;
+          })
+        : [];
 
     document
       .querySelectorAll(".profile-achievement-badge")
@@ -377,13 +347,19 @@
 
     container.innerHTML = "";
 
+    const lastTest = results._lastTest || null;
+    const lastBlockScores = lastTest ? lastTest.blockScores || {} : null;
+    const perBlock = lastTest
+      ? lastTest.perBlock || MAX_PER_BLOCK
+      : MAX_PER_BLOCK;
+
     BLOCKS.forEach(function (block) {
-      const entry = results[block.id];
       const row = document.createElement("div");
       row.className = "test-row";
-      if (!entry) {
-        row.classList.add("profile-result-row--empty");
-      }
+
+      const hasResult =
+        lastBlockScores && lastBlockScores[block.id] !== undefined;
+      if (!hasResult) row.classList.add("profile-result-row--empty");
       row.dataset.blockId = block.id;
 
       const iconBox = document.createElement("div");
@@ -399,7 +375,8 @@
       nameEl.textContent = block.name;
       const dateEl = document.createElement("div");
       dateEl.className = "profile-result-date";
-      dateEl.textContent = entry ? formatDate(entry.date) : "--.--.----";
+      dateEl.textContent =
+        lastTest && lastTest.date ? formatDate(lastTest.date) : "--.--.----";
       main.appendChild(nameEl);
       main.appendChild(dateEl);
 
@@ -416,35 +393,22 @@
       const scoreSpan = document.createElement("span");
       scoreSpan.className = "profile-result-score";
 
-      let scoreText = "— / " + MAX_PER_BLOCK;
-      let isCompleted = false;
-      let isPartial = false;
-
-      if (entry) {
-        const score = Number(entry.score) || 0;
-        const total = Number(entry.total) || MAX_PER_BLOCK;
-        scoreText = score + " / " + total;
-        isCompleted = score >= 0;
-        isPartial = score > 0 && score < total;
-
-        const pct = total > 0 ? (score / total) * 100 : 0;
+      if (hasResult) {
+        const score = Number(lastBlockScores[block.id]) || 0;
+        scoreSpan.textContent = score + " / " + perBlock + " балл";
+        const pct = perBlock > 0 ? (score / perBlock) * 100 : 0;
         setTimeout(function () {
           progressFill.style.width = pct.toFixed(1) + "%";
         }, 300);
       } else {
+        scoreSpan.textContent = "— / " + perBlock + " балл";
         scoreSpan.classList.add("profile-result-score--empty");
       }
-
-      scoreSpan.textContent = scoreText;
 
       const btn = document.createElement("a");
       btn.href = "test.html";
       btn.className = "profile-result-btn";
-      if (isCompleted || isPartial) {
-        btn.textContent = "Қайталау →";
-      } else {
-        btn.textContent = "Тапсыру →";
-      }
+      btn.textContent = hasResult ? "Қайталау →" : "Тапсыру →";
 
       row.appendChild(iconBox);
       row.appendChild(main);
@@ -458,39 +422,31 @@
 
   function fillStatsCard(aggregates) {
     var avgEl = document.getElementById("profileStatsAvg");
-    var bestEl = document.getElementById("profileStatsBestBlock");
-    var worstEl = document.getElementById("profileStatsWorstBlock");
     var lastEl = document.getElementById("profileStatsLastActivity");
     var totalScoreEl = document.getElementById("profileStatsTotalScore");
-    var completionEl = document.getElementById("profileStatsCompletion");
 
-    if (avgEl) avgEl.textContent = aggregates.avgPercent + "%";
-
-    var best = BLOCKS.find(function (b) {
-      return b.id === aggregates.bestBlockId;
-    });
-    if (bestEl) bestEl.textContent = best ? best.name : "\u2014";
-
-    var worst = BLOCKS.find(function (b) {
-      return b.id === aggregates.worstBlockId;
-    });
-    if (worstEl) worstEl.textContent = worst ? worst.name : "\u2014";
-
-    if (lastEl) {
-      lastEl.textContent = aggregates.lastActivityDate
-        ? formatDate(aggregates.lastActivityDate.toISOString())
-        : "\u2014";
+    if (avgEl) {
+      if (aggregates.lastTotal > 0) {
+        const lvl = getLevelForScore(
+          aggregates.lastTotal,
+          aggregates.lastMaxScore,
+        );
+        avgEl.textContent = lvl.kk;
+      } else {
+        avgEl.textContent = "—";
+      }
     }
 
-    var totalMax = MAX_PER_BLOCK * BLOCKS.length;
-    if (totalScoreEl)
-      totalScoreEl.textContent = aggregates.totalScore + " / " + totalMax;
-    if (completionEl)
-      completionEl.textContent =
-        aggregates.completedCount +
-        " / " +
-        BLOCKS.length +
-        " \u0431\u043b\u043e\u043a";
+    if (lastEl) {
+      lastEl.textContent = aggregates.lastDateFormatted || "—";
+    }
+
+    if (totalScoreEl) {
+      totalScoreEl.textContent =
+        aggregates.lastTotal > 0
+          ? aggregates.lastTotal + " / " + aggregates.lastMaxScore
+          : "— / 100";
+    }
   }
   function fillAiRecommendations(results, aggregates) {
     var list = document.getElementById("profileAiList");

@@ -1,140 +1,47 @@
 (function () {
   "use strict";
 
-  var RESULTS_KEY = "diq_block_results";
+  var API_BASE = "http://localhost:5000";
+
   var HISTORY_KEY = "diq_test_history";
   var USER_KEY = "diq_user";
   var LEGACY_KEY = "user";
 
-  var LEVELS = [
-    { min: 0, max: 8, num: 1, kk: "Іргетас", color: "#ef5350" },
-    { min: 9, max: 18, num: 2, kk: "Іргетас", color: "#ef5350" },
-    { min: 19, max: 27, num: 3, kk: "Орташа", color: "#f9a825" },
-    { min: 28, max: 36, num: 4, kk: "Орташа", color: "#f9a825" },
-    { min: 37, max: 45, num: 5, kk: "Кеңейтілген", color: "#1b8a4e" },
-    { min: 46, max: 54, num: 6, kk: "Кеңейтілген", color: "#1b8a4e" },
-    {
-      min: 55,
-      max: 63,
-      num: 7,
-      kk: "Жоғары мамандандырылған",
-      color: "#1565c0",
-    },
-    {
-      min: 64,
-      max: 90,
-      num: 8,
-      kk: "Жоғары мамандандырылған",
-      color: "#1565c0",
-    },
-  ];
-
-  var LEVEL_DESCS = {
-    1: "Бұл деңгейде сіз қарапайым жағдайларды өзіңіз немесе көмекпен шеше аласыз.",
-    2: "Бұл деңгейде сіз қарапайым жағдайларды өзіңіз шеше аласыз.",
-    3: "Бұл деңгейде сіз тікелей және кейбір болжанбайтын жағдайларды өзіңіз шеше аласыз.",
-    4: "Бұл деңгейде сіз тікелей және болжанбайтын жағдайларды тәуелсіз шеше аласыз.",
-    5: "Бұл деңгейде сіз өз қажеттіліктеріңіз үшін шешімдер таба аласыз және басқаларға қолдау көрсете аласыз.",
-    6: "Бұл деңгейде сіз күрделі жағдайларда өзіңіз бен басқалар үшін шешімдер таба аласыз.",
-    7: "Бұл деңгейде сіз ең күрделі жағдайларда шешімдерді жасай аласыз.",
-    8: "Бұл деңгейде сіз жоғары мамандандырылған деңгейде жұмыс жасайсыз.",
-  };
-
   var BLOCKS = [
-    { id: "info-search", title: "Ақпарат", color: "#0097a7", icon: "🔍" },
+    { id: "information", title: "Ақпарат", color: "#0097a7", icon: "🔍" },
     {
-      id: "financial-security",
+      id: "communication",
       title: "Коммуникация",
       color: "#f57c00",
       icon: "🛡️",
     },
-    { id: "egov", title: "Контент", color: "#5e35b1", icon: "🏛️" },
+    { id: "content", title: "Контент", color: "#5e35b1", icon: "🏛️" },
+    { id: "safety", title: "Қауіпсіздік", color: "#c62828", icon: "💬" },
     {
-      id: "network-culture",
-      title: "Қауіпсіздік",
-      color: "#c62828",
-      icon: "💬",
-    },
-    {
-      id: "device-care",
+      id: "problem",
       title: "Проблемаларды шешу",
       color: "#2e7d32",
       icon: "⚙️",
     },
   ];
 
-  var OPTIONS = [
-    { score: 0, text: "Мен мұны қалай істейтінімді білмеймін" },
-    { score: 1, text: "Мен мұны көмекпен жасай аламын" },
-    { score: 2, text: "Мен мұны өзім жасай аламын" },
-    {
-      score: 3,
-      text: "Мен мұны сенімділікпен жасай аламын және қажет болған жағдайда басқаларды қолдай/бағыттай аламын",
-    },
-  ];
+  var OPTION_KEYS = ["A", "B", "C", "D"];
 
-  var QUESTIONS_MAP = {
-    "info-search": [
-      "Мен интернетте керекті ақпаратты табу үшін дұрыс кілт сөздерді таңдай аламын.",
-      "Мен әртүрлі іздеу жүйелерінің (Google, Bing, Yandex) нәтижелері әртүрлі болуы мүмкін екенін түсінемін.",
-      "Мен онлайн табылған ақпараттың сенімді не сенімсіз екенін тексере аламын.",
-      "Мен файлдарды (суреттер, бейнелер, құжаттар) қалталарға сақтап, кейін оңай таба аламын.",
-      "Мен жалған жаңалықтар (fake news) мен шынайы ақпаратты ажырата аламын.",
-      "Мен деректерді кестелер, диаграммалар немесе графиктер арқылы оқып талдай аламын.",
-    ],
-    "financial-security": [
-      "Мен фишинг шабуылдарын (жеке деректерді ұрлауға бағытталған жалған хабарламаларды) анықтай аламын.",
-      "Мен онлайн банкинг немесе төлем жасау кезінде сайттың қауіпсіздігін тексере аламын (https, сертификат).",
-      "Мен әр сайт үшін күшті және бірегей пароль жасап, оны қауіпсіз сақтай аламын.",
-      "Мен смартфон, компьютер немесе планшетімде антивирус орнатып, жаңартып отыра аламын.",
-      "Мен жеке деректерімді (ЖСН, банк карточкасы, пароль) онлайнда қорғай аламын.",
-      "Мен онлайн алаяқтыққа тап болсам, тиісті органдарға хабарлай аламын.",
-    ],
-    egov: [
-      "Мен egov.kz порталы арқылы мемлекеттік қызметтерге онлайн өтініш бере аламын.",
-      "Мен электрондық цифрлық қолтаңба (ЭЦҚ) арқылы құжаттарды растай аламын.",
-      "Мен email, мессенджер немесе бейнеконференция арқылы ресми байланыс жүргізе аламын.",
-      "Мен онлайн платформа арқылы жұмысқа өтініш бере аламын (форма толтыру, CV жүктеу).",
-      "Мен ортақ онлайн құжаттарды (Google Docs, OneDrive) бірлесіп өңдей аламын.",
-      "Мен жағдайға қарай онлайнда қалай мінез-құлық ету керек екенін (ресми/бейресми) білемін.",
-    ],
-    "network-culture": [
-      "Мен мәтін, сурет, аудио немесе бейне форматында сандық контент жасай аламын.",
-      "Мен басқалар жасаған сандық контентті өңдеп, жаңасын жасай аламын (мысалы, суретке мәтін қосу).",
-      "Мен заңды және заңсыз онлайн контентті (бағдарламалық жасақтама, музыка, фильм) ажырата аламын.",
-      "Мен авторлық құқық пен лицензиялар туралы негізгі ережелерді білемін.",
-      "Мен Python, Java немесе Visual Basic сияқты бағдарламалау тілдері бар екенін және олардың мақсатын түсінемін.",
-      "Мен кибербуллинг (желідегі қудалау) жағдайында дұрыс әрекет ете аламын.",
-    ],
-    "device-care": [
-      "Мен техникалық мәселеге тап болсам, интернеттен шешімін таба аламын.",
-      "Мен белгілі бір тапсырмаға сәйкес дұрыс құрал, құрылғы немесе қызметті таңдай аламын.",
-      "Мен сандық технологияны шығармашылық мақсатта пайдалана аламын (бейне, инфографика, блог).",
-      "Мен онлайн оқу ресурстары (YouTube, онлайн курс) арқылы жаңа сандық дағдыларды үйрене аламын.",
-      "Мен смартфон немесе компьютерімдегі деректерді резервтік көшірмесін жасай аламын (backup).",
-      "Мен қолданбалар мен операциялық жүйені жаңартып отырудың маңыздылығын түсінемін.",
-    ],
+  var LEVEL_DESCS = {
+    1: "Цифрлық дағдылар әлі дамып келе жатыр. Негізгі цифрлық құралдармен жұмыс жасауды жалғастыру ұсынылады.",
+    2: "Цифрлық сауаттылық орта деңгейде. Жаңа технологияларды үйрену арқылы білімді тереңдетуге болады.",
+    3: "Цифрлық дағдылар жоғары деңгейде. Күрделі цифрлық міндеттерді еркін шеше алатын деңгей.",
   };
 
-  var ALL_QUESTIONS = [];
-  BLOCKS.forEach(function (block) {
-    var qs = QUESTIONS_MAP[block.id] || [];
-    qs.forEach(function (text, qi) {
-      ALL_QUESTIONS.push({
-        blockId: block.id,
-        blockTitle: block.title,
-        blockColor: block.color,
-        blockIcon: block.icon,
-        blockQIdx: qi,
-        text: text,
-      });
-    });
-  });
+  var GROQ_API_KEY =
+    typeof window !== "undefined" && window.GROQ_API_KEY
+      ? window.GROQ_API_KEY
+      : "YOUR_API_KEY";
 
-  var TOTAL = ALL_QUESTIONS.length;
   var state = {
     current: 0,
     answers: [],
+    questions: [],
     userInfo: null,
     started: false,
   };
@@ -142,17 +49,14 @@
   var screenIntro = document.getElementById("screenIntro");
   var screenQuestion = document.getElementById("screenQuestion");
   var screenResult = document.getElementById("screenResult");
-
   var progressFill = document.getElementById("progressFill");
   var topbarCounter = document.getElementById("topbarCounter");
-
-  var blockLabel = document.getElementById("blockLabel");
   var blockIcon = document.getElementById("blockIcon");
   var blockName = document.getElementById("blockName");
   var blockQNum = document.getElementById("blockQNum");
+  var blockLabel = document.getElementById("blockLabel");
   var questionText = document.getElementById("questionText");
   var optionsWrap = document.getElementById("optionsWrap");
-
   var prevBtn = document.getElementById("prevBtn");
   var nextBtn = document.getElementById("nextBtn");
   var startBtn = document.getElementById("startBtn");
@@ -194,114 +98,158 @@
     screenQuestion.classList.add("quiz-screen--hidden");
     screenResult.classList.add("quiz-screen--hidden");
 
+    var target;
     if (name === "intro") {
       screenIntro.classList.remove("quiz-screen--hidden");
-    }
-    if (name === "question") {
+      target = screenIntro;
+    } else if (name === "question") {
       screenQuestion.classList.remove("quiz-screen--hidden");
-    }
-    if (name === "result") {
+      target = screenQuestion;
+    } else {
       screenResult.classList.remove("quiz-screen--hidden");
+      target = screenResult;
     }
 
-    var target =
-      name === "intro"
-        ? screenIntro
-        : name === "question"
-          ? screenQuestion
-          : screenResult;
     target.style.animation = "none";
     void target.offsetWidth;
     target.style.animation = "";
   }
 
-  function onStart() {
+  function showLoading(show) {
+    startBtn.disabled = show;
+    startBtn.innerHTML = show
+      ? "Жүктелуде..."
+      : 'Сынақты бастау <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
+  }
+
+  async function onStart() {
     var name = (document.getElementById("introName").value || "").trim();
     var age = document.getElementById("introAge").value;
     var edu = document.getElementById("introEducation").value;
+
     if (!name) {
-      document.getElementById("introName").focus();
-      document.getElementById("introName").style.borderColor = "#e53935";
+      var nameEl = document.getElementById("introName");
+      nameEl.focus();
+      nameEl.style.borderColor = "#e53935";
       return;
     }
 
-    state.userInfo = { name: name, age: age, education: edu, field: "all" };
-    state.current = 0;
-    state.answers = new Array(TOTAL).fill(null);
-    state.started = true;
+    state.userInfo = { name: name, age: age, education: edu };
+    showLoading(true);
 
-    showScreen("question");
-    renderQuestion();
+    try {
+      var response = await fetch(API_BASE + "/test/questions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ age_group: age, education: edu }),
+      });
+
+      if (!response.ok) throw new Error("Сервер қатесі: " + response.status);
+
+      var data = await response.json();
+      if (!data.success || !data.data || data.data.length === 0) {
+        throw new Error("Сұрақтар табылмады. Алдымен сұрақтар қосыңыз.");
+      }
+
+      state.questions = data.data;
+      state.current = 0;
+      state.answers = new Array(state.questions.length).fill(null);
+      state.started = true;
+
+      showLoading(false);
+      showScreen("question");
+      renderQuestion();
+    } catch (err) {
+      showLoading(false);
+      alert("Қате: " + err.message);
+    }
+  }
+
+  function getBlockInfo(competency) {
+    return (
+      BLOCKS.find(function (b) {
+        return b.id === competency;
+      }) || BLOCKS[0]
+    );
   }
 
   function renderQuestion() {
     var idx = state.current;
-    var q = ALL_QUESTIONS[idx];
+    var q = state.questions[idx];
     var saved = state.answers[idx];
+    var total = state.questions.length;
+    var block = getBlockInfo(q.competency);
 
-    var pct = (idx / TOTAL) * 100;
+    var pct = (idx / total) * 100;
     progressFill.style.width = pct + "%";
-    if (topbarCounter) topbarCounter.textContent = idx + 1 + " / " + TOTAL;
-    var blockInGroup = BLOCKS.findIndex(function (b) {
-      return b.id === q.blockId;
+    if (topbarCounter) topbarCounter.textContent = idx + 1 + " / " + total;
+
+    blockIcon.textContent = block.icon;
+    blockName.textContent = block.title;
+
+    var blockQs = state.questions.filter(function (x) {
+      return x.competency === q.competency;
     });
-    blockIcon.textContent = q.blockIcon;
-    blockName.textContent = q.blockTitle;
-    blockQNum.textContent = q.blockQIdx + 1 + " / 6";
-    blockLabel.style.borderColor = q.blockColor + "66";
+    var qNumInBlock =
+      blockQs.findIndex(function (x) {
+        return x.id === q.id;
+      }) + 1;
+    blockQNum.textContent = qNumInBlock + " / " + blockQs.length;
+    blockLabel.style.borderColor = block.color + "66";
 
     questionText.textContent = q.text;
 
     optionsWrap.innerHTML = "";
-    OPTIONS.forEach(function (opt) {
+    var opts = [
+      { key: "A", text: q.option_a },
+      { key: "B", text: q.option_b },
+      { key: "C", text: q.option_c },
+      { key: "D", text: q.option_d },
+    ];
+
+    opts.forEach(function (opt) {
       var btn = document.createElement("button");
       btn.type = "button";
       btn.className =
-        "quiz-option" + (saved === opt.score ? " quiz-option--selected" : "");
-      btn.setAttribute("data-score", opt.score);
+        "quiz-option" + (saved === opt.key ? " quiz-option--selected" : "");
+      btn.setAttribute("data-key", opt.key);
 
       var radio = document.createElement("span");
       radio.className = "quiz-option__radio";
 
-      var text = document.createElement("span");
-      text.className = "quiz-option__text";
-      text.textContent = opt.text;
+      var label = document.createElement("span");
+      label.className = "quiz-option__text";
+      label.textContent = opt.key + ") " + opt.text;
 
       btn.appendChild(radio);
-      btn.appendChild(text);
-
+      btn.appendChild(label);
       btn.addEventListener("click", function () {
-        selectOption(opt.score);
+        selectOption(opt.key);
       });
-
       optionsWrap.appendChild(btn);
     });
 
     prevBtn.style.visibility = idx === 0 ? "hidden" : "visible";
 
-    var isLast = idx === TOTAL - 1;
-    var hasAnswer = saved !== null;
-
+    var isLast = idx === total - 1;
     if (isLast) {
-      nextBtn.textContent = "";
       nextBtn.innerHTML =
         "Аяқтау <svg width='18' height='18' viewBox='0 0 24 24' fill='none'><path d='M20 6L9 17l-5-5' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg>";
     } else {
       nextBtn.innerHTML =
         "Келесі <svg width='18' height='18' viewBox='0 0 24 24' fill='none'><path d='M5 12h14M13 6l6 6-6 6' stroke='currentColor' stroke-width='2' stroke-linecap='round'/></svg>";
     }
-
-    nextBtn.disabled = !hasAnswer;
+    nextBtn.disabled = saved === null;
   }
 
-  function selectOption(score) {
-    state.answers[state.current] = score;
-
+  function selectOption(key) {
+    state.answers[state.current] = key;
     document.querySelectorAll(".quiz-option").forEach(function (btn) {
-      var s = Number(btn.getAttribute("data-score"));
-      btn.classList.toggle("quiz-option--selected", s === score);
+      btn.classList.toggle(
+        "quiz-option--selected",
+        btn.getAttribute("data-key") === key,
+      );
     });
-
     nextBtn.disabled = false;
   }
 
@@ -314,8 +262,7 @@
 
   function onNext() {
     if (state.answers[state.current] === null) return;
-
-    if (state.current === TOTAL - 1) {
+    if (state.current === state.questions.length - 1) {
       finishQuiz();
     } else {
       state.current++;
@@ -323,57 +270,94 @@
     }
   }
 
-  function finishQuiz() {
-    var blockScores = {};
-    BLOCKS.forEach(function (b) {
-      blockScores[b.id] = 0;
-    });
-
-    ALL_QUESTIONS.forEach(function (q, i) {
-      var ans = state.answers[i];
-      if (ans !== null) blockScores[q.blockId] += ans;
-    });
-
-    var totalScore = Object.values(blockScores).reduce(function (s, v) {
-      return s + v;
-    }, 0);
-
-    saveResults(blockScores);
-    saveHistory(blockScores, totalScore);
+  async function finishQuiz() {
     progressFill.style.width = "100%";
-    if (topbarCounter) topbarCounter.textContent = TOTAL + " / " + TOTAL;
+    if (topbarCounter)
+      topbarCounter.textContent =
+        state.questions.length + " / " + state.questions.length;
 
-    showScreen("result");
-    renderResult(blockScores, totalScore);
-  }
+    var answers = state.questions.map(function (q, i) {
+      return { question_id: q.id, answer: state.answers[i] };
+    });
 
-  function saveResults(blockScores) {
+    var user = null;
     try {
-      var all = {};
-      BLOCKS.forEach(function (b) {
-        all[b.id] = {
-          score: blockScores[b.id] || 0,
-          total: 18,
-          date: new Date().toISOString(),
-        };
-      });
-      localStorage.setItem(RESULTS_KEY, JSON.stringify(all));
+      var raw =
+        localStorage.getItem(USER_KEY) || localStorage.getItem(LEGACY_KEY);
+      user = raw ? JSON.parse(raw) : null;
     } catch (_) {}
+
+    try {
+      var response = await fetch(API_BASE + "/test/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: user ? user.id : null,
+          answers: answers,
+          age_group: state.userInfo.age,
+          education: state.userInfo.education,
+        }),
+      });
+
+      var data = await response.json();
+      if (data.success) {
+        var scaledScores = {};
+        Object.keys(data.scores).forEach(function (k) {
+          scaledScores[k] = data.scores[k] * 5;
+        });
+        saveHistory(scaledScores, data.total * 5, answers.length * 5);
+        showScreen("result");
+        renderResult(scaledScores, data.total * 5, answers.length * 5);
+      } else {
+        throw new Error(data.message || "Submit қатесі");
+      }
+    } catch (err) {
+      var localScores = computeLocalScores();
+      saveHistory(
+        localScores.scores,
+        localScores.total,
+        state.questions.length * 5,
+      );
+      showScreen("result");
+      renderResult(
+        localScores.scores,
+        localScores.total,
+        state.questions.length * 5,
+      );
+    }
   }
 
-  function saveHistory(blockScores, totalScore) {
+  function computeLocalScores() {
+    var scores = {
+      information: 0,
+      communication: 0,
+      content: 0,
+      safety: 0,
+      problem: 0,
+    };
+    var total = 0;
+    state.questions.forEach(function (q, i) {
+      if (state.answers[i] === q.correct_answer) {
+        scores[q.competency] = (scores[q.competency] || 0) + 5;
+        total += 5;
+      }
+    });
+    return { scores: scores, total: total };
+  }
+
+  function saveHistory(scores, total, maxScore) {
     try {
       var raw = localStorage.getItem(HISTORY_KEY);
       var hist = raw ? JSON.parse(raw) : [];
       if (!Array.isArray(hist)) hist = [];
-
-      var lvl = getLevelForScore(totalScore);
+      var lvl = getLevelForScore(total, maxScore);
       hist.unshift({
         date: new Date().toISOString(),
-        totalScore: totalScore,
+        totalScore: total,
+        maxScore: maxScore,
         levelNum: lvl.num,
         levelKk: lvl.kk,
-        blockScores: blockScores,
+        blockScores: scores,
         userInfo: state.userInfo,
       });
       if (hist.length > 10) hist = hist.slice(0, 10);
@@ -381,21 +365,28 @@
     } catch (_) {}
   }
 
-  function renderResult(blockScores, totalScore) {
-    var lvl = getLevelForScore(totalScore);
+  function getLevelForScore(score, maxScore) {
+    var max = maxScore !== undefined ? maxScore : 20;
+    var pct = max > 0 ? (score / max) * 100 : 0;
+    if (pct < 34) return { num: 1, kk: "Төмен", color: "#ef5350" };
+    if (pct < 67) return { num: 2, kk: "Орташа", color: "#f9a825" };
+    return { num: 3, kk: "Жоғары", color: "#1b8a4e" };
+  }
+
+  function renderResult(scores, total, maxScore) {
+    var lvl = getLevelForScore(total, maxScore);
 
     document.getElementById("overallLevelText").textContent = lvl.kk;
-    document.getElementById("overallLevelNum").textContent =
-      lvl.num + "-деңгей";
+    document.getElementById("overallLevelNum").textContent = lvl.kk + " деңгей";
     document.getElementById("overallScore").textContent =
-      totalScore + " / 90 балл";
+      total + " / " + maxScore + " балл";
 
     var overall = document.getElementById("resultOverall");
     overall.style.borderLeftColor = lvl.color;
 
     var segsEl = document.getElementById("overallSegs");
     segsEl.innerHTML = "";
-    for (var i = 1; i <= 8; i++) {
+    for (var i = 1; i <= 3; i++) {
       var seg = document.createElement("div");
       seg.className = "result-seg" + (i <= lvl.num ? " filled" : "");
       if (i <= lvl.num) seg.style.background = lvl.color;
@@ -405,17 +396,18 @@
     var container = document.getElementById("resultBlocks");
     container.innerHTML = "";
 
+    var perBlock = Math.floor(maxScore / BLOCKS.length);
+
     BLOCKS.forEach(function (block) {
-      var score = blockScores[block.id] || 0;
-      var bLvl = getLevelForScore(score);
-      var bPct = Math.round((score / 18) * 100);
+      var score = scores[block.id] || 0;
+      var bLvl = getLevelForScore(score, perBlock);
 
       var row = document.createElement("div");
       row.className = "result-block-row";
       row.style.setProperty("--block-color", block.color);
 
       var segsHtml = "";
-      for (var n = 1; n <= 8; n++) {
+      for (var n = 1; n <= 3; n++) {
         segsHtml +=
           '<div class="result-block-seg' +
           (n <= bLvl.num
@@ -438,13 +430,13 @@
         "</div>" +
         '<div class="result-block-row__right">' +
         '  <div class="result-block-row__level">' +
-        bLvl.num +
-        "-деңгей · " +
         bLvl.kk +
         "</div>" +
         '  <div class="result-block-row__score">' +
         score +
-        " / 18 балл</div>" +
+        " / " +
+        perBlock +
+        " балл</div>" +
         "</div>";
 
       var detail = document.createElement("div");
@@ -465,43 +457,72 @@
       container.appendChild(detail);
     });
 
-    initAI(blockScores, totalScore);
+    saveResultsToStorage(scores, total, maxScore);
+    initAI(scores, total, maxScore);
   }
+
+  function saveResultsToStorage(scores, total, maxScore) {
+    try {
+      var RESULTS_KEY = "diq_block_results";
+      var now = new Date().toISOString();
+      var perBlock = Math.floor(maxScore / BLOCKS.length);
+      var all = {};
+      BLOCKS.forEach(function (b) {
+        all[b.id] = {
+          score: scores[b.id] || 0,
+          total: perBlock,
+          date: now,
+        };
+      });
+      all._lastTest = {
+        total: total,
+        maxScore: maxScore,
+        date: now,
+        blockScores: scores,
+        perBlock: perBlock,
+      };
+      localStorage.setItem(RESULTS_KEY, JSON.stringify(all));
+    } catch (_) {}
+  }
+
   function onRetake() {
     state.current = 0;
-    state.answers = new Array(TOTAL).fill(null);
+    state.answers = [];
+    state.questions = [];
+    state.started = false;
     progressFill.style.width = "0%";
     showScreen("intro");
   }
 
   function onDownload() {
-    var blockScores = {};
-    BLOCKS.forEach(function (b) {
-      blockScores[b.id] = 0;
-    });
-    ALL_QUESTIONS.forEach(function (q, i) {
-      var ans = state.answers[i];
-      if (ans !== null) blockScores[q.blockId] += ans;
-    });
-    var totalScore = Object.values(blockScores).reduce(function (s, v) {
-      return s + v;
-    }, 0);
-    var overallLvl = getLevelForScore(totalScore);
+    var scores = {};
+    var total = 0;
+    var maxScore = state.questions.length * 5;
+    var perBlock = Math.floor(maxScore / BLOCKS.length);
 
+    state.questions.forEach(function (q, i) {
+      if (!scores[q.competency]) scores[q.competency] = 0;
+      if (state.answers[i] === q.correct_answer) {
+        scores[q.competency] += 5;
+        total += 5;
+      }
+    });
+
+    var overallLvl = getLevelForScore(total, maxScore);
     var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
     var age = (state.userInfo && state.userInfo.age) || "—";
     var edu = (state.userInfo && state.userInfo.education) || "—";
     var dateStr = formatDate(new Date().toISOString());
 
     var blocksHtml = BLOCKS.map(function (block) {
-      var score = blockScores[block.id] || 0;
-      var lvl = getLevelForScore(score);
-      var pct = Math.round((score / 18) * 100);
+      var score = scores[block.id] || 0;
+      var lvl = getLevelForScore(score, perBlock);
+      var pct = perBlock > 0 ? Math.round((score / perBlock) * 100) : 0;
 
       var segHtml = "";
-      for (var n = 1; n <= 8; n++) {
+      for (var n = 1; n <= 3; n++) {
         segHtml +=
-          '<div style="width:24px;height:8px;border-radius:3px;display:inline-block;margin-right:3px;background:' +
+          '<div style="width:36px;height:10px;border-radius:3px;display:inline-block;margin-right:3px;background:' +
           (n <= lvl.num ? lvl.color : "#e0e0e0") +
           '"></div>';
       }
@@ -519,11 +540,11 @@
         lvl.color +
         ';font-weight:700;margin-bottom:6px">' +
         lvl.kk +
-        " — " +
-        lvl.num +
-        "-деңгей · " +
+        " · " +
         score +
-        "/18 балл · " +
+        "/" +
+        perBlock +
+        " балл · " +
         pct +
         "%</div>" +
         '<div style="margin-bottom:8px">' +
@@ -537,30 +558,26 @@
     }).join("");
 
     var overallSegHtml = "";
-    for (var n = 1; n <= 8; n++) {
+    for (var n = 1; n <= 3; n++) {
       overallSegHtml +=
-        '<div style="width:28px;height:10px;border-radius:3px;display:inline-block;margin-right:4px;background:' +
+        '<div style="width:44px;height:12px;border-radius:3px;display:inline-block;margin-right:4px;background:' +
         (n <= overallLvl.num ? overallLvl.color : "#e0e0e0") +
         '"></div>';
     }
 
     var html =
-      '<!DOCTYPE html><html lang="kk"><head><meta charset="UTF-8">' +
-      "<title>Сандық дағдылар есебі — " +
+      '<!DOCTYPE html><html lang="kk"><head><meta charset="UTF-8"><title>Сандық дағдылар есебі — ' +
       name +
       "</title>" +
       "<style>body{font-family:Arial,sans-serif;max-width:820px;margin:40px auto;padding:0 28px;color:#1a1f36}" +
-      "h1{font-size:1.6rem;font-weight:900;margin:0 0 4px}" +
-      ".line{height:4px;background:" +
+      "h1{font-size:1.6rem;font-weight:900;margin:0 0 4px}.line{height:4px;background:" +
       overallLvl.color +
       ";border-radius:2px;margin:12px 0 20px}" +
-      ".meta{font-size:.82rem;color:#9ba3c9;margin-bottom:20px}" +
-      ".overall{background:#f8f9ff;border-radius:12px;padding:20px 24px;margin-bottom:28px;border-left:5px solid " +
+      ".meta{font-size:.82rem;color:#9ba3c9;margin-bottom:20px}.overall{background:#f8f9ff;border-radius:12px;padding:20px 24px;margin-bottom:28px;border-left:5px solid " +
       overallLvl.color +
       "}" +
       ".footer{margin-top:40px;padding-top:16px;border-top:1px solid #dde1f5;display:flex;justify-content:space-between;font-size:.78rem;color:#9ba3c9}" +
-      "@media print{button{display:none}}" +
-      "</style></head><body>" +
+      "@media print{button{display:none}}</style></head><body>" +
       "<h1>Сандық дағдыларды өзін-өзі бағалау: тест нәтижелері</h1>" +
       '<div class="line"></div>' +
       '<p class="meta">Бұл ресми тест емес және сертификатқа әкелмейді. DigComp 2.2 негізінде</p>' +
@@ -572,14 +589,15 @@
       '<div style="color:' +
       overallLvl.color +
       ';font-weight:700;margin:4px 0 10px">' +
-      overallLvl.num +
-      "-деңгей · " +
-      totalScore +
-      " / 90 балл</div>" +
+      overallLvl.kk +
+      " · " +
+      total +
+      " / " +
+      maxScore +
+      " балл</div>" +
       "<div>" +
       overallSegHtml +
-      "</div>" +
-      "</div>" +
+      "</div></div>" +
       '<p class="meta">Аты: <strong>' +
       name +
       "</strong> &nbsp;|&nbsp; Жасы: " +
@@ -610,12 +628,14 @@
     URL.revokeObjectURL(url);
   }
 
-  var _aiBlockScores = null;
-  var _aiTotalScore = null;
+  var _aiScores = null;
+  var _aiTotal = null;
+  var _aiMax = null;
 
-  function initAI(blockScores, totalScore) {
-    _aiBlockScores = blockScores;
-    _aiTotalScore = totalScore;
+  function initAI(scores, total, maxScore) {
+    _aiScores = scores;
+    _aiTotal = total;
+    _aiMax = maxScore;
 
     var aiBtn = document.getElementById("aiBtn");
     var aiRetryBtn = document.getElementById("aiRetryBtn");
@@ -627,7 +647,7 @@
       aiErrorRetryBtn.addEventListener("click", runAIAnalysis);
   }
 
-  function showAIState(state) {
+  function showAIState(s) {
     var loading = document.getElementById("aiLoading");
     var result = document.getElementById("aiResult");
     var error = document.getElementById("aiError");
@@ -637,36 +657,38 @@
       if (el) el.classList.add("quiz-screen--hidden");
     });
 
-    if (state === "loading") {
+    if (s === "loading") {
       if (trigger) trigger.style.display = "none";
       if (loading) loading.classList.remove("quiz-screen--hidden");
-    } else if (state === "result") {
+    } else if (s === "result") {
       if (trigger) trigger.style.display = "none";
       if (result) result.classList.remove("quiz-screen--hidden");
-    } else if (state === "error") {
+    } else if (s === "error") {
       if (trigger) trigger.style.display = "none";
       if (error) error.classList.remove("quiz-screen--hidden");
     } else {
-      // reset
       if (trigger) trigger.style.display = "";
     }
   }
 
-  function buildPrompt(blockScores, totalScore) {
+  function buildPrompt(scores, total, maxScore) {
     var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
     var age = (state.userInfo && state.userInfo.age) || "белгісіз";
     var edu = (state.userInfo && state.userInfo.education) || "белгісіз";
-    var overallLvl = getLevelForScore(totalScore);
+    var overallLvl = getLevelForScore(total, maxScore);
+    var perBlock = Math.floor(maxScore / BLOCKS.length);
 
     var blockLines = BLOCKS.map(function (b) {
-      var sc = blockScores[b.id] || 0;
-      var lvl = getLevelForScore(sc);
+      var sc = scores[b.id] || 0;
+      var lvl = getLevelForScore(sc, perBlock);
       return (
         "- " +
         b.title +
         ": " +
         sc +
-        "/18 балл (" +
+        "/" +
+        perBlock +
+        " балл (" +
         lvl.num +
         "-деңгей, " +
         lvl.kk +
@@ -676,35 +698,32 @@
 
     return (
       "Сен цифрлық сауаттылық бойынша кәсіби кеңесші боласың. Қазақ тілінде жауап бер.\n\n" +
-      "Пайдаланушы туралы:\n" +
-      "- Аты: " +
+      "Пайдаланушы туралы:\n- Аты: " +
       name +
-      "\n" +
-      "- Жасы: " +
+      "\n- Жасы: " +
       age +
-      "\n" +
-      "- Білімі: " +
+      "\n- Білімі: " +
       edu +
       "\n\n" +
-      "DigComp тест нәтижелері (максимум 18 балл/блок, 90 жалпы):\n" +
+      "DigComp тест нәтижелері (максимум " +
+      maxScore +
+      " балл):\n" +
       blockLines +
       "\n" +
       "Жалпы балл: " +
-      totalScore +
-      "/90 (" +
+      total +
+      "/" +
+      maxScore +
+      " (" +
       overallLvl.num +
       "-деңгей, " +
       overallLvl.kk +
       ")\n\n" +
       "Міндет: Осы нәтижелер негізінде 4 бөлімнен тұратын жеке талдау жаз:\n\n" +
-      "## 🎯 Жалпы баға\n" +
-      "(2-3 сөйлем: жалпы деңгейіңізді бағала)\n\n" +
-      "## 💪 Күшті жақтарыңыз\n" +
-      "(жоғары балл алған блоктарды мамандыққа байланыстыра атап өт, 2-3 тармақ)\n\n" +
-      "## 📚 Дамыту керек бағыттар\n" +
-      "(нашар блоктар бойынша нақты не үйрену керек, мысалдармен, 3-4 тармақ)\n\n" +
-      "## 🗓️ Оқу жоспары\n" +
-      "(30 күнге арналған нақты, орындалатын 4-5 қадам, ресурс атауларымен)\n\n" +
+      "## 🎯 Жалпы баға\n(2-3 сөйлем: жалпы деңгейіңізді бағала)\n\n" +
+      "## 💪 Күшті жақтарыңыз\n(жоғары балл алған блоктарды мамандыққа байланыстыра атап өт, 2-3 тармақ)\n\n" +
+      "## 📚 Дамыту керек бағыттар\n(нашар блоктар бойынша нақты не үйрену керек, мысалдармен, 3-4 тармақ)\n\n" +
+      "## 🗓️ Оқу жоспары\n(30 күнге арналған нақты, орындалатын 4-5 қадам, ресурс атауларымен)\n\n" +
       "Маңызды: Жауап тек қазақ тілінде болсын. Markdown таңбалары (**, ##) қолданба — тек қарапайым мәтін. Нақты, жеке, мотивациялық болсын."
     );
   }
@@ -723,10 +742,8 @@
     sections.forEach(function (sec, idx) {
       var startIdx = remaining.indexOf(sec.key);
       if (startIdx === -1) return;
-
       var contentStart = startIdx + sec.key.length;
       var nextIdx = remaining.length;
-
       for (var ni = idx + 1; ni < sections.length; ni++) {
         var npos = remaining.indexOf(sections[ni].key);
         if (npos !== -1 && npos > startIdx) {
@@ -734,16 +751,13 @@
           break;
         }
       }
-
       var content = remaining.slice(contentStart, nextIdx).trim();
-
       var lines = content.split("\n").filter(function (l) {
         return l.trim();
       });
       var isListy = lines.some(function (l) {
         return l.trim().startsWith("-") || l.trim().startsWith("•");
       });
-
       var bodyHtml;
       if (isListy) {
         bodyHtml =
@@ -763,7 +777,6 @@
           })
           .join("");
       }
-
       html +=
         '<div class="ai-section-title" style="color:' +
         sec.color +
@@ -775,23 +788,16 @@
         bodyHtml;
     });
 
-    if (!html) {
-      html = "<p>" + text.replace(/\n/g, "<br>") + "</p>";
-    }
-
+    if (!html) html = "<p>" + text.replace(/\n/g, "<br>") + "</p>";
     return html;
   }
 
   async function runAIAnalysis() {
-    if (!_aiBlockScores) return;
-
+    if (!_aiScores) return;
     var aiBtn = document.getElementById("aiBtn");
     if (aiBtn) aiBtn.disabled = true;
-
     showAIState("loading");
-
-    var prompt = buildPrompt(_aiBlockScores, _aiTotalScore);
-
+    var prompt = buildPrompt(_aiScores, _aiTotal, _aiMax);
     try {
       var response = await fetch(
         "https://api.groq.com/openai/v1/chat/completions",
@@ -808,7 +814,6 @@
           }),
         },
       );
-
       if (!response.ok) {
         var errData = await response.json().catch(function () {
           return {};
@@ -819,7 +824,6 @@
             : "API қате: " + response.status,
         );
       }
-
       var data = await response.json();
       var text =
         data.choices &&
@@ -828,42 +832,17 @@
         data.choices[0].message.content
           ? data.choices[0].message.content
           : "";
-
       if (!text) throw new Error("Жауап бос келді");
-
       var resultBodyEl = document.getElementById("aiResultBody");
-      if (resultBodyEl) {
-        resultBodyEl.innerHTML = parseAIResponse(text);
-      }
-
+      if (resultBodyEl) resultBodyEl.innerHTML = parseAIResponse(text);
       showAIState("result");
     } catch (err) {
       var errTextEl = document.getElementById("aiErrorText");
-      if (errTextEl) {
-        if (err.message && err.message.includes("YOUR_API_KEY")) {
-          errTextEl.textContent =
-            "⚠️ API кілтін quiz.js файлында GROQ_API_KEY айнымалысына орнатыңыз.";
-        } else {
-          errTextEl.textContent = "Қате: " + (err.message || "Белгісіз қате");
-        }
-      }
+      if (errTextEl)
+        errTextEl.textContent = "Қате: " + (err.message || "Белгісіз қате");
       showAIState("error");
       if (aiBtn) aiBtn.disabled = false;
     }
-  }
-
-  function getLevelForScore(score, maxScore) {
-    var max = maxScore !== undefined ? maxScore : 18;
-    var pct = max > 0 ? (score / max) * 100 : 0;
-    if (pct <= 20) return { num: 1, kk: "Іргетас", color: "#ef5350" };
-    if (pct <= 35) return { num: 2, kk: "Іргетас", color: "#ef5350" };
-    if (pct <= 50) return { num: 3, kk: "Орташа", color: "#f9a825" };
-    if (pct <= 65) return { num: 4, kk: "Орташа", color: "#f9a825" };
-    if (pct <= 75) return { num: 5, kk: "Кеңейтілген", color: "#1b8a4e" };
-    if (pct <= 85) return { num: 6, kk: "Кеңейтілген", color: "#1b8a4e" };
-    if (pct <= 94)
-      return { num: 7, kk: "Жоғары мамандандырылған", color: "#1565c0" };
-    return { num: 8, kk: "Жоғары мамандандырылған", color: "#1565c0" };
   }
 
   function formatDate(iso) {

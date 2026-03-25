@@ -439,6 +439,125 @@ svg {
   box-shadow: 0 6px 20px rgba(255, 255, 255, 0.3);
 }
 
+.digcomp-section {
+  margin: 0 0 28px;
+}
+
+.digcomp-section__header {
+  margin-bottom: 16px;
+}
+
+.digcomp-section__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 4px;
+}
+
+.digcomp-section__sub {
+  font-size: 0.82rem;
+  color: var(--color-muted);
+  margin: 0;
+}
+
+.digcomp-cards {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+}
+
+.digcomp-card {
+  background: #fff;
+  border: 1.5px solid color-mix(in srgb, var(--dc) 18%, #dde1f5);
+  border-top: 4px solid var(--dc);
+  border-radius: 14px;
+  padding: 18px 16px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition:
+    box-shadow 0.2s,
+    transform 0.2s;
+}
+
+.digcomp-card:hover {
+  box-shadow: 0 6px 24px color-mix(in srgb, var(--dc) 18%, transparent);
+  transform: translateY(-2px);
+}
+
+.digcomp-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.digcomp-card__icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--dc) 12%, #fff);
+  display: grid;
+  place-items: center;
+  font-size: 1.25rem;
+}
+
+.digcomp-card__num {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background: var(--dc);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+
+.digcomp-card__name {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.digcomp-card__desc {
+  font-size: 0.78rem;
+  color: #5c6690;
+  line-height: 1.6;
+  margin: 0;
+  flex: 1;
+}
+
+.digcomp-card__tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--dc);
+  background: color-mix(in srgb, var(--dc) 10%, #fff);
+  border: 1px solid color-mix(in srgb, var(--dc) 20%, #fff);
+  border-radius: 999px;
+  padding: 3px 10px;
+  align-self: flex-start;
+}
+
+@media (max-width: 1024px) {
+  .digcomp-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .digcomp-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .digcomp-cards {
+    grid-template-columns: 1fr;
+  }
+}
+
 .tr-section {
   margin-bottom: 28px;
 }

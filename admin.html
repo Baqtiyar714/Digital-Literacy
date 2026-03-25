@@ -67,6 +67,11 @@
             <div class="stat-box__lbl">Жалпы сұрақ</div>
           </div>
           <div class="stat-box">
+            <div class="stat-box__icon">👥</div>
+            <div class="stat-box__val" id="statUsers">—</div>
+            <div class="stat-box__lbl">Қолданушылар</div>
+          </div>
+          <div class="stat-box">
             <div class="stat-box__icon">✅</div>
             <div class="stat-box__val" id="statResults">—</div>
             <div class="stat-box__lbl">Тапсырылған тест</div>
@@ -88,6 +93,9 @@
           </button>
           <button class="tab" onclick="switchTab('import', this)">
             📥 Жаппай жүктеу
+          </button>
+          <button class="tab" onclick="switchTab('users', this)">
+            👥 Қолданушылар
           </button>
         </div>
 
@@ -120,23 +128,18 @@
               <select id="filterAge" onchange="loadQuestions()">
                 <option value="">Барлығы</option>
                 <option value="10-18">10–18</option>
-                <option value="18-25">18–25</option>
-                <option value="26-35">26–35</option>
-                <option value="36-50">36–50</option>
-                <option value="50+">50+</option>
+                <option value="19-35">19–35</option>
+                <option value="36-60">36–60</option>
+                <option value="60+">60+</option>
               </select>
             </div>
             <div class="filter-group">
-              <label>Мамандық</label>
-              <select id="filterField" onchange="loadQuestions()">
+              <label>Білім деңгейі</label>
+              <select id="filterEdu" onchange="loadQuestions()">
                 <option value="">Барлығы</option>
-                <option value="IT">IT</option>
-                <option value="Медицина">Медицина</option>
-                <option value="Білім">Білім</option>
-                <option value="Бизнес">Бизнес</option>
-                <option value="Мемлекет">Мемлекет</option>
-                <option value="Студент">Студент</option>
-                <option value="Басқа">Басқа</option>
+                <option value="Орта мектеп">Орта мектеп</option>
+                <option value="Колледж">Колледж/Техникалық</option>
+                <option value="Жоғары">Жоғары</option>
               </select>
             </div>
             <button class="btn btn-outline btn-sm" onclick="resetFilters()">
@@ -252,35 +255,22 @@
               <div class="form-group">
                 <label>Жас тобы</label>
                 <select id="addAge">
-                  <option value="all">Барлығына</option>
+                  <option value="">Таңдаңыз</option>
                   <option value="10-18">10–18</option>
-                  <option value="18-25">18–25</option>
-                  <option value="26-35">26–35</option>
-                  <option value="36-50">36–50</option>
-                  <option value="50+">50+</option>
+                  <option value="19-35">19–35</option>
+                  <option value="36-60">36–60</option>
+                  <option value="60+">60+</option>
                 </select>
               </div>
               <div class="form-group">
                 <label>Білім деңгейі</label>
                 <select id="addEdu">
-                  <option value="all">Барлығына</option>
-                  <option value="Орта">Орта мектеп</option>
-                  <option value="Техникалық">Техникалық</option>
-                  <option value="Жоғары">Жоғары</option>
-                  <option value="Магистр">Магистр/PhD</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label>Мамандық саласы</label>
-                <select id="addField">
-                  <option value="all">Барлығына</option>
-                  <option value="IT">IT/технология</option>
-                  <option value="Медицина">Медицина</option>
-                  <option value="Білім">Білім беру</option>
-                  <option value="Бизнес">Бизнес</option>
-                  <option value="Мемлекет">Мемлекеттік қызмет</option>
-                  <option value="Студент">Студент</option>
-                  <option value="Басқа">Басқа</option>
+                  <option value="">Таңдаңыз</option>
+                  <option value="Орта мектеп">Орта мектеп</option>
+                  <option value="Колледж">Колледж/Техникалық</option>
+                  <option value="Жоғары">
+                    Жоғары (бакалавр, магистр, докторант)
+                  </option>
                 </select>
               </div>
             </div>
@@ -334,21 +324,16 @@
     "option_d": "D нұсқа",
     "correct_answer": "A",
     "competency": "information",
-    "age_group": "all",
-    "education": "all",
-    "field": "all"
+    "age_group": "10-18",
+    "education": "Орта мектеп"
   }
 ]</pre
               >
               <div style="margin-top: 10px; font-size: 0.8rem; color: #5c6690">
                 <strong>competency:</strong> information | communication |
                 content | safety | problem<br />
-                <strong>age_group:</strong> 10-18 | 18-25 | 26-35 | 36-50 | 50+
-                | all<br />
-                <strong>education:</strong> Орта | Техникалық | Жоғары | Магистр
-                | all<br />
-                <strong>field:</strong> Білім | Медицина | IT | Бизнес |
-                Мемлекет | Студент | Басқа | all
+                <strong>age_group:</strong> 10-18 | 19-35 | 36-60 | 60+<br />
+                <strong>education:</strong> Орта мектеп | Колледж | Жоғары
               </div>
             </div>
 
@@ -443,6 +428,26 @@
             ></div>
           </div>
         </div>
+
+        <!-- ── USERS TAB ── -->
+        <div id="tabUsers" class="hidden">
+          <div class="table-wrap">
+            <div class="table-header">
+              <h2>Тіркелген қолданушылар</h2>
+              <span class="count-chip" id="usersCount">—</span>
+              <button
+                class="btn btn-outline btn-sm"
+                onclick="loadUsers()"
+                style="margin-left: auto"
+              >
+                🔄 Жаңарту
+              </button>
+            </div>
+            <div id="usersTable">
+              <div class="loading">⏳ Жүктелуде...</div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
 
@@ -500,35 +505,22 @@
           <div class="form-group">
             <label>Жас тобы</label>
             <select id="editAge">
-              <option value="all">Барлығына</option>
+              <option value="">Таңдаңыз</option>
               <option value="10-18">10–18</option>
-              <option value="18-25">18–25</option>
-              <option value="26-35">26–35</option>
-              <option value="36-50">36–50</option>
-              <option value="50+">50+</option>
+              <option value="19-35">19–35</option>
+              <option value="36-60">36–60</option>
+              <option value="60+">60+</option>
             </select>
           </div>
           <div class="form-group">
             <label>Білім деңгейі</label>
             <select id="editEdu">
-              <option value="all">Барлығына</option>
-              <option value="Орта">Орта мектеп</option>
-              <option value="Техникалық">Техникалық</option>
-              <option value="Жоғары">Жоғары</option>
-              <option value="Магистр">Магистр/PhD</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>Мамандық саласы</label>
-            <select id="editField">
-              <option value="all">Барлығына</option>
-              <option value="IT">IT/технология</option>
-              <option value="Медицина">Медицина</option>
-              <option value="Білім">Білім беру</option>
-              <option value="Бизнес">Бизнес</option>
-              <option value="Мемлекет">Мемлекеттік қызмет</option>
-              <option value="Студент">Студент</option>
-              <option value="Басқа">Басқа</option>
+              <option value="">Таңдаңыз</option>
+              <option value="Орта мектеп">Орта мектеп</option>
+              <option value="Колледж">Колледж/Техникалық</option>
+              <option value="Жоғары">
+                Жоғары (бакалавр, магистр, докторант)
+              </option>
             </select>
           </div>
         </div>

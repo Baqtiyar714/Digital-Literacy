@@ -108,6 +108,7 @@ async function loadStats() {
     const data = await resp.json();
     if (data.success) {
       document.getElementById("statQuestions").textContent = data.questions;
+      document.getElementById("statUsers").textContent = data.users ?? "—";
       document.getElementById("statResults").textContent = data.results;
       document.getElementById("statAvg").textContent = data.avgPercent + "%";
     }
@@ -119,13 +120,13 @@ async function loadQuestions() {
   const search = document.getElementById("filterSearch").value;
   const comp = document.getElementById("filterComp").value;
   const age = document.getElementById("filterAge").value;
-  const field = document.getElementById("filterField").value;
+  const edu = document.getElementById("filterEdu").value;
 
   const params = new URLSearchParams();
   if (search) params.append("search", search);
   if (comp) params.append("competency", comp);
   if (age) params.append("age_group", age);
-  if (field) params.append("field", field);
+  if (edu) params.append("education", edu);
 
   document.getElementById("questionsTable").innerHTML =
     '<div class="loading">⏳ Жүктелуде...</div>';
@@ -162,7 +163,7 @@ async function loadQuestions() {
         </td>
         <td><span class="correct-badge">${q.correct_answer}</span></td>
         <td><span class="badge ${COMP_CLASSES[q.competency]}">${COMP_LABELS[q.competency]}</span></td>
-        <td class="cat-text">${q.age_group}<br>${q.education}<br>${q.field}</td>
+        <td class="cat-text">${q.age_group}<br>${q.education}</td>
         <td>
           <div class="action-btns">
             <button class="btn btn-outline btn-sm" onclick="openEdit(${q.id})">✏️ Өзгерту</button>
@@ -201,7 +202,7 @@ function resetFilters() {
   document.getElementById("filterSearch").value = "";
   document.getElementById("filterComp").value = "";
   document.getElementById("filterAge").value = "";
-  document.getElementById("filterField").value = "";
+  document.getElementById("filterEdu").value = "";
   loadQuestions();
 }
 
@@ -217,7 +218,6 @@ async function addQuestion() {
     competency: document.getElementById("addComp").value,
     age_group: document.getElementById("addAge").value,
     education: document.getElementById("addEdu").value,
-    field: document.getElementById("addField").value,
   };
 
   if (
@@ -261,9 +261,8 @@ function clearForm() {
   });
   document.getElementById("addCorrect").value = "";
   document.getElementById("addComp").value = "";
-  document.getElementById("addAge").value = "all";
-  document.getElementById("addEdu").value = "all";
-  document.getElementById("addField").value = "all";
+  document.getElementById("addAge").value = "";
+  document.getElementById("addEdu").value = "";
 }
 
 async function openEdit(id) {
@@ -285,7 +284,6 @@ async function openEdit(id) {
     document.getElementById("editComp").value = q.competency;
     document.getElementById("editAge").value = q.age_group;
     document.getElementById("editEdu").value = q.education;
-    document.getElementById("editField").value = q.field;
 
     document.getElementById("editModal").classList.add("open");
   } catch (e) {}
@@ -307,7 +305,6 @@ async function saveEdit() {
     competency: document.getElementById("editComp").value,
     age_group: document.getElementById("editAge").value,
     education: document.getElementById("editEdu").value,
-    field: document.getElementById("editField").value,
   };
 
   try {
@@ -357,7 +354,11 @@ function switchTab(tab, btn) {
   document
     .getElementById("tabImport")
     .classList.toggle("hidden", tab !== "import");
+  document
+    .getElementById("tabUsers")
+    .classList.toggle("hidden", tab !== "users");
   if (tab === "list") loadQuestions();
+  if (tab === "users") loadUsers();
 }
 
 // ── IMPORT ──
@@ -440,9 +441,8 @@ async function startImport() {
               option_d: q.option_d,
               correct_answer: (q.correct_answer || "A").toUpperCase(),
               competency: q.competency || "information",
-              age_group: q.age_group || "all",
-              education: q.education || "all",
-              field: q.field || "all",
+              age_group: q.age_group || null,
+              education: q.education || null,
             }),
           });
           const data = await resp.json();
@@ -507,9 +507,8 @@ function downloadTemplate() {
       option_d: "DuckDuckGo",
       correct_answer: "B",
       competency: "information",
-      age_group: "all",
-      education: "all",
-      field: "all",
+      age_group: "10-18",
+      education: "Орта мектеп",
     },
     {
       text: "Email арқылы ресми хат жазғанда қандай тіл қолдану керек?",
@@ -519,9 +518,8 @@ function downloadTemplate() {
       option_d: "Бейресми тіл",
       correct_answer: "B",
       competency: "communication",
-      age_group: "all",
-      education: "all",
-      field: "all",
+      age_group: "19-35",
+      education: "Жоғары",
     },
     {
       text: "Интернетке жарияланған мазмұнды (сурет, мақала) пайдаланғанда не істеу керек?",
@@ -531,9 +529,8 @@ function downloadTemplate() {
       option_d: "Басқа сайтқа жою",
       correct_answer: "B",
       competency: "content",
-      age_group: "all",
-      education: "all",
-      field: "all",
+      age_group: "19-35",
+      education: "Жоғары",
     },
     {
       text: "Фишинг шабуылынан сақтанудың ең тиімді жолы қандай?",
@@ -543,9 +540,8 @@ function downloadTemplate() {
       option_d: "Парольді жиі ауыстыру",
       correct_answer: "B",
       competency: "safety",
-      age_group: "all",
-      education: "all",
-      field: "all",
+      age_group: "36-60",
+      education: "Колледж",
     },
     {
       text: "Компьютер баяу жұмыс істесе алдымен не тексеру керек?",
@@ -555,9 +551,8 @@ function downloadTemplate() {
       option_d: "Барлық файлдарды жою",
       correct_answer: "B",
       competency: "problem",
-      age_group: "all",
-      education: "all",
-      field: "all",
+      age_group: "60+",
+      education: "Орта мектеп",
     },
   ];
 
@@ -677,4 +672,62 @@ async function deleteSelected() {
   }
   loadQuestions();
   loadStats();
+}
+
+async function loadUsers() {
+  document.getElementById("usersTable").innerHTML =
+    '<div class="loading">⏳ Жүктелуде...</div>';
+  try {
+    const resp = await fetch(API + "/admin/users", {
+      headers: { "x-admin-password": adminPassword },
+    });
+    const data = await resp.json();
+    if (!data.success) throw new Error(data.message);
+
+    document.getElementById("usersCount").textContent =
+      data.count + " қолданушы";
+
+    if (!data.data.length) {
+      document.getElementById("usersTable").innerHTML =
+        '<div class="empty"><div class="empty-icon">👥</div>Қолданушылар жоқ</div>';
+      return;
+    }
+
+    const rows = data.data
+      .map(
+        (u) => `
+      <tr>
+        <td style="font-family:monospace;color:var(--muted);font-size:0.75rem;">#${u.id}</td>
+        <td><strong>${u.name}</strong></td>
+        <td style="color:var(--muted);font-size:0.88rem;">${u.email}</td>
+        <td style="font-size:0.82rem;color:var(--muted);">${new Date(u.created_at).toLocaleDateString("kk-KZ", { year: "numeric", month: "2-digit", day: "2-digit" })}</td>
+        <td style="text-align:center;">
+          <span class="count-chip">${u.test_count}</span>
+        </td>
+        <td style="text-align:center;">
+          ${u.avg_score !== null ? `<span class="badge ${u.avg_score >= 70 ? "badge-safe" : u.avg_score >= 40 ? "badge-comm" : "badge-prob"}">${u.avg_score}%</span>` : '<span style="color:var(--muted);font-size:0.82rem;">—</span>'}
+        </td>
+      </tr>
+    `,
+      )
+      .join("");
+
+    document.getElementById("usersTable").innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Аты-жөні</th>
+            <th>Email</th>
+            <th>Тіркелген күні</th>
+            <th style="text-align:center;">Тест саны</th>
+            <th style="text-align:center;">Орт. нәтиже</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+  } catch (e) {
+    document.getElementById("usersTable").innerHTML =
+      `<div class="empty">❌ ${e.message}</div>`;
+  }
 }
