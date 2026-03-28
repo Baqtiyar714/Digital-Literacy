@@ -50,12 +50,10 @@ app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
     if (!name || !email || !password) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "All fields are required (name, email, password)",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required (name, email, password)",
+      });
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -64,37 +62,31 @@ app.post("/register", async (req, res) => {
         .json({ success: false, message: "Invalid email format" });
     }
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Password must be at least 6 characters long",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password must be at least 6 characters long",
+      });
     }
     const checkUser = await pool.query(
       "SELECT id FROM users WHERE email = $1",
       [email],
     );
     if (checkUser.rows.length > 0) {
-      return res
-        .status(409)
-        .json({
-          success: false,
-          message: "User with this email already exists",
-        });
+      return res.status(409).json({
+        success: false,
+        message: "User with this email already exists",
+      });
     }
     const hashedPassword = await bcrypt.hash(password, 10);
     const result = await pool.query(
       "INSERT INTO users (name, email, password) VALUES ($1, $2, $3) RETURNING id, name, email, created_at",
       [name, email, hashedPassword],
     );
-    res
-      .status(201)
-      .json({
-        success: true,
-        message: "User registered successfully",
-        data: result.rows[0],
-      });
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      data: result.rows[0],
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -220,12 +212,10 @@ app.post("/admin/questions", checkAdmin, async (req, res) => {
       !correct_answer ||
       !competency
     ) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Барлық міндетті өрістерді толтырыңыз",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Барлық міндетті өрістерді толтырыңыз",
+      });
     }
     const result = await questionsPool.query(
       `INSERT INTO questions (text, option_a, option_b, option_c, option_d, correct_answer, competency, age_group, education)
@@ -340,6 +330,7 @@ app.post("/test/questions", async (req, res) => {
       option_c: q.option_c,
       option_d: q.option_d,
       competency: q.competency,
+      correct_answer: q.correct_answer,
     }));
     res.json({ success: true, count: sanitized.length, data: sanitized });
   } catch (error) {
@@ -350,6 +341,14 @@ app.post("/test/questions", async (req, res) => {
 app.post("/test/submit", async (req, res) => {
   try {
     const { user_id, answers, age_group, education } = req.body;
+
+    if (!answers || answers.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Жауаптар тізімі бос",
+      });
+    }
+
     const ids = answers.map((a) => a.question_id);
     const qResult = await questionsPool.query(
       "SELECT id, correct_answer, competency FROM questions WHERE id = ANY($1)",
@@ -359,6 +358,7 @@ app.post("/test/submit", async (req, res) => {
     qResult.rows.forEach((q) => {
       qMap[q.id] = q;
     });
+
     let total = 0;
     let scores = {
       information: 0,
@@ -367,6 +367,7 @@ app.post("/test/submit", async (req, res) => {
       safety: 0,
       problem: 0,
     };
+
     answers.forEach((a) => {
       const q = qMap[a.question_id];
       if (q && a.answer === q.correct_answer) {
@@ -374,23 +375,68 @@ app.post("/test/submit", async (req, res) => {
         scores[q.competency]++;
       }
     });
+
+    const maxScore = 20;
+
+    if (user_id) {
+      await questionsPool.query(
+        `INSERT INTO test_results (user_id, total_score, max_score, information_score, communication_score, content_score, safety_score, problem_score, age_group, education)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+        [
+          user_id,
+          total,
+          maxScore,
+          scores.information,
+          scores.communication,
+          scores.content,
+          scores.safety,
+          scores.problem,
+          age_group || null,
+          education || null,
+        ],
+      );
+    }
+
+    res.json({ success: true, scores, total });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get("/test/history/:user_id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.user_id);
+    if (isNaN(userId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Жарамсыз пайдаланушы ID" });
+    }
     const result = await questionsPool.query(
-      `INSERT INTO test_results (user_id, total_score, max_score, information_score, communication_score, content_score, safety_score, problem_score, age_group, education)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-      [
-        user_id || null,
-        total,
-        answers.length,
-        scores.information,
-        scores.communication,
-        scores.content,
-        scores.safety,
-        scores.problem,
-        age_group,
-        education,
-      ],
+      `SELECT * FROM test_results WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10`,
+      [userId],
     );
-    res.json({ success: true, data: result.rows[0], scores, total });
+    res.json({ success: true, count: result.rows.length, data: result.rows });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+app.get("/test/results/:user_id", async (req, res) => {
+  try {
+    const userId = parseInt(req.params.user_id);
+    if (isNaN(userId)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Жарамсыз пайдаланушы ID" });
+    }
+    const result = await questionsPool.query(
+      `SELECT * FROM test_results WHERE user_id = $1 ORDER BY created_at DESC LIMIT 1`,
+      [userId],
+    );
+    if (result.rows.length === 0) {
+      return res.json({ success: true, data: null });
+    }
+    res.json({ success: true, data: result.rows[0] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -445,13 +491,11 @@ app.get("/admin/stats", checkAdmin, async (req, res) => {
 });
 
 app.get("/health", (req, res) => {
-  res
-    .status(200)
-    .json({
-      success: true,
-      message: "Server is running",
-      timestamp: new Date().toISOString(),
-    });
+  res.status(200).json({
+    success: true,
+    message: "Server is running",
+    timestamp: new Date().toISOString(),
+  });
 });
 
 app.use("*", (req, res) => {

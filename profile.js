@@ -266,35 +266,55 @@
     const avgEl = document.getElementById("profileStatAverage");
     const bestBlockEl = document.getElementById("profileStatBestBlock");
 
+    let lastTotal = aggregates.lastTotal;
+    let lastMaxScore = aggregates.lastMaxScore;
+    let lastDate = aggregates.lastDate;
+    let lastDateFormatted = aggregates.lastDateFormatted;
+
+    if (!lastTotal || lastTotal <= 0) {
+      try {
+        const raw = localStorage.getItem("diq_test_history");
+        const hist = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(hist) && hist.length > 0) {
+          const last = hist[0];
+          lastTotal = last.totalScore || 0;
+          lastMaxScore = last.maxScore || 100;
+          lastDate = last.date || null;
+          if (lastDate) {
+            try {
+              const d = new Date(lastDate);
+              const dd = String(d.getDate()).padStart(2, "0");
+              const mm = String(d.getMonth() + 1).padStart(2, "0");
+              const yyyy = d.getFullYear();
+              const hh = String(d.getHours()).padStart(2, "0");
+              const min = String(d.getMinutes()).padStart(2, "0");
+              lastDateFormatted =
+                dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+            } catch (_) {}
+          }
+        }
+      } catch (_) {}
+    }
+
     if (completedEl) {
-      if (aggregates.lastDate) {
-        completedEl.textContent = aggregates.lastDateFormatted;
-      } else {
-        completedEl.textContent = "—";
-      }
+      completedEl.textContent = lastDate ? lastDateFormatted : "—";
     }
     if (totalScoreEl) {
-      if (aggregates.lastTotal > 0) {
-        totalScoreEl.textContent =
-          aggregates.lastTotal + " / " + aggregates.lastMaxScore;
-      } else {
-        totalScoreEl.textContent = "— / 100";
-      }
+      totalScoreEl.textContent =
+        lastTotal > 0 ? lastTotal + " / " + lastMaxScore : "— / 100";
     }
     if (avgEl) {
-      if (aggregates.lastTotal > 0) {
-        const lvl = getLevelForScore(
-          aggregates.lastTotal,
-          aggregates.lastMaxScore,
-        );
-        avgEl.textContent = lvl.kk;
+      if (lastTotal > 0) {
+        const pct =
+          lastMaxScore > 0 ? Math.round((lastTotal / lastMaxScore) * 100) : 0;
+        avgEl.textContent = pct + "%";
         avgEl.classList.remove(
           "profile-avg-low",
           "profile-avg-medium",
           "profile-avg-high",
         );
-        if (lvl.num === 1) avgEl.classList.add("profile-avg-low");
-        else if (lvl.num === 2) avgEl.classList.add("profile-avg-medium");
+        if (pct < 34) avgEl.classList.add("profile-avg-low");
+        else if (pct < 67) avgEl.classList.add("profile-avg-medium");
         else avgEl.classList.add("profile-avg-high");
       } else {
         avgEl.textContent = "—";
@@ -540,45 +560,12 @@
       };
     }
   }
-  function fillActivityHistory(results) {
+  function fillActivityHistory(results, userId) {
     var container = document.getElementById("profileActivityList");
     if (!container) return;
 
-    var HISTORY_KEY = "diq_test_history";
-    var allHistory = [];
-    try {
-      var raw = localStorage.getItem(HISTORY_KEY);
-      allHistory = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(allHistory)) allHistory = [];
-    } catch (_e) {
-      allHistory = [];
-    }
-
-    if (!allHistory.length) {
-      var entry = null;
-      BLOCKS.forEach(function (b) {
-        var e = results[b.id];
-        if (e && e.date) {
-          if (!entry || new Date(e.date) > new Date(entry.date)) entry = e;
-        }
-      });
-
-      if (!entry) {
-        container.innerHTML = "";
-        var wrap = document.createElement("div");
-        wrap.className = "profile-activity-empty";
-        var icon = document.createElement("div");
-        icon.className = "profile-activity-empty-icon";
-        icon.textContent = "\u{1F550}";
-        var text = document.createElement("div");
-        text.textContent =
-          "\u04d8\u043b\u0456 \u0431\u0435\u043b\u0441\u0435\u043d\u0434\u0456\u043b\u0456\u043a \u0436\u043e\u049b";
-        wrap.appendChild(icon);
-        wrap.appendChild(text);
-        container.appendChild(wrap);
-        return;
-      }
-    }
+    container.innerHTML =
+      '<div style="color:#9ba3c9;font-size:0.85rem;padding:8px 0">Жүктелуде...</div>';
 
     function formatDateTime(iso) {
       try {
@@ -590,16 +577,27 @@
         var min = String(d.getMinutes()).padStart(2, "0");
         return dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
       } catch (_e) {
-        return "\u2014";
+        return "—";
       }
+    }
+
+    function getLvlForRow(totalScore, maxScore) {
+      var max = maxScore || 100;
+      var pct = max > 0 ? (totalScore / max) * 100 : 0;
+      if (pct < 34) return { num: 1, kk: "Төмен" };
+      if (pct < 67) return { num: 2, kk: "Орташа" };
+      return { num: 3, kk: "Жоғары" };
     }
 
     function renderList(items) {
       container.innerHTML = "";
+      items.forEach(function (row) {
+        var totalScore = (row.total_score || 0) * 5;
+        var maxScore = (row.max_score || 20) * 5;
+        var lvl = getLvlForRow(totalScore, maxScore);
 
-      items.forEach(function (ev) {
-        var row = document.createElement("div");
-        row.className = "profile-activity-row";
+        var el = document.createElement("div");
+        el.className = "profile-activity-row";
 
         var dot = document.createElement("div");
         dot.className = "profile-activity-dot";
@@ -607,64 +605,87 @@
 
         var text = document.createElement("div");
         text.className = "profile-activity-text";
-        var lvlText = ev.levelKk
-          ? " \u2014 " +
-            ev.levelNum +
-            "-\u0434\u0435\u04a3\u0433\u0435\u0439, " +
-            ev.levelKk
-          : "";
         text.textContent =
-          "\u0422\u0435\u0441\u0442 \u0442\u0430\u043f\u0441\u044b\u0440\u0434\u044b" +
-          lvlText +
+          "Тест тапсырды — " +
+          lvl.num +
+          "-деңгей, " +
+          lvl.kk +
           " (" +
-          ev.totalScore +
-          "/90)";
+          totalScore +
+          "/" +
+          maxScore +
+          ")";
 
         var date = document.createElement("div");
         date.className = "profile-activity-date";
-        date.textContent = formatDateTime(ev.date);
+        date.textContent = formatDateTime(row.created_at);
 
-        row.appendChild(dot);
-        row.appendChild(text);
-        row.appendChild(date);
-        container.appendChild(row);
+        el.appendChild(dot);
+        el.appendChild(text);
+        el.appendChild(date);
+        container.appendChild(el);
       });
     }
 
-    var showCount = 5;
-    var maxCount = 20;
-    var limited = allHistory.slice(0, maxCount);
-    var first5 = limited.slice(0, showCount);
+    function showEmpty() {
+      container.innerHTML = "";
+      var wrap = document.createElement("div");
+      wrap.className = "profile-activity-empty";
+      var icon = document.createElement("div");
+      icon.className = "profile-activity-empty-icon";
+      icon.textContent = "🕐";
+      var text = document.createElement("div");
+      text.textContent = "Әлі белсенділік жоқ";
+      wrap.appendChild(icon);
+      wrap.appendChild(text);
+      container.appendChild(wrap);
+    }
 
-    renderList(first5);
+    if (!userId) {
+      showEmpty();
+      return;
+    }
 
-    if (limited.length > showCount) {
-      var moreBtn = document.createElement("button");
-      moreBtn.style.cssText =
-        "margin-top:10px;width:100%;padding:8px 16px;border-radius:999px;border:1px solid #dde1f5;background:#f0f4ff;color:#3949ab;font-size:0.82rem;font-weight:600;cursor:pointer;";
-      moreBtn.textContent =
-        "\u{1F4CB} \u0422\u043e\u043b\u044b\u0493\u044b\u0440\u0430\u049b (" +
-        (limited.length - showCount) +
-        " \u0442\u0430\u0493\u044b)";
-      var expanded = false;
-      moreBtn.addEventListener("click", function () {
-        if (!expanded) {
-          renderList(limited);
-          container.appendChild(moreBtn);
-          moreBtn.textContent = "\u25b2 \u0416\u0438\u044e";
-          expanded = true;
-        } else {
-          renderList(first5);
-          container.appendChild(moreBtn);
-          moreBtn.textContent =
-            "\u{1F4CB} \u0422\u043e\u043b\u044b\u0493\u044b\u0440\u0430\u049b (" +
-            (limited.length - showCount) +
-            " \u0442\u0430\u0493\u044b)";
-          expanded = false;
+    fetch("http://localhost:5000/test/history/" + userId)
+      .then(function (resp) {
+        return resp.json();
+      })
+      .then(function (data) {
+        if (!data.success || !data.data || data.data.length === 0) {
+          showEmpty();
+          return;
         }
+        var limited = data.data.slice(0, 20);
+        var showCount = 5;
+        var first5 = limited.slice(0, showCount);
+        renderList(first5);
+        if (limited.length > showCount) {
+          var moreBtn = document.createElement("button");
+          moreBtn.style.cssText =
+            "margin-top:10px;width:100%;padding:8px 16px;border-radius:999px;border:1px solid #dde1f5;background:#f0f4ff;color:#3949ab;font-size:0.82rem;font-weight:600;cursor:pointer;";
+          moreBtn.textContent =
+            "📋 Толығырақ (" + (limited.length - showCount) + " тағы)";
+          var expanded = false;
+          moreBtn.addEventListener("click", function () {
+            if (!expanded) {
+              renderList(limited);
+              container.appendChild(moreBtn);
+              moreBtn.textContent = "▲ Жию";
+              expanded = true;
+            } else {
+              renderList(first5);
+              container.appendChild(moreBtn);
+              moreBtn.textContent =
+                "📋 Толығырақ (" + (limited.length - showCount) + " тағы)";
+              expanded = false;
+            }
+          });
+          container.appendChild(moreBtn);
+        }
+      })
+      .catch(function () {
+        showEmpty();
       });
-      container.appendChild(moreBtn);
-    }
   }
   function initLogout() {
     const btn = document.getElementById("logoutBtn");
@@ -838,9 +859,29 @@
     }
   }
 
+  function fixLegacyMaxScore() {
+    try {
+      var raw = localStorage.getItem("diq_test_history");
+      if (!raw) return;
+      var hist = JSON.parse(raw);
+      if (!Array.isArray(hist)) return;
+      var changed = false;
+      hist.forEach(function (h) {
+        if (h.maxScore && h.maxScore !== 100) {
+          h.maxScore = 100;
+          changed = true;
+        }
+      });
+      if (changed)
+        localStorage.setItem("diq_test_history", JSON.stringify(hist));
+    } catch (_) {}
+  }
+
   function init() {
     const user = ensureUser();
     if (!user) return;
+
+    fixLegacyMaxScore();
 
     const results = loadResults();
     const aggregates = computeAggregates(results);
@@ -851,7 +892,7 @@
     fillResults(results);
     fillStatsCard(aggregates);
     fillAiRecommendations(results, aggregates);
-    fillActivityHistory(results);
+    fillActivityHistory(results, user.id);
     initLogout();
     initEditModal();
 

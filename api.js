@@ -94,9 +94,6 @@ async function testConnection() {
 
 async function registerUser(name, email, password) {
   try {
-    console.log("Attempting to register user...");
-    console.log("API URL:", `${API_BASE_URL}/register`);
-
     const response = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
       headers: {
@@ -105,9 +102,6 @@ async function registerUser(name, email, password) {
       body: JSON.stringify({ name, email, password }),
     });
 
-    console.log("Response status:", response.status);
-    console.log("Response OK:", response.ok);
-
     if (!response.ok) {
       let errorData;
       try {
@@ -117,46 +111,29 @@ async function registerUser(name, email, password) {
           message: `Server error: ${response.status} ${response.statusText}`,
         };
       }
-
-      console.error("Server error:", errorData);
       showMessage(errorData.message || `Server error: ${response.status}`);
       return { success: false, message: errorData.message };
     }
 
     const data = await response.json();
-    console.log("Response data:", data);
 
     if (data.success) {
-      showMessage(
-        "Registration successful! Redirecting to login...",
-        "success",
-      );
-
+      showMessage("Тіркелу сәтті! Кіру бетіне бағытталуда...", "success");
       setTimeout(() => {
         window.location.href = "index.html";
       }, 2000);
-
       return { success: true, data: data.data };
     } else {
       showMessage(data.message || "Registration failed");
       return { success: false, message: data.message };
     }
   } catch (error) {
-    console.error("Registration error details:", error);
-    console.error("Error name:", error.name);
-    console.error("Error message:", error.message);
-
     let errorMessage = "Network error. ";
-
     if (error.name === "TypeError" && error.message.includes("fetch")) {
-      errorMessage += "Cannot connect to server. ";
       errorMessage += `Make sure the server is running on ${API_BASE_URL}`;
-    } else if (error.message) {
-      errorMessage += error.message;
     } else {
-      errorMessage += "Please check if the server is running.";
+      errorMessage += error.message || "Please check if the server is running.";
     }
-
     showMessage(errorMessage);
     return { success: false, message: errorMessage };
   }
@@ -164,9 +141,6 @@ async function registerUser(name, email, password) {
 
 async function loginUser(email, password) {
   try {
-    console.log("Attempting to login user...");
-    console.log("API URL:", `${API_BASE_URL}/login`);
-
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
       headers: {
@@ -175,9 +149,6 @@ async function loginUser(email, password) {
       body: JSON.stringify({ email, password }),
     });
 
-    console.log("Response status:", response.status);
-    console.log("Response OK:", response.ok);
-
     if (!response.ok) {
       let errorData;
       try {
@@ -187,43 +158,32 @@ async function loginUser(email, password) {
           message: `Server error: ${response.status} ${response.statusText}`,
         };
       }
-
-      console.error("Server error:", errorData);
       showMessage(errorData.message || `Server error: ${response.status}`);
       return { success: false, message: errorData.message };
     }
 
     const data = await response.json();
-    console.log("Response data:", data);
 
     if (data.success) {
-      showMessage("Login successful! Welcome back!", "success");
-      localStorage.setItem("user", JSON.stringify(data.data));
+      const userData = data.data;
+      localStorage.setItem("diq_user", JSON.stringify(userData));
+      localStorage.setItem("user", JSON.stringify(userData));
       showMessage("Кіру сәтті! Басты бетке бағытталуда...", "success");
       setTimeout(() => {
         window.location.href = "dashboard.html";
       }, 800);
-
-      return { success: true, data: data.data };
+      return { success: true, data: userData };
     } else {
       showMessage(data.message || "Login failed");
       return { success: false, message: data.message };
     }
   } catch (error) {
-    console.error("Login error details:", error);
-    console.error("Error name:", error.name);
-    console.error("Error message:", error.message);
     let errorMessage = "Network error. ";
-
     if (error.name === "TypeError" && error.message.includes("fetch")) {
-      errorMessage += "Cannot connect to server. ";
       errorMessage += `Make sure the server is running on ${API_BASE_URL}`;
-    } else if (error.message) {
-      errorMessage += error.message;
     } else {
-      errorMessage += "Please check if the server is running.";
+      errorMessage += error.message || "Please check if the server is running.";
     }
-
     showMessage(errorMessage);
     return { success: false, message: errorMessage };
   }

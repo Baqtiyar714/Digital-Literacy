@@ -110,79 +110,36 @@
         <h1 class="welcome-title">
           <span data-translate="welcomePrefix">Қош келдіңіз</span>,
           <span id="userName">Пайдаланушы</span>
-          <span class="welcome-level-badge" id="welcomeLevelBadge"
-            >Бастаушы 🌱</span
-          >
         </h1>
         <p class="welcome-subtitle" data-translate="welcomeDesc">
           Цифрлық сауаттылығыңызды тексеріп, жаңа дағдыларды игеріңіз.
         </p>
       </section>
-      <section class="stats-section" aria-label="Негізгі статистика">
-        <div class="stat-card">
-          <div class="stat-card__icon">📝</div>
-          <div class="stat-card__value" id="statsCompleted">0 / 5</div>
-          <div class="stat-card__label">Тапсырылған тесттер</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__icon">⭐</div>
-          <div class="stat-card__value" id="statsTotalScore">0 / 25</div>
-          <div class="stat-card__label">Жалпы балл</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__icon">🎯</div>
-          <div class="stat-card__value" id="statsAverage">0%</div>
-          <div class="stat-card__label">Орташа нәтиже</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-card__icon">🏅</div>
-          <div class="stat-card__value" id="statsLevel">Бастаушы</div>
-          <div class="stat-card__label">Деңгей</div>
-        </div>
-      </section>
-
-      <section class="overall-section" aria-label="Жалпы прогресс">
-        <div class="overall-card">
-          <div class="overall-card__top">
-            <h2 class="overall-card__title">Жалпы прогресс</h2>
-            <div class="overall-card__subtitle">
-              <span id="overallBlocksText">0 / 5 блок аяқталды</span>
+      <section class="profile-stats-section" aria-label="Жылдам статистика">
+        <div class="profile-stats-card">
+          <div class="profile-stats-row">
+            <div class="profile-stats-item">
+              <div class="profile-stats-icon profile-stats-icon--tests">🗓️</div>
+              <div class="profile-stats-value" id="dashProfileLastTest">—</div>
+              <div class="profile-stats-label">Соңғы тест</div>
             </div>
-          </div>
-          <div class="overall-card__bar-wrapper">
-            <div class="overall-card__bar">
-              <div
-                class="overall-card__bar-fill"
-                id="overallProgressFill"
-              ></div>
+            <div class="profile-stats-item">
+              <div class="profile-stats-icon profile-stats-icon--score">🏆</div>
+              <div class="profile-stats-value" id="dashProfileTotalScore">
+                — / 100
+              </div>
+              <div class="profile-stats-label">Жалпы балл</div>
             </div>
-          </div>
-          <div class="overall-card__dots" id="overallDots">
-            <span
-              class="progress-dot"
-              data-block-id="info-search"
-              title="Ақпарат"
-            ></span>
-            <span
-              class="progress-dot"
-              data-block-id="financial-security"
-              title="Коммуникация"
-            ></span>
-            <span
-              class="progress-dot"
-              data-block-id="egov"
-              title="Контент"
-            ></span>
-            <span
-              class="progress-dot"
-              data-block-id="network-culture"
-              title="Қауіпсіздік"
-            ></span>
-            <span
-              class="progress-dot"
-              data-block-id="device-care"
-              title="Проблемаларды шешу"
-            ></span>
+            <div class="profile-stats-item">
+              <div class="profile-stats-icon profile-stats-icon--avg">🎯</div>
+              <div class="profile-stats-value" id="dashProfileAverage">—</div>
+              <div class="profile-stats-label">Орташа нәтиже</div>
+            </div>
+            <div class="profile-stats-item">
+              <div class="profile-stats-icon profile-stats-icon--best">🏅</div>
+              <div class="profile-stats-value" id="dashProfileBest">—</div>
+              <div class="profile-stats-label">Үздік нәтиже</div>
+            </div>
           </div>
         </div>
       </section>

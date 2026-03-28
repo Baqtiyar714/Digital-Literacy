@@ -401,13 +401,85 @@
     return true;
   }
 
+  function renderProfileStats() {
+    var lastTestEl = document.getElementById("dashProfileLastTest");
+    var totalScoreEl = document.getElementById("dashProfileTotalScore");
+    var avgEl = document.getElementById("dashProfileAverage");
+    var bestEl = document.getElementById("dashProfileBest");
+
+    var HISTORY_KEY = "diq_test_history";
+    var allHistory = [];
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      allHistory = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(allHistory)) allHistory = [];
+    } catch (_e) {
+      allHistory = [];
+    }
+
+    var allTimeBest = 0;
+    var lastTotal = 0;
+    var lastMaxScore = 100;
+    var lastDateStr = "—";
+
+    if (allHistory.length > 0) {
+      allHistory.forEach(function (h) {
+        if (h.totalScore && h.totalScore > allTimeBest)
+          allTimeBest = h.totalScore;
+      });
+      var last = allHistory[0];
+      lastTotal = last.totalScore || 0;
+      lastMaxScore = last.maxScore || 100;
+      try {
+        var d = new Date(last.date);
+        var dd = String(d.getDate()).padStart(2, "0");
+        var mm = String(d.getMonth() + 1).padStart(2, "0");
+        var yyyy = d.getFullYear();
+        lastDateStr = dd + "." + mm + "." + yyyy;
+      } catch (_e) {}
+    }
+
+    var avgPercent =
+      lastMaxScore > 0 ? Math.round((lastTotal / lastMaxScore) * 100) : 0;
+
+    if (lastTestEl) lastTestEl.textContent = lastDateStr;
+    if (totalScoreEl)
+      totalScoreEl.textContent =
+        allHistory.length > 0 ? lastTotal + " / " + lastMaxScore : "— / 100";
+    if (avgEl)
+      avgEl.textContent = allHistory.length > 0 ? avgPercent + "%" : "—";
+    if (bestEl)
+      bestEl.textContent = allTimeBest > 0 ? allTimeBest + " балл" : "—";
+  }
+
+  function fixLegacyMaxScore() {
+    try {
+      var raw = localStorage.getItem("diq_test_history");
+      if (!raw) return;
+      var hist = JSON.parse(raw);
+      if (!Array.isArray(hist)) return;
+      var changed = false;
+      hist.forEach(function (h) {
+        if (h.maxScore && h.maxScore !== 100) {
+          h.maxScore = 100;
+          changed = true;
+        }
+      });
+      if (changed)
+        localStorage.setItem("diq_test_history", JSON.stringify(hist));
+    } catch (_) {}
+  }
+
   function init() {
     if (!initAuthAndName()) return;
+
+    fixLegacyMaxScore();
 
     var results = loadResults();
     var aggregates = computeAggregates(results);
 
     renderStats(aggregates);
+    renderProfileStats();
     renderOverallProgress(aggregates, results);
     renderMotivation(aggregates);
     renderActivity(results);

@@ -6,6 +6,7 @@
   var HISTORY_KEY = "diq_test_history";
   var USER_KEY = "diq_user";
   var LEGACY_KEY = "user";
+  var AI_CACHE_KEY = "diq_ai_result";
 
   var BLOCKS = [
     { id: "information", title: "Ақпарат", color: "#0097a7", icon: "🔍" },
@@ -305,25 +306,17 @@
         Object.keys(data.scores).forEach(function (k) {
           scaledScores[k] = data.scores[k] * 5;
         });
-        saveHistory(scaledScores, data.total * 5, answers.length * 5);
+        saveHistory(scaledScores, data.total * 5, 100);
         showScreen("result");
-        renderResult(scaledScores, data.total * 5, answers.length * 5);
+        renderResult(scaledScores, data.total * 5, 100);
       } else {
         throw new Error(data.message || "Submit қатесі");
       }
     } catch (err) {
       var localScores = computeLocalScores();
-      saveHistory(
-        localScores.scores,
-        localScores.total,
-        state.questions.length * 5,
-      );
+      saveHistory(localScores.scores, localScores.total, 100);
       showScreen("result");
-      renderResult(
-        localScores.scores,
-        localScores.total,
-        state.questions.length * 5,
-      );
+      renderResult(localScores.scores, localScores.total, 100);
     }
   }
 
@@ -497,7 +490,7 @@
   function onDownload() {
     var scores = {};
     var total = 0;
-    var maxScore = state.questions.length * 5;
+    var maxScore = 100;
     var perBlock = Math.floor(maxScore / BLOCKS.length);
 
     state.questions.forEach(function (q, i) {
@@ -632,6 +625,18 @@
   var _aiTotal = null;
   var _aiMax = null;
 
+  function saveAIResult(html) {
+    try {
+      localStorage.setItem(
+        AI_CACHE_KEY,
+        JSON.stringify({
+          html: html,
+          date: new Date().toISOString(),
+        }),
+      );
+    } catch (_) {}
+  }
+
   function initAI(scores, total, maxScore) {
     _aiScores = scores;
     _aiTotal = total;
@@ -641,7 +646,10 @@
     var aiRetryBtn = document.getElementById("aiRetryBtn");
     var aiErrorRetryBtn = document.getElementById("aiErrorRetryBtn");
 
-    if (aiBtn) aiBtn.addEventListener("click", runAIAnalysis);
+    if (aiBtn) {
+      aiBtn.disabled = false;
+      aiBtn.addEventListener("click", runAIAnalysis);
+    }
     if (aiRetryBtn) aiRetryBtn.addEventListener("click", runAIAnalysis);
     if (aiErrorRetryBtn)
       aiErrorRetryBtn.addEventListener("click", runAIAnalysis);
@@ -677,10 +685,29 @@
     var edu = (state.userInfo && state.userInfo.education) || "белгісіз";
     var overallLvl = getLevelForScore(total, maxScore);
     var perBlock = Math.floor(maxScore / BLOCKS.length);
+    var overallPct = Math.round((total / maxScore) * 100);
+
+    var sortedBlocks = BLOCKS.slice().sort(function (a, b) {
+      return (scores[b.id] || 0) - (scores[a.id] || 0);
+    });
+    var strongest = sortedBlocks
+      .slice(0, 2)
+      .map(function (b) {
+        return b.title + " (" + (scores[b.id] || 0) + "/" + perBlock + ")";
+      })
+      .join(", ");
+    var weakest = sortedBlocks
+      .slice(-2)
+      .reverse()
+      .map(function (b) {
+        return b.title + " (" + (scores[b.id] || 0) + "/" + perBlock + ")";
+      })
+      .join(", ");
 
     var blockLines = BLOCKS.map(function (b) {
       var sc = scores[b.id] || 0;
       var lvl = getLevelForScore(sc, perBlock);
+      var pct = Math.round((sc / perBlock) * 100);
       return (
         "- " +
         b.title +
@@ -689,74 +716,127 @@
         "/" +
         perBlock +
         " балл (" +
+        pct +
+        "%, " +
         lvl.num +
-        "-деңгей, " +
+        "-деңгей — " +
         lvl.kk +
         ")"
       );
     }).join("\n");
 
     return (
-      "Сен цифрлық сауаттылық бойынша кәсіби кеңесші боласың. Қазақ тілінде жауап бер.\n\n" +
-      "Пайдаланушы туралы:\n- Аты: " +
+      "Сен DigComp 2.2 халықаралық фреймворкі бойынша цифрлық сауаттылықты бағалайтын сарапшысың.\n" +
+      "Тек қазақ тілінде жауап бер. Нақты, жеке, мазмұнды бол.\n\n" +
+      "ПАЙДАЛАНУШЫ ДЕРЕКТЕРІ:\n" +
+      "- Аты: " +
       name +
-      "\n- Жасы: " +
+      "\n" +
+      "- Жасы: " +
       age +
-      "\n- Білімі: " +
+      "\n" +
+      "- Білімі: " +
       edu +
       "\n\n" +
-      "DigComp тест нәтижелері (максимум " +
+      "ТЕСТ НӘТИЖЕЛЕРІ (DigComp 2.2, макс " +
+      perBlock +
+      " балл/блок, " +
       maxScore +
-      " балл):\n" +
+      " жалпы):\n" +
       blockLines +
       "\n" +
-      "Жалпы балл: " +
+      "Жалпы: " +
       total +
       "/" +
       maxScore +
-      " (" +
+      " балл (" +
+      overallPct +
+      "%) — " +
       overallLvl.num +
       "-деңгей, " +
       overallLvl.kk +
-      ")\n\n" +
-      "Міндет: Осы нәтижелер негізінде 4 бөлімнен тұратын жеке талдау жаз:\n\n" +
-      "## 🎯 Жалпы баға\n(2-3 сөйлем: жалпы деңгейіңізді бағала)\n\n" +
-      "## 💪 Күшті жақтарыңыз\n(жоғары балл алған блоктарды мамандыққа байланыстыра атап өт, 2-3 тармақ)\n\n" +
-      "## 📚 Дамыту керек бағыттар\n(нашар блоктар бойынша нақты не үйрену керек, мысалдармен, 3-4 тармақ)\n\n" +
-      "## 🗓️ Оқу жоспары\n(30 күнге арналған нақты, орындалатын 4-5 қадам, ресурс атауларымен)\n\n" +
-      "Маңызды: Жауап тек қазақ тілінде болсын. Markdown таңбалары (**, ##) қолданба — тек қарапайым мәтін. Нақты, жеке, мотивациялық болсын."
+      "\n" +
+      "Ең күшті блоктар: " +
+      strongest +
+      "\n" +
+      "Ең әлсіз блоктар: " +
+      weakest +
+      "\n\n" +
+      "МІНДЕТ: Төмендегі 5 бөлімді кезегімен жаз. Әр бөлімді тақырыбымен бастап, тікелей мазмұнға кір.\n\n" +
+      "🎯 Жалпы баға\n" +
+      name +
+      "-ның " +
+      total +
+      "/" +
+      maxScore +
+      " нәтижесін DigComp 2.2 стандарты тұрғысынан бағала. " +
+      "Бұл деңгейдің практикалық мәнін " +
+      age +
+      " жастағы " +
+      edu +
+      " білімді адам үшін 3-4 сөйлеммен нақты түсіндір.\n\n" +
+      "📊 Блок профилі\n" +
+      "Барлық 5 блокты салыстырмалы талда. Қай блоктарда үйлесімдік бар, " +
+      "қайсысында алшақтық бар — нақты мысалмен түсіндір. 3-4 сөйлем жаз.\n\n" +
+      "💪 Күшті жақтарыңыз\n" +
+      "Ең жоғары балл алған блоктарды (" +
+      strongest +
+      ") талда. " +
+      "Осы дағдылар күнделікті өмірде немесе жұмыста қалай пайдаланылатынын 2 нақты мысалмен көрсет. " +
+      "Бұл күшті жақтарды одан әрі дамытудың 1 жолын ұсын.\n\n" +
+      "⚠️ Дамыту керек бағыттар\n" +
+      "Ең төмен балл алған блоктарды (" +
+      weakest +
+      ") жан-жақты талда. " +
+      "Неге бұл блоктар маңызды, осы олқылықтар қандай тәуекел туғызады — нақты сценарий арқылы түсіндір. " +
+      "Әр әлсіз блок үшін бір нақты тегін онлайн ресурс атауын жаз " +
+      "(мысалы: Coursera, Google Digital Garage, Kaspersky Academy, Khan Academy).\n\n" +
+      "🗓️ 30 күнге оқу жоспары\n" +
+      "Дәл осы нәтижелерге негізделген, " +
+      name +
+      "-ға арналған жеке 30 күндік жоспар жаз. " +
+      "5 кезең: 1-7 күн, 8-14 күн, 15-21 күн, 22-28 күн, 29-30 күн. " +
+      "Әр кезең үшін: не істейді, қай ресурсты қолданады, нәтижесі не болады — нақты атап өт.\n\n" +
+      "ЕРЕЖЕЛЕР:\n" +
+      "- Тек қазақ тілінде\n" +
+      "- ** немесе ## таңбаларын қолданба\n" +
+      "- Жалпы кеңес емес — " +
+      name +
+      "-ға арналған жеке талдау\n" +
+      "- Нақты ресурс атаулары, нақты мерзімдер, нақты мысалдар\n" +
+      "- Әр бөлімді тақырыбынан кейін тікелей бастап кет"
     );
   }
 
   function parseAIResponse(text) {
     var sections = [
-      { key: "🎯 Жалпы баға", icon: "🎯", color: "#1565c0" },
-      { key: "💪 Күшті жақтарыңыз", icon: "💪", color: "#1b8a4e" },
-      { key: "📚 Дамыту керек бағыттар", icon: "📚", color: "#f57c00" },
-      { key: "🗓️ Оқу жоспары", icon: "🗓️", color: "#5e35b1" },
+      { key: "🎯 Жалпы баға", color: "#1565c0" },
+      { key: "📊 Блок профилі", color: "#0097a7" },
+      { key: "💪 Күшті жақтарыңыз", color: "#1b8a4e" },
+      { key: "⚠️ Дамыту керек бағыттар", color: "#e65100" },
+      { key: "🗓️ 30 күнге оқу жоспары", color: "#5e35b1" },
     ];
 
     var html = "";
-    var remaining = text;
 
     sections.forEach(function (sec, idx) {
-      var startIdx = remaining.indexOf(sec.key);
+      var startIdx = text.indexOf(sec.key);
       if (startIdx === -1) return;
       var contentStart = startIdx + sec.key.length;
-      var nextIdx = remaining.length;
+      var nextIdx = text.length;
       for (var ni = idx + 1; ni < sections.length; ni++) {
-        var npos = remaining.indexOf(sections[ni].key);
+        var npos = text.indexOf(sections[ni].key);
         if (npos !== -1 && npos > startIdx) {
           nextIdx = npos;
           break;
         }
       }
-      var content = remaining.slice(contentStart, nextIdx).trim();
+      var content = text.slice(contentStart, nextIdx).trim();
       var lines = content.split("\n").filter(function (l) {
         return l.trim();
       });
       var isListy = lines.some(function (l) {
-        return l.trim().startsWith("-") || l.trim().startsWith("•");
+        return /^[-•\d]/.test(l.trim());
       });
       var bodyHtml;
       if (isListy) {
@@ -764,7 +844,10 @@
           "<ul>" +
           lines
             .map(function (l) {
-              var clean = l.trim().replace(/^[-•]\s*/, "");
+              var clean = l
+                .trim()
+                .replace(/^[-•]\s*/, "")
+                .replace(/^\d+[\.\)]\s*/, "");
               return clean ? "<li>" + clean + "</li>" : "";
             })
             .filter(Boolean)
@@ -780,10 +863,8 @@
       html +=
         '<div class="ai-section-title" style="color:' +
         sec.color +
-        '">' +
-        sec.icon +
-        " " +
-        sec.key.replace(sec.icon + " ", "") +
+        ';margin-top:14px;margin-bottom:6px;font-weight:700;font-size:0.95rem">' +
+        sec.key +
         "</div>" +
         bodyHtml;
     });
@@ -795,9 +876,10 @@
   async function runAIAnalysis() {
     if (!_aiScores) return;
     var aiBtn = document.getElementById("aiBtn");
+    var resultBodyEl = document.getElementById("aiResultBody");
     if (aiBtn) aiBtn.disabled = true;
     showAIState("loading");
-    var prompt = buildPrompt(_aiScores, _aiTotal, _aiMax);
+
     try {
       var response = await fetch(
         "https://api.groq.com/openai/v1/chat/completions",
@@ -809,11 +891,24 @@
           },
           body: JSON.stringify({
             model: "llama-3.3-70b-versatile",
-            max_tokens: 1024,
-            messages: [{ role: "user", content: prompt }],
+            max_tokens: 2500,
+            temperature: 0.7,
+            stream: true,
+            messages: [
+              {
+                role: "system",
+                content:
+                  "Сен DigComp 2.2 стандарты бойынша цифрлық сауаттылық сарапшысысың. Тек қазақ тілінде жауап бер. Нақты, жеке, мазмұнды бол.",
+              },
+              {
+                role: "user",
+                content: buildPrompt(_aiScores, _aiTotal, _aiMax),
+              },
+            ],
           }),
         },
       );
+
       if (!response.ok) {
         var errData = await response.json().catch(function () {
           return {};
@@ -824,18 +919,52 @@
             : "API қате: " + response.status,
         );
       }
-      var data = await response.json();
-      var text =
-        data.choices &&
-        data.choices[0] &&
-        data.choices[0].message &&
-        data.choices[0].message.content
-          ? data.choices[0].message.content
-          : "";
-      if (!text) throw new Error("Жауап бос келді");
-      var resultBodyEl = document.getElementById("aiResultBody");
-      if (resultBodyEl) resultBodyEl.innerHTML = parseAIResponse(text);
+
       showAIState("result");
+      if (resultBodyEl) resultBodyEl.innerHTML = "";
+
+      var reader = response.body.getReader();
+      var decoder = new TextDecoder("utf-8");
+      var fullText = "";
+      var buffer = "";
+
+      while (true) {
+        var chunk = await reader.read();
+        if (chunk.done) break;
+        buffer += decoder.decode(chunk.value, { stream: true });
+        var lines = buffer.split("\n");
+        buffer = lines.pop();
+        for (var i = 0; i < lines.length; i++) {
+          var line = lines[i].trim();
+          if (!line || line === "data: [DONE]") continue;
+          if (line.startsWith("data: ")) {
+            try {
+              var json = JSON.parse(line.slice(6));
+              var delta =
+                json.choices &&
+                json.choices[0] &&
+                json.choices[0].delta &&
+                json.choices[0].delta.content;
+              if (delta) {
+                fullText += delta;
+                if (resultBodyEl)
+                  resultBodyEl.innerHTML = parseAIResponse(fullText);
+              }
+            } catch (_) {}
+          }
+        }
+      }
+
+      if (!fullText) throw new Error("Жауап бос келді");
+
+      var finalHtml = parseAIResponse(fullText);
+      if (resultBodyEl) resultBodyEl.innerHTML = finalHtml;
+      saveAIResult(finalHtml);
+
+      var dateEl = document.getElementById("aiResultDate");
+      if (dateEl)
+        dateEl.textContent =
+          "Сақталған: " + formatDate(new Date().toISOString());
     } catch (err) {
       var errTextEl = document.getElementById("aiErrorText");
       if (errTextEl)
