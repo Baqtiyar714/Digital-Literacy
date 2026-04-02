@@ -922,62 +922,25 @@
     var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
     var age = (state.userInfo && state.userInfo.age) || "белгісіз";
     var edu = (state.userInfo && state.userInfo.education) || "белгісіз";
-    var overallLvl = getLevelForScore(total, maxScore);
     var perBlock = Math.floor(maxScore / BLOCKS.length);
     var overallPct = Math.round((total / maxScore) * 100);
 
-    var sortedBlocks = BLOCKS.slice().sort(function (a, b) {
-      return (scores[b.id] || 0) - (scores[a.id] || 0);
-    });
-    var strongest = sortedBlocks
-      .slice(0, 2)
-      .map(function (b) {
-        return b.title + " (" + (scores[b.id] || 0) + "/" + perBlock + ")";
-      })
-      .join(", ");
-    var weakest = sortedBlocks
-      .slice(-2)
-      .reverse()
-      .map(function (b) {
-        return b.title + " (" + (scores[b.id] || 0) + "/" + perBlock + ")";
-      })
-      .join(", ");
-
     var blockLines = BLOCKS.map(function (b) {
       var sc = scores[b.id] || 0;
-      var lvl = getLevelForScore(sc, perBlock);
       var pct = Math.round((sc / perBlock) * 100);
-      return (
-        "- " +
-        b.title +
-        ": " +
-        sc +
-        "/" +
-        perBlock +
-        " балл (" +
-        pct +
-        "%, " +
-        lvl.num +
-        "-деңгей — " +
-        lvl.kk +
-        ")"
-      );
+      return "- " + b.title + ": " + sc + "/" + perBlock + " (" + pct + "%)";
     }).join("\n");
 
     return (
-      "Сен DigComp 2.2 халықаралық фреймворкі бойынша цифрлық сауаттылықты бағалайтын сарапшысың.\n" +
-      "Тек қазақ тілінде жауап бер. Нақты, жеке, мазмұнды бол.\n\n" +
-      "ПАЙДАЛАНУШЫ ДЕРЕКТЕРІ:\n" +
-      "- Аты: " +
+      "Сен DigComp 2.2 халықаралық фреймворкі бойынша цифрлық сауаттылық сарапшысысың.\n\n" +
+      "Пайдаланушы: " +
       name +
-      "\n" +
-      "- Жасы: " +
+      ", " +
       age +
-      "\n" +
-      "- Білімі: " +
+      " жас, " +
       edu +
-      "\n\n" +
-      "ТЕСТ НӘТИЖЕЛЕРІ (DigComp 2.2, макс " +
+      " білімі\n\n" +
+      "Тест нәтижелері (макс " +
       perBlock +
       " балл/блок, " +
       maxScore +
@@ -988,62 +951,14 @@
       total +
       "/" +
       maxScore +
-      " балл (" +
+      " (" +
       overallPct +
-      "%) — " +
-      overallLvl.num +
-      "-деңгей, " +
-      overallLvl.kk +
-      "\n" +
-      "Ең күшті блоктар: " +
-      strongest +
-      "\n" +
-      "Ең әлсіз блоктар: " +
-      weakest +
-      "\n\n" +
-      "МІНДЕТ: Төмендегі 5 бөлімді кезегімен жаз. Әр бөлімді тақырыбымен бастап, тікелей мазмұнға кір.\n\n" +
-      "🎯 Жалпы баға\n" +
+      "%)\n\n" +
+      "Осы нәтижелер негізінде " +
       name +
-      "-ның " +
-      total +
-      "/" +
-      maxScore +
-      " нәтижесін DigComp 2.2 стандарты тұрғысынан бағала. " +
-      "Бұл деңгейдің практикалық мәнін " +
-      age +
-      " жастағы " +
-      edu +
-      " білімді адам үшін 3-4 сөйлеммен нақты түсіндір.\n\n" +
-      "📊 Блок профилі\n" +
-      "Барлық 5 блокты салыстырмалы талда. Қай блоктарда үйлесімдік бар, " +
-      "қайсысында алшақтық бар — нақты мысалмен түсіндір. 3-4 сөйлем жаз.\n\n" +
-      "💪 Күшті жақтарыңыз\n" +
-      "Ең жоғары балл алған блоктарды (" +
-      strongest +
-      ") талда. " +
-      "Осы дағдылар күнделікті өмірде немесе жұмыста қалай пайдаланылатынын 2 нақты мысалмен көрсет. " +
-      "Бұл күшті жақтарды одан әрі дамытудың 1 жолын ұсын.\n\n" +
-      "⚠️ Дамыту керек бағыттар\n" +
-      "Ең төмен балл алған блоктарды (" +
-      weakest +
-      ") жан-жақты талда. " +
-      "Неге бұл блоктар маңызды, осы олқылықтар қандай тәуекел туғызады — нақты сценарий арқылы түсіндір. " +
-      "Әр әлсіз блок үшін бір нақты тегін онлайн ресурс атауын жаз " +
-      "(мысалы: Coursera, Google Digital Garage, Kaspersky Academy, Khan Academy).\n\n" +
-      "🗓️ 30 күнге оқу жоспары\n" +
-      "Дәл осы нәтижелерге негізделген, " +
-      name +
-      "-ға арналған жеке 30 күндік жоспар жаз. " +
-      "5 кезең: 1-7 күн, 8-14 күн, 15-21 күн, 22-28 күн, 29-30 күн. " +
-      "Әр кезең үшін: не істейді, қай ресурсты қолданады, нәтижесі не болады — нақты атап өт.\n\n" +
-      "ЕРЕЖЕЛЕР:\n" +
-      "- Тек қазақ тілінде\n" +
-      "- ** немесе ## таңбаларын қолданба\n" +
-      "- Жалпы кеңес емес — " +
-      name +
-      "-ға арналған жеке талдау\n" +
-      "- Нақты ресурс атаулары, нақты мерзімдер, нақты мысалдар\n" +
-      "- Әр бөлімді тақырыбынан кейін тікелей бастап кет"
+      "-ға арналған толыққанды, жеке цифрлық сауаттылық талдауын жаз. " +
+      "Баллдарды талдап, нақты күшті және әлсіз жақтарын атап өт, өмірлік мысалдар келтір, " +
+      "нақты ресурстар мен оқу ұсыныстарын бер. Тек қазақ тілінде. ** және ## таңбаларын қолданба."
     );
   }
 
@@ -1053,68 +968,22 @@
   // Қалған мәтін <p> тегіне оралады
   // Бөлімнің түсі аты бойынша белгіленеді
   function parseAIResponse(text) {
-    var sections = [
-      { key: "🎯 Жалпы баға", color: "#1565c0" },
-      { key: "📊 Блок профилі", color: "#0097a7" },
-      { key: "💪 Күшті жақтарыңыз", color: "#1b8a4e" },
-      { key: "⚠️ Дамыту керек бағыттар", color: "#e65100" },
-      { key: "🗓️ 30 күнге оқу жоспары", color: "#5e35b1" },
-    ];
-
-    var html = "";
-
-    sections.forEach(function (sec, idx) {
-      var startIdx = text.indexOf(sec.key);
-      if (startIdx === -1) return;
-      var contentStart = startIdx + sec.key.length;
-      var nextIdx = text.length;
-      for (var ni = idx + 1; ni < sections.length; ni++) {
-        var npos = text.indexOf(sections[ni].key);
-        if (npos !== -1 && npos > startIdx) {
-          nextIdx = npos;
-          break;
-        }
-      }
-      var content = text.slice(contentStart, nextIdx).trim();
-      var lines = content.split("\n").filter(function (l) {
-        return l.trim();
-      });
-      var isListy = lines.some(function (l) {
-        return /^[-•\d]/.test(l.trim());
-      });
-      var bodyHtml;
-      if (isListy) {
-        bodyHtml =
-          "<ul>" +
-          lines
-            .map(function (l) {
-              var clean = l
-                .trim()
-                .replace(/^[-•]\s*/, "")
-                .replace(/^\d+[\.\)]\s*/, "");
-              return clean ? "<li>" + clean + "</li>" : "";
-            })
-            .filter(Boolean)
-            .join("") +
-          "</ul>";
-      } else {
-        bodyHtml = lines
-          .map(function (l) {
-            return "<p>" + l.trim() + "</p>";
-          })
-          .join("");
-      }
-      html +=
-        '<div class="ai-section-title" style="color:' +
-        sec.color +
-        ';margin-top:14px;margin-bottom:6px;font-weight:700;font-size:0.95rem">' +
-        sec.key +
-        "</div>" +
-        bodyHtml;
+    var paragraphs = text.split("\n").filter(function (l) {
+      return l.trim();
     });
 
-    if (!html) html = "<p>" + text.replace(/\n/g, "<br>") + "</p>";
-    return html;
+    return paragraphs
+      .map(function (line) {
+        var t = line.trim();
+        if (/^[-•]\s+/.test(t)) {
+          return "<li>" + t.replace(/^[-•]\s+/, "") + "</li>";
+        }
+        if (/^\d+[\.\)]\s+/.test(t)) {
+          return "<li>" + t.replace(/^\d+[\.\)]\s+/, "") + "</li>";
+        }
+        return "<p>" + t + "</p>";
+      })
+      .join("");
   }
 
   //  AI талдауын іске қосу ---

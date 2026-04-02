@@ -1,112 +1,135 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Login - Modern Style</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="login-page">
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body class="login-page">
     <div class="language-switcher">
-        <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
-        <button class="lang-btn" data-lang="kk" onclick="setLanguage('kk')">KK</button>
-        <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+      <button
+        class="lang-btn active"
+        data-lang="en"
+        onclick="setLanguage('en')"
+      >
+        EN
+      </button>
+      <button class="lang-btn" data-lang="kk" onclick="setLanguage('kk')">
+        KK
+      </button>
+      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">
+        RU
+      </button>
     </div>
-    
+
     <div class="container">
-        <div class="login-card">
-            <div class="login-header">
-                <h1 data-translate="title">Welcome Back</h1>
-                <p data-translate="subtitle">Sign in to your account</p>
-            </div>
-            
-            <form class="login-form" id="loginForm">
-                <div class="form-group">
-                    <label for="email" data-translate="emailLabel">Email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        data-translate-placeholder="emailPlaceholder"
-                        placeholder="Enter your email"
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="password" data-translate="passwordLabel">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        data-translate-placeholder="passwordPlaceholder"
-                        placeholder="Enter your password"
-                        required
-                    >
-                </div>
-                
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" id="remember">
-                        <span data-translate="rememberMe">Remember me</span>
-                    </label>
-                    <a href="#" class="forgot-password" data-translate="forgotPassword">Forgot password?</a>
-                </div>
-                
-                <button type="submit" class="login-button">
-                    <span data-translate="signIn">Sign In</span>
-                </button>
-            </form>
-            
-            <div class="signup-link">
-                <p><span data-translate="noAccount">Don't have an account?</span> <a href="register.html" data-translate="signUp">Sign up</a></p>
-            </div>
+      <div class="login-card">
+        <div class="login-header">
+          <h1 data-translate="title">Welcome Back</h1>
+          <p data-translate="subtitle">Sign in to your account</p>
         </div>
+
+        <form class="login-form" id="loginForm">
+          <div class="form-group">
+            <label for="email" data-translate="emailLabel">Email</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              data-translate-placeholder="emailPlaceholder"
+              placeholder="Enter your email"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password" data-translate="passwordLabel"
+              >Password</label
+            >
+            <input
+              type="password"
+              id="password"
+              name="password"
+              data-translate-placeholder="passwordPlaceholder"
+              placeholder="Enter your password"
+              required
+            />
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" id="remember" />
+              <span data-translate="rememberMe">Remember me</span>
+            </label>
+            <a
+              href="forgot-password.html"
+              class="forgot-password"
+              data-translate="forgotPassword"
+              >Forgot password?</a
+            >
+          </div>
+
+          <button type="submit" class="login-button">
+            <span data-translate="signIn">Sign In</span>
+          </button>
+        </form>
+
+        <div class="signup-link">
+          <p>
+            <span data-translate="noAccount">Don't have an account?</span>
+            <a href="register.html" data-translate="signUp">Sign up</a>
+          </p>
+        </div>
+      </div>
     </div>
-    
+
     <script src="translations.js"></script>
     <script src="api.js"></script>
     <script>
-        // Test connection when page loads
-        // Бет жүктегенде байланысты тексеру
-        // Проверить подключение при загрузке страницы
-        window.addEventListener('DOMContentLoaded', async function() {
-            console.log('Page loaded, testing server connection...');
-            const isConnected = await testConnection();
-            if (!isConnected) {
-                console.warn('⚠️ Server connection test failed. Make sure backend is running on port 5000');
-            }
-        });
-        
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            // Форма мәндерін алу
-            // Получить значения формы
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            
-            // Disable button during request
-            // Сұрау кезінде батырманы өшіру
-            // Отключить кнопку во время запроса
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.querySelector('span').textContent;
-            submitButton.disabled = true;
-            submitButton.querySelector('span').textContent = 'Signing in...';
-            
-            // Call API
-            // API шақыру
-            // Вызов API
-            const result = await loginUser(email, password);
-            
-            // Re-enable button
-            // Батырманы қайта іске қосу
-            // Включить кнопку обратно
-            submitButton.disabled = false;
-            submitButton.querySelector('span').textContent = originalText;
+      // Test connection when page loads
+      // Бет жүктегенде байланысты тексеру
+      // Проверить подключение при загрузке страницы
+      window.addEventListener("DOMContentLoaded", async function () {
+        console.log("Page loaded, testing server connection...");
+        const isConnected = await testConnection();
+        if (!isConnected) {
+          console.warn(
+            "⚠️ Server connection test failed. Make sure backend is running on port 5000",
+          );
+        }
+      });
+
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          // Get form values
+          // Форма мәндерін алу
+          // Получить значения формы
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("password").value;
+
+          // Disable button during request
+          // Сұрау кезінде батырманы өшіру
+          // Отключить кнопку во время запроса
+          const submitButton = this.querySelector('button[type="submit"]');
+          const originalText = submitButton.querySelector("span").textContent;
+          submitButton.disabled = true;
+          submitButton.querySelector("span").textContent = "Signing in...";
+
+          // Call API
+          // API шақыру
+          // Вызов API
+          const result = await loginUser(email, password);
+
+          // Re-enable button
+          // Батырманы қайта іске қосу
+          // Включить кнопку обратно
+          submitButton.disabled = false;
+          submitButton.querySelector("span").textContent = originalText;
         });
     </script>
-</body>
+  </body>
 </html>
-

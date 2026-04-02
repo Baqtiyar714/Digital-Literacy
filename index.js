@@ -121,6 +121,96 @@ app.post("/auth/send-code", async (req, res) => {
 // POST /auth/verify-code — email және code алады
 // Код жоқ болса немесе мерзімі өтсе қате қайтарады
 // Дұрыс болса emailCodes-тан жойып, success қайтарады
+app.post("/auth/send-reset-code", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email міндетті" });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email форматы дұрыс емес" });
+    }
+    const checkUser = await pool.query(
+      "SELECT id FROM users WHERE email = $1",
+      [email],
+    );
+    if (checkUser.rows.length === 0) {
+      return res
+        .status(404)
+        .json({
+          success: false,
+          message: "Бұл email тіркелмеген",
+          notRegistered: true,
+        });
+    }
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    emailCodes[email] = { code, expiresAt: Date.now() + 5 * 60 * 1000 };
+    await transporter.sendMail({
+      from: `"Digital Literacy" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Құпия сөзді қалпына келтіру коды",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; border-radius: 12px; border: 1px solid #e0e0e0;">
+          <h2 style="color: #3b82f6; margin-bottom: 8px;">Құпия сөзді қалпына келтіру</h2>
+          <p style="color: #555; margin-bottom: 24px;">Жаңа құпия сөз орнату үшін төмендегі кодты енгізіңіз:</p>
+          <div style="background: #eff6ff; border-radius: 8px; padding: 20px; text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #3b82f6;">
+            ${code}
+          </div>
+          <p style="color: #999; margin-top: 20px; font-size: 13px;">Код 5 минут бойы жарамды. Егер сіз сұрамасаңыз, бұл хатты елемеңіз.</p>
+        </div>
+      `,
+    });
+    res.json({ success: true, message: "Код жіберілді" });
+  } catch (error) {
+    console.error("Reset код жіберу қатесі:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Email жіберілмеді. Сервер қатесі." });
+  }
+});
+
+app.post("/auth/reset-password", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email және құпия сөз міндетті" });
+    }
+    if (password.length < 6) {
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Құпия сөз кемінде 6 таңбадан тұруы керек",
+        });
+    }
+    const checkUser = await pool.query(
+      "SELECT id FROM users WHERE email = $1",
+      [email],
+    );
+    if (checkUser.rows.length === 0) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Пайдаланушы табылмады" });
+    }
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await pool.query("UPDATE users SET password = $1 WHERE email = $2", [
+      hashedPassword,
+      email,
+    ]);
+    res.json({ success: true, message: "Құпия сөз сәтті өзгертілді" });
+  } catch (error) {
+    console.error("Reset password қатесі:", error);
+    res.status(500).json({ success: false, message: "Сервер қатесі" });
+  }
+});
+
 app.post("/auth/verify-code", (req, res) => {
   const { email, code } = req.body;
   if (!email || !code) {
