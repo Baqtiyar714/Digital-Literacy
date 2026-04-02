@@ -173,108 +173,132 @@
     textEl.textContent = message;
   }
 
-  function renderActivity(results) {
+  function getLevelFromScore(totalScore, maxScore) {
+    var pct = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
+    if (pct >= 67) return { num: 3, kk: "Жоғары" };
+    if (pct >= 34) return { num: 2, kk: "Орташа" };
+    return { num: 1, kk: "Төмен" };
+  }
+
+  function formatDateTime(iso) {
+    try {
+      var d = new Date(iso);
+      var dd = String(d.getDate()).padStart(2, "0");
+      var mm = String(d.getMonth() + 1).padStart(2, "0");
+      var yyyy = d.getFullYear();
+      var hh = String(d.getHours()).padStart(2, "0");
+      var min = String(d.getMinutes()).padStart(2, "0");
+      return dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+    } catch (_e) {
+      return "—";
+    }
+  }
+
+  function renderActivity(userId) {
     var container = document.getElementById("activityList");
     if (!container) return;
 
-    var HISTORY_KEY = "diq_test_history";
-    var allHistory = [];
-    try {
-      var raw = localStorage.getItem(HISTORY_KEY);
-      allHistory = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(allHistory)) allHistory = [];
-    } catch (_e) {
-      allHistory = [];
-    }
-
-    if (!allHistory.length) {
+    if (!userId) {
       container.innerHTML =
         '<p class="activity-empty">Әлі тест тапсырылмаған. Бастаңыз! →</p>';
       return;
     }
 
-    function formatDateTime(iso) {
-      try {
-        var d = new Date(iso);
-        var dd = String(d.getDate()).padStart(2, "0");
-        var mm = String(d.getMonth() + 1).padStart(2, "0");
-        var yyyy = d.getFullYear();
-        var hh = String(d.getHours()).padStart(2, "0");
-        var min = String(d.getMinutes()).padStart(2, "0");
-        return dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
-      } catch (_e) {
-        return "—";
-      }
-    }
+    container.innerHTML = '<p class="activity-empty">Жүктелуде...</p>';
 
-    function renderList(items) {
-      container.innerHTML = "";
-      items.forEach(function (ev) {
-        var row = document.createElement("div");
-        row.className = "activity-list-item";
+    fetch("http://localhost:5000/test/history/" + userId)
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        var allHistory =
+          data.success && Array.isArray(data.data) ? data.data : [];
 
-        var main = document.createElement("div");
-        main.className = "activity-main";
-
-        var dot = document.createElement("div");
-        dot.style.cssText =
-          "width:10px;height:10px;border-radius:999px;background:#3949ab;flex-shrink:0;";
-
-        var name = document.createElement("div");
-        name.className = "activity-name";
-        var lvlText = ev.levelKk
-          ? " — " + ev.levelNum + "-деңгей, " + ev.levelKk
-          : "";
-        name.textContent =
-          "Тест тапсырды" + lvlText + " (" + ev.totalScore + "/90)";
-
-        main.appendChild(dot);
-        main.appendChild(name);
-
-        var meta = document.createElement("div");
-        meta.className = "activity-meta";
-
-        var dateEl = document.createElement("div");
-        dateEl.className = "activity-date";
-        dateEl.textContent = formatDateTime(ev.date);
-
-        meta.appendChild(dateEl);
-        row.appendChild(main);
-        row.appendChild(meta);
-        container.appendChild(row);
-      });
-    }
-
-    var showCount = 5;
-    var maxCount = 20;
-    var limited = allHistory.slice(0, maxCount);
-    var first5 = limited.slice(0, showCount);
-
-    renderList(first5);
-
-    if (limited.length > showCount) {
-      var moreBtn = document.createElement("button");
-      moreBtn.style.cssText =
-        "margin-top:10px;width:100%;padding:8px 16px;border-radius:999px;border:1px solid #dde1f5;background:#f0f4ff;color:#3949ab;font-size:0.82rem;font-weight:600;cursor:pointer;";
-      moreBtn.textContent =
-        "📋 Толығырақ (" + (limited.length - showCount) + " тағы)";
-      var expanded = false;
-      moreBtn.addEventListener("click", function () {
-        if (!expanded) {
-          renderList(limited);
-          container.appendChild(moreBtn);
-          moreBtn.textContent = "▲ Жию";
-          expanded = true;
-        } else {
-          renderList(first5);
-          container.appendChild(moreBtn);
-          moreBtn.textContent =
-            "📋 Толығырақ (" + (limited.length - showCount) + " тағы)";
-          expanded = false;
+        if (!allHistory.length) {
+          container.innerHTML =
+            '<p class="activity-empty">Әлі тест тапсырылмаған. Бастаңыз! →</p>';
+          return;
         }
+
+        function renderList(items) {
+          container.innerHTML = "";
+          items.forEach(function (row) {
+            var totalScore = (row.total_score || 0) * 5;
+            var maxScore = (row.max_score || 20) * 5;
+            var lvl = getLevelFromScore(totalScore, maxScore);
+
+            var el = document.createElement("div");
+            el.className = "activity-list-item";
+
+            var main = document.createElement("div");
+            main.className = "activity-main";
+
+            var dot = document.createElement("div");
+            dot.style.cssText =
+              "width:10px;height:10px;border-radius:999px;background:#3949ab;flex-shrink:0;";
+
+            var name = document.createElement("div");
+            name.className = "activity-name";
+            name.textContent =
+              "Тест тапсырды — " +
+              lvl.num +
+              "-деңгей, " +
+              lvl.kk +
+              " (" +
+              totalScore +
+              "/" +
+              maxScore +
+              ")";
+
+            main.appendChild(dot);
+            main.appendChild(name);
+
+            var meta = document.createElement("div");
+            meta.className = "activity-meta";
+
+            var dateEl = document.createElement("div");
+            dateEl.className = "activity-date";
+            dateEl.textContent = formatDateTime(row.created_at);
+
+            meta.appendChild(dateEl);
+            el.appendChild(main);
+            el.appendChild(meta);
+            container.appendChild(el);
+          });
+        }
+
+        var showCount = 5;
+        var first5 = allHistory.slice(0, showCount);
+        renderList(first5);
+
+        if (allHistory.length > showCount) {
+          var moreBtn = document.createElement("button");
+          moreBtn.style.cssText =
+            "margin-top:10px;width:100%;padding:8px 16px;border-radius:999px;border:1px solid #dde1f5;background:#f0f4ff;color:#3949ab;font-size:0.82rem;font-weight:600;cursor:pointer;";
+          moreBtn.textContent =
+            "📋 Толығырақ (" + (allHistory.length - showCount) + " тағы)";
+          var expanded = false;
+          moreBtn.addEventListener("click", function () {
+            if (!expanded) {
+              renderList(allHistory);
+              container.appendChild(moreBtn);
+              moreBtn.textContent = "▲ Жию";
+              expanded = true;
+            } else {
+              renderList(first5);
+              container.appendChild(moreBtn);
+              moreBtn.textContent =
+                "📋 Толығырақ (" + (allHistory.length - showCount) + " тағы)";
+              expanded = false;
+            }
+          });
+          container.appendChild(moreBtn);
+        }
+      })
+      .catch(function () {
+        container.innerHTML =
+          '<p class="activity-empty">Деректерді жүктеу мүмкін болмады.</p>';
       });
-      container.appendChild(moreBtn);
-    }
   }
   function initAccordion() {
     var cards = Array.prototype.slice.call(
@@ -401,55 +425,59 @@
     return true;
   }
 
-  function renderProfileStats() {
+  function renderProfileStats(userId) {
     var lastTestEl = document.getElementById("dashProfileLastTest");
     var totalScoreEl = document.getElementById("dashProfileTotalScore");
     var avgEl = document.getElementById("dashProfileAverage");
     var bestEl = document.getElementById("dashProfileBest");
 
-    var HISTORY_KEY = "diq_test_history";
-    var allHistory = [];
-    try {
-      var raw = localStorage.getItem(HISTORY_KEY);
-      allHistory = raw ? JSON.parse(raw) : [];
-      if (!Array.isArray(allHistory)) allHistory = [];
-    } catch (_e) {
-      allHistory = [];
-    }
+    if (!userId) return;
 
-    var allTimeBest = 0;
-    var lastTotal = 0;
-    var lastMaxScore = 100;
-    var lastDateStr = "—";
+    fetch("http://localhost:5000/test/history/" + userId)
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (data) {
+        var allHistory =
+          data.success && Array.isArray(data.data) ? data.data : [];
 
-    if (allHistory.length > 0) {
-      allHistory.forEach(function (h) {
-        if (h.totalScore && h.totalScore > allTimeBest)
-          allTimeBest = h.totalScore;
-      });
-      var last = allHistory[0];
-      lastTotal = last.totalScore || 0;
-      lastMaxScore = last.maxScore || 100;
-      try {
-        var d = new Date(last.date);
-        var dd = String(d.getDate()).padStart(2, "0");
-        var mm = String(d.getMonth() + 1).padStart(2, "0");
-        var yyyy = d.getFullYear();
-        lastDateStr = dd + "." + mm + "." + yyyy;
-      } catch (_e) {}
-    }
+        if (!allHistory.length) {
+          if (lastTestEl) lastTestEl.textContent = "—";
+          if (totalScoreEl) totalScoreEl.textContent = "— / 100";
+          if (avgEl) avgEl.textContent = "—";
+          if (bestEl) bestEl.textContent = "—";
+          return;
+        }
 
-    var avgPercent =
-      lastMaxScore > 0 ? Math.round((lastTotal / lastMaxScore) * 100) : 0;
+        var allTimeBest = 0;
+        allHistory.forEach(function (h) {
+          var s = (h.total_score || 0) * 5;
+          if (s > allTimeBest) allTimeBest = s;
+        });
 
-    if (lastTestEl) lastTestEl.textContent = lastDateStr;
-    if (totalScoreEl)
-      totalScoreEl.textContent =
-        allHistory.length > 0 ? lastTotal + " / " + lastMaxScore : "— / 100";
-    if (avgEl)
-      avgEl.textContent = allHistory.length > 0 ? avgPercent + "%" : "—";
-    if (bestEl)
-      bestEl.textContent = allTimeBest > 0 ? allTimeBest + " балл" : "—";
+        var last = allHistory[0];
+        var lastTotal = (last.total_score || 0) * 5;
+        var lastMax = (last.max_score || 20) * 5;
+        var avgPercent =
+          lastMax > 0 ? Math.round((lastTotal / lastMax) * 100) : 0;
+
+        var lastDateStr = "—";
+        try {
+          var d = new Date(last.created_at);
+          var dd = String(d.getDate()).padStart(2, "0");
+          var mm = String(d.getMonth() + 1).padStart(2, "0");
+          var yyyy = d.getFullYear();
+          lastDateStr = dd + "." + mm + "." + yyyy;
+        } catch (_e) {}
+
+        if (lastTestEl) lastTestEl.textContent = lastDateStr;
+        if (totalScoreEl)
+          totalScoreEl.textContent = lastTotal + " / " + lastMax;
+        if (avgEl) avgEl.textContent = avgPercent + "%";
+        if (bestEl)
+          bestEl.textContent = allTimeBest > 0 ? allTimeBest + " балл" : "—";
+      })
+      .catch(function () {});
   }
 
   function fixLegacyMaxScore() {
@@ -473,16 +501,24 @@
   function init() {
     if (!initAuthAndName()) return;
 
-    fixLegacyMaxScore();
+    var userId = null;
+    try {
+      var userRaw =
+        localStorage.getItem("diq_user") || localStorage.getItem("user");
+      if (userRaw) {
+        var u = JSON.parse(userRaw);
+        userId = u && u.id ? u.id : null;
+      }
+    } catch (_e) {}
 
     var results = loadResults();
     var aggregates = computeAggregates(results);
 
     renderStats(aggregates);
-    renderProfileStats();
+    renderProfileStats(userId);
     renderOverallProgress(aggregates, results);
     renderMotivation(aggregates);
-    renderActivity(results);
+    renderActivity(userId);
     initAccordion();
     initDigcompAccordion();
   }

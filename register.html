@@ -1,151 +1,462 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Modern Style</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body class="register-page">
+<!doctype html>
+<html lang="kk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Тіркелу</title>
+    <link rel="stylesheet" href="style.css" />
+    <style>
+      .step {
+        display: none;
+      }
+      .step.active {
+        display: block;
+      }
+
+      .step-indicator {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        margin-bottom: 28px;
+      }
+      .step-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        background: #e0e0e0;
+        color: #999;
+        font-size: 13px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition:
+          background 0.3s,
+          color 0.3s;
+        position: relative;
+        z-index: 1;
+      }
+      .step-dot.active {
+        background: #6c63ff;
+        color: #fff;
+      }
+      .step-dot.done {
+        background: #43c97e;
+        color: #fff;
+      }
+      .step-line {
+        width: 48px;
+        height: 3px;
+        background: #e0e0e0;
+        transition: background 0.3s;
+      }
+      .step-line.done {
+        background: #43c97e;
+      }
+
+      .code-input-row {
+        display: flex;
+        gap: 10px;
+      }
+      .code-input-row input {
+        flex: 1;
+        letter-spacing: 4px;
+        font-size: 20px;
+        text-align: center;
+      }
+
+      .resend-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 8px;
+      }
+      .resend-btn {
+        background: none;
+        border: none;
+        color: #6c63ff;
+        cursor: pointer;
+        font-size: 13px;
+        padding: 0;
+        text-decoration: underline;
+      }
+      .resend-btn:disabled {
+        color: #aaa;
+        text-decoration: none;
+        cursor: default;
+      }
+      .timer-text {
+        font-size: 13px;
+        color: #999;
+      }
+
+      .email-display {
+        font-weight: 600;
+        color: #6c63ff;
+      }
+
+      .success-icon {
+        font-size: 40px;
+        text-align: center;
+        margin-bottom: 8px;
+      }
+    </style>
+  </head>
+  <body class="register-page">
     <div class="language-switcher">
-        <button class="lang-btn active" data-lang="en" onclick="setLanguage('en')">EN</button>
-        <button class="lang-btn" data-lang="kk" onclick="setLanguage('kk')">KK</button>
-        <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">RU</button>
+      <button class="lang-btn" data-lang="en" onclick="setLanguage('en')">
+        EN
+      </button>
+      <button
+        class="lang-btn active"
+        data-lang="kk"
+        onclick="setLanguage('kk')"
+      >
+        KK
+      </button>
+      <button class="lang-btn" data-lang="ru" onclick="setLanguage('ru')">
+        RU
+      </button>
     </div>
-    
+
     <div class="container">
-        <div class="login-card">
-            <div class="login-header">
-                <h1 data-translate="title">Create Account</h1>
-                <p data-translate="subtitle">Sign up to get started</p>
-            </div>
-            
-            <form class="login-form" id="registerForm">
-                <div class="form-group">
-                    <label for="name" data-translate="nameLabel">Full Name</label>
-                    <input 
-                        type="text" 
-                        id="name" 
-                        name="name" 
-                        data-translate-placeholder="namePlaceholder"
-                        placeholder="Enter your full name"
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="email" data-translate="emailLabel">Email</label>
-                    <input 
-                        type="email" 
-                        id="email" 
-                        name="email" 
-                        data-translate-placeholder="emailPlaceholder"
-                        placeholder="Enter your email"
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="password" data-translate="passwordLabel">Password</label>
-                    <input 
-                        type="password" 
-                        id="password" 
-                        name="password" 
-                        data-translate-placeholder="passwordPlaceholder"
-                        placeholder="Create a password"
-                        required
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="confirmPassword" data-translate="confirmPasswordLabel">Confirm Password</label>
-                    <input 
-                        type="password" 
-                        id="confirmPassword" 
-                        name="confirmPassword" 
-                        data-translate-placeholder="confirmPasswordPlaceholder"
-                        placeholder="Confirm your password"
-                        required
-                    >
-                </div>
-                
-                <div class="form-options">
-                    <label class="remember-me">
-                        <input type="checkbox" id="terms" required>
-                        <span><span data-translate="terms">I agree to the</span> <a href="#" class="terms-link" data-translate="termsLink">Terms & Conditions</a></span>
-                    </label>
-                </div>
-                
-                <button type="submit" class="login-button">
-                    <span data-translate="createAccount">Create Account</span>
-                </button>
-            </form>
-            
-            <div class="signup-link">
-                <p><span data-translate="haveAccount">Already have an account?</span> <a href="index.html" data-translate="signIn">Sign in</a></p>
-            </div>
+      <div class="login-card">
+        <div class="login-header">
+          <h1 data-translate="title">Аккаунт құру</h1>
+          <p data-translate="subtitle">Бастау үшін тіркеліңіз</p>
         </div>
+
+        <div class="step-indicator">
+          <div class="step-dot active" id="dot1">1</div>
+          <div class="step-line" id="line1"></div>
+          <div class="step-dot" id="dot2">2</div>
+          <div class="step-line" id="line2"></div>
+          <div class="step-dot" id="dot3">3</div>
+        </div>
+
+        <div id="step1" class="step active">
+          <div class="form-group">
+            <label data-translate="nameLabel">Толық аты-жөні</label>
+            <input
+              type="text"
+              id="name"
+              data-translate-placeholder="namePlaceholder"
+              placeholder="Толық аты-жөніңізді енгізіңіз"
+            />
+          </div>
+          <div class="form-group">
+            <label data-translate="emailLabel">Электрондық пошта</label>
+            <input
+              type="email"
+              id="email"
+              data-translate-placeholder="emailPlaceholder"
+              placeholder="Электрондық поштаңызды енгізіңіз"
+            />
+          </div>
+          <div
+            id="step1Error"
+            class="error-message"
+            style="
+              display: none;
+              color: #e74c3c;
+              font-size: 13px;
+              margin-bottom: 10px;
+            "
+          ></div>
+          <button class="login-button" id="sendCodeBtn" onclick="sendCode()">
+            <span data-translate="sendCode">Код жіберу</span>
+          </button>
+        </div>
+
+        <div id="step2" class="step">
+          <div class="success-icon">📧</div>
+          <p style="text-align: center; margin-bottom: 20px">
+            <span data-translate="codeSentTo"
+              >Растау коды мына поштаға жіберілді:</span
+            ><br />
+            <span class="email-display" id="emailDisplay"></span>
+          </p>
+          <div class="form-group">
+            <label data-translate="codeLabel">Растау коды</label>
+            <div class="code-input-row">
+              <input
+                type="text"
+                id="verifyCode"
+                maxlength="6"
+                data-translate-placeholder="codePlaceholder"
+                placeholder="6 таңбалы код"
+              />
+            </div>
+            <div class="resend-row">
+              <button
+                class="resend-btn"
+                id="resendBtn"
+                onclick="resendCode()"
+                disabled
+              >
+                <span data-translate="resendCode">Қайта жіберу</span>
+              </button>
+              <span class="timer-text" id="timerText"></span>
+            </div>
+          </div>
+          <div
+            id="step2Error"
+            class="error-message"
+            style="
+              display: none;
+              color: #e74c3c;
+              font-size: 13px;
+              margin-bottom: 10px;
+            "
+          ></div>
+          <button class="login-button" onclick="verifyCode()">
+            <span data-translate="verifyBtn">Растау</span>
+          </button>
+          <button
+            class="login-button"
+            onclick="backToStep1()"
+            style="background: #f0f0f0; color: #555; margin-top: 8px"
+          >
+            <span data-translate="backBtn">Артқа</span>
+          </button>
+        </div>
+
+        <div id="step3" class="step">
+          <div class="form-group">
+            <label data-translate="passwordLabel">Құпия сөз</label>
+            <input
+              type="password"
+              id="password"
+              data-translate-placeholder="passwordPlaceholder"
+              placeholder="Құпия сөз құрыңыз"
+            />
+          </div>
+          <div class="form-group">
+            <label data-translate="confirmPasswordLabel"
+              >Құпия сөзді растау</label
+            >
+            <input
+              type="password"
+              id="confirmPassword"
+              data-translate-placeholder="confirmPasswordPlaceholder"
+              placeholder="Құпия сөзіңізді растаңыз"
+            />
+          </div>
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" id="terms" />
+              <span
+                ><span data-translate="terms">Мен келісемін</span>
+                <a href="#" class="terms-link" data-translate="termsLink"
+                  >Ережелер мен шарттарға</a
+                ></span
+              >
+            </label>
+          </div>
+          <div
+            id="step3Error"
+            class="error-message"
+            style="
+              display: none;
+              color: #e74c3c;
+              font-size: 13px;
+              margin-bottom: 10px;
+            "
+          ></div>
+          <button
+            class="login-button"
+            id="registerBtn"
+            onclick="submitRegister()"
+          >
+            <span data-translate="createAccount">Есептік жазба құру</span>
+          </button>
+        </div>
+
+        <div class="signup-link" style="margin-top: 16px">
+          <p>
+            <span data-translate="haveAccount">Есептік жазбаңыз бар ма?</span>
+            <a href="index.html" data-translate="signIn">Кіру</a>
+          </p>
+        </div>
+      </div>
     </div>
-    
+
     <script src="translations.js"></script>
     <script src="api.js"></script>
     <script>
-        // Test connection when page loads
-        // Бет жүктегенде байланысты тексеру
-        // Проверить подключение при загрузке страницы
-        window.addEventListener('DOMContentLoaded', async function() {
-            console.log('Page loaded, testing server connection...');
-            const isConnected = await testConnection();
-            if (!isConnected) {
-                console.warn('⚠️ Server connection test failed. Make sure backend is running on port 5000');
-            }
-        });
-        
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            // Get form values
-            // Форма мәндерін алу
-            // Получить значения формы
-            const name = document.getElementById('name').value.trim();
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            
-            // Validate password match
-            // Парольдердің сәйкестігін тексеру
-            // Проверка совпадения паролей
-            if (password !== confirmPassword) {
-                const currentLang = localStorage.getItem('language') || 'en';
-                const translations = {
-                    en: 'Passwords do not match!',
-                    kk: 'Құпия сөздер сәйкес келмейді!',
-                    ru: 'Пароли не совпадают!'
-                };
-                showMessage(translations[currentLang] || translations.en);
-                return;
-            }
-            
-            // Disable button during request
-            // Сұрау кезінде батырманы өшіру
-            // Отключить кнопку во время запроса
-            const submitButton = this.querySelector('button[type="submit"]');
-            const originalText = submitButton.querySelector('span').textContent;
-            submitButton.disabled = true;
-            submitButton.querySelector('span').textContent = 'Creating...';
-            
-            // Call API
-            // API шақыру
-            // Вызов API
-            const result = await registerUser(name, email, password);
-            
-            // Re-enable button
-            // Батырманы қайта іске қосу
-            // Включить кнопку обратно
-            submitButton.disabled = false;
-            submitButton.querySelector('span').textContent = originalText;
-        });
-    </script>
-</body>
-</html>
+      const API = "http://localhost:5000";
+      let timerInterval = null;
+      let verifiedEmail = "";
 
+      function showError(id, msg) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.style.display = "block";
+      }
+      function hideError(id) {
+        document.getElementById(id).style.display = "none";
+      }
+
+      function setStep(n) {
+        document
+          .querySelectorAll(".step")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById("step" + n).classList.add("active");
+
+        for (let i = 1; i <= 3; i++) {
+          const dot = document.getElementById("dot" + i);
+          dot.classList.remove("active", "done");
+          if (i < n) dot.classList.add("done");
+          else if (i === n) dot.classList.add("active");
+        }
+        for (let i = 1; i <= 2; i++) {
+          const line = document.getElementById("line" + i);
+          line.classList.toggle("done", i < n);
+        }
+      }
+
+      function startTimer(seconds) {
+        clearInterval(timerInterval);
+        const resendBtn = document.getElementById("resendBtn");
+        const timerText = document.getElementById("timerText");
+        resendBtn.disabled = true;
+        let remaining = seconds;
+        timerText.textContent = `${remaining}с`;
+        timerInterval = setInterval(() => {
+          remaining--;
+          timerText.textContent = remaining > 0 ? `${remaining}с` : "";
+          if (remaining <= 0) {
+            clearInterval(timerInterval);
+            resendBtn.disabled = false;
+          }
+        }, 1000);
+      }
+
+      async function sendCode() {
+        hideError("step1Error");
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+
+        if (!name) return showError("step1Error", "Аты-жөніңізді енгізіңіз");
+        if (!email) return showError("step1Error", "Email енгізіңіз");
+
+        const btn = document.getElementById("sendCodeBtn");
+        btn.disabled = true;
+        btn.querySelector("span").textContent = "Жіберілуде...";
+
+        try {
+          const res = await fetch(`${API}/auth/send-code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            document.getElementById("emailDisplay").textContent = email;
+            setStep(2);
+            startTimer(60);
+          } else {
+            showError("step1Error", data.message);
+          }
+        } catch {
+          showError("step1Error", "Сервермен байланыс жоқ");
+        }
+
+        btn.disabled = false;
+        const lang = localStorage.getItem("language") || "kk";
+        const labels = {
+          kk: "Код жіберу",
+          en: "Send Code",
+          ru: "Отправить код",
+        };
+        btn.querySelector("span").textContent = labels[lang] || labels.kk;
+      }
+
+      async function resendCode() {
+        hideError("step2Error");
+        const email = document.getElementById("email").value.trim();
+        try {
+          const res = await fetch(`${API}/auth/send-code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            startTimer(60);
+            document.getElementById("verifyCode").value = "";
+          } else {
+            showError("step2Error", data.message);
+          }
+        } catch {
+          showError("step2Error", "Сервермен байланыс жоқ");
+        }
+      }
+
+      async function verifyCode() {
+        hideError("step2Error");
+        const email = document.getElementById("email").value.trim();
+        const code = document.getElementById("verifyCode").value.trim();
+        if (!code) return showError("step2Error", "Кодты енгізіңіз");
+
+        try {
+          const res = await fetch(`${API}/auth/verify-code`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, code }),
+          });
+          const data = await res.json();
+          if (data.success) {
+            verifiedEmail = email;
+            clearInterval(timerInterval);
+            setStep(3);
+          } else {
+            showError("step2Error", data.message);
+          }
+        } catch {
+          showError("step2Error", "Сервермен байланыс жоқ");
+        }
+      }
+
+      function backToStep1() {
+        clearInterval(timerInterval);
+        hideError("step2Error");
+        document.getElementById("verifyCode").value = "";
+        setStep(1);
+      }
+
+      async function submitRegister() {
+        hideError("step3Error");
+        const name = document.getElementById("name").value.trim();
+        const password = document.getElementById("password").value;
+        const confirmPassword =
+          document.getElementById("confirmPassword").value;
+        const terms = document.getElementById("terms").checked;
+
+        if (password.length < 6)
+          return showError(
+            "step3Error",
+            "Құпия сөз кемінде 6 таңбадан тұруы керек",
+          );
+        if (password !== confirmPassword)
+          return showError("step3Error", "Құпия сөздер сәйкес келмейді");
+        if (!terms) return showError("step3Error", "Ережелерге келісу қажет");
+
+        const btn = document.getElementById("registerBtn");
+        btn.disabled = true;
+        btn.querySelector("span").textContent = "Тіркелуде...";
+
+        const result = await registerUser(name, verifiedEmail, password);
+
+        btn.disabled = false;
+        btn.querySelector("span").textContent = "Есептік жазба құру";
+      }
+
+      window.addEventListener("DOMContentLoaded", async function () {
+        const isConnected = await testConnection();
+        if (!isConnected) console.warn("⚠️ Сервермен байланыс жоқ");
+      });
+    </script>
+  </body>
+</html>

@@ -1,8 +1,19 @@
+// profile.js — Профиль беті логикасы
+// Пайдаланушы деректерін, тест нәтижелерін,
+// AI ұсыныстарын және белсенділік тарихын көрсетеді
+
 (function () {
+  // localStorage кілттері ---
+  // diq_user — ағымдағы пайдаланушы деректері
+  // user — ескі форматтағы пайдаланушы деректері (legacy)
+  // diq_block_results — блок бойынша тест нәтижелері
   const USER_KEY = "diq_user";
   const LEGACY_USER_KEY = "user";
   const RESULTS_KEY = "diq_block_results";
 
+  // Константалар мен блоктар анықтамасы ---
+  // MAX_PER_BLOCK — әр блоктың максималды баллы (20)
+  // BLOCKS — 5 компетенция блогының ID, атауы, түсі және иконасы
   const MAX_PER_BLOCK = 20;
   const BLOCKS = [
     {
@@ -42,6 +53,10 @@
     },
   ];
 
+  // Пайдаланушыны тексеру ---
+  // localStorage-ден diq_user немесе ескі "user" кілтін оқиды
+  // Ескі форматты жаңа форматқа түрлендіреді
+  // Пайдаланушы жоқ болса — login.html бетіне бағыттайды
   function ensureUser() {
     try {
       const existing = localStorage.getItem(USER_KEY);
@@ -64,6 +79,9 @@
     return null;
   }
 
+  //  Күн форматтауы ---
+  // ISO форматтағы күнді ДД.АА.ЖЖЖЖ форматына айналдырады
+  // Жарамсыз күн болса "--.--.----" қайтарады
   function formatDate(dateStr) {
     if (!dateStr) return "--.--.----";
     try {
@@ -78,6 +96,9 @@
     }
   }
 
+  //  Нәтижелерді localStorage-ден оқу ---
+  // diq_block_results кілтінен блок нәтижелерін алады
+  // Жазба жоқ болса немесе қате болса бос объект қайтарады
   function loadResults() {
     try {
       const raw = localStorage.getItem(RESULTS_KEY);
@@ -89,6 +110,9 @@
     }
   }
 
+  //  Балл бойынша деңгей анықтау ---
+  // Пайызды есептеп 3 деңгейден біреуін қайтарады:
+  // Төмен (0-33%), Орташа (34-66%), Жоғары (67-100%)
   function getLevelForScore(score, maxScore) {
     var max = maxScore !== undefined ? maxScore : 20;
     var pct = max > 0 ? (score / max) * 100 : 0;
@@ -97,10 +121,15 @@
     return { num: 3, kk: "Жоғары", color: "#1b8a4e" };
   }
 
+  //  Жалпы балл бойынша деңгей ---
+  // Жалпы максималды балл = MAX_PER_BLOCK × BLOCKS саны = 20 × 5 = 100
   function levelFromScore(score) {
     return getLevelForScore(score, MAX_PER_BLOCK * BLOCKS.length);
   }
 
+  //  Деңгей белгісін шығару функциялары ---
+  // levelLabel() — тек мәтін қайтарады (Төмен/Орташа/Жоғары)
+  // levelLabelWithEmoji() — мәтін + эмодзи қайтарады
   function levelLabel(level) {
     if (typeof level === "object") return level.kk;
     return level && level.kk ? level.kk : "Іргетас";
@@ -114,6 +143,12 @@
     return "Төмен 📉";
   }
 
+  //  Жалпы статистикаларды есептеу ---
+  // Барлық блоктардың нәтижелерін қорытындылайды:
+  // completedCount — аяқталған блоктар саны
+  // totalScore — жалпы балл, bestBlockId — ең жоғары блок
+  // worstBlockId — ең төмен блок, lastActivityDate — соңғы белсенділік
+  // diq_test_history-дан allTimeBest (ең жоғары балл) алады
   function computeAggregates(results) {
     let completedCount = 0;
     let totalScore = 0;
@@ -201,6 +236,10 @@
     };
   }
 
+  //  Профиль hero бөлімін толтыру ---
+  // Пайдаланушының аты, email, тіркелген күні, деңгей белгісі
+  // Аттың бірінші әріптерінен аватар инициалдарын жасайды
+  // Деңгейге сәйкес түс пен CSS класс қолданады
   function fillHero(user, aggregates) {
     const initialsEl = document.getElementById("profileAvatarInitials");
     const nameEl = document.getElementById("profileName");
@@ -260,6 +299,10 @@
     }
   }
 
+  //  Статистика жолын толтыру ---
+  // Соңғы тест күні, жалпы балл, пайыз, рекорд баллды көрсетеді
+  // diq_test_history-дан резервтік деректер алады (lastTotal жоқ болса)
+  // Пайызға сәйкес CSS класс қолданады (low/medium/high)
   function fillStatsRow(aggregates, results) {
     const completedEl = document.getElementById("profileStatCompleted");
     const totalScoreEl = document.getElementById("profileStatTotalScore");
@@ -329,6 +372,9 @@
     }
   }
 
+  //  Деңгей және жетістіктер белгілерін толтыру ---
+  // Соңғы тест нәтижесінде аяқталған блоктарды анықтайды
+  // Аяқталған блоктың белгісіне is-completed класы мен түс беріледі
   function fillLevelAndAchievements(aggregates, results) {
     const lastTest = results._lastTest || null;
     const completedIds =
@@ -361,6 +407,10 @@
       });
   }
 
+  //  Блок нәтижелерін көрсету ---
+  // Әр блок үшін иконка, атау, күн, прогресс жолағы, балл, батырма жасайды
+  // Нәтиже жоқ блоктарға empty класы беріледі
+  // setTimeout 300мс — прогресс жолағы анимация үшін кешіктіру
   function fillResults(results) {
     const container = document.getElementById("profileResultsContainer");
     if (!container) return;
@@ -440,6 +490,8 @@
     });
   }
 
+  //  Статистика картасын толтыру ---
+  // Соңғы тест деңгейі, соңғы белсенділік күні, жалпы балл көрсетіледі
   function fillStatsCard(aggregates) {
     var avgEl = document.getElementById("profileStatsAvg");
     var lastEl = document.getElementById("profileStatsLastActivity");
@@ -468,6 +520,12 @@
           : "— / 100";
     }
   }
+
+  //  AI ұсыныстарын толтыру ---
+  // diq_ai_result кілтінен сақталған AI талдауын оқиды
+  // Сақталған талдау бар болса — оны көрсетеді (күнімен)
+  // Жоқ болса — блок нәтижелеріне негізделген қарапайым ұсыныстар жасайды
+  // Ең төмен блоктарды (балл < 9) анықтап ұсыныс береді
   function fillAiRecommendations(results, aggregates) {
     var list = document.getElementById("profileAiList");
     var footerBtn = document.querySelector(".profile-ai-button");
@@ -560,6 +618,12 @@
       };
     }
   }
+
+  //  Белсенділік тарихын толтыру ---
+  // GET /test/history/:user_id — серверден соңғы 20 тест нәтижесін алады
+  // total_score мен max_score-ны ×5 коэффициентімен масштабтайды
+  // Алғашқы 5 жазба көрсетіледі, "Толығырақ" батырмасымен ашылады
+  // userId жоқ болса немесе нәтиже жоқ болса — бос хабар көрсетіледі
   function fillActivityHistory(results, userId) {
     var container = document.getElementById("profileActivityList");
     if (!container) return;
@@ -687,6 +751,11 @@
         showEmpty();
       });
   }
+
+  //  Жүйеден шығу ---
+  // logoutBtn батырмасын тыңдайды
+  // localStorage-ден пайдаланушы деректерін жояды
+  // login.html бетіне бағыттайды
   function initLogout() {
     const btn = document.getElementById("logoutBtn");
     if (!btn) return;
@@ -694,11 +763,23 @@
       try {
         localStorage.removeItem(USER_KEY);
         localStorage.removeItem(LEGACY_USER_KEY);
+        localStorage.removeItem("diq_test_history");
+        localStorage.removeItem("diq_block_results");
+        localStorage.removeItem("diq_ai_result");
       } catch (_e) {}
       window.location.href = "login.html";
     });
   }
 
+  //  Профиль өңдеу модалы ---
+  // profileEditBtn басылғанда модал ашылады
+  // Жаңа құпия сөз енгізілгенде ескі құпия сөз өрісі пайда болады
+  // Форм жіберілгенде:
+  //   - Аты міндетті өріс
+  //   - Жаңа және растау құпия сөздер сәйкестігі тексеріледі
+  //   - Құпия сөз өзгерсе — PUT /profile сұранысы жіберіледі
+  //   - localStorage-дегі пайдаланушы деректері жаңартылады
+  //   - Бет UI дереу жаңартылады (at, инициалдар)
   function initEditModal() {
     var editBtn = document.getElementById("profileEditBtn");
     var modal = document.getElementById("profileEditModal");
@@ -859,6 +940,9 @@
     }
   }
 
+  //  Ескі maxScore деректерін түзету ---
+  // diq_test_history-дағы maxScore 100-ден өзгеше болса 100-ге түзетеді
+  // Бұрын сақталған қате деректерді түзету үшін қолданылады
   function fixLegacyMaxScore() {
     try {
       var raw = localStorage.getItem("diq_test_history");
@@ -877,6 +961,17 @@
     } catch (_) {}
   }
 
+  //  Инициализация функциясы ---
+  // Барлық функцияларды кезекпен шақырады:
+  // 1. ensureUser() — пайдаланушыны тексеру
+  // 2. fixLegacyMaxScore() — ескі деректерді түзету
+  // 3. loadResults() — нәтижелерді оқу
+  // 4. computeAggregates() — жалпы статистиканы есептеу
+  // 5. fillHero(), fillStatsRow(), fillLevelAndAchievements() — UI толтыру
+  // 6. fillResults(), fillStatsCard(), fillAiRecommendations() — UI толтыру
+  // 7. fillActivityHistory() — тарихты жүктеу
+  // 8. initLogout(), initEditModal() — оқиғаларды тіркеу
+  // DOMContentLoaded болмаса тікелей іске қосылады
   function init() {
     const user = ensureUser();
     if (!user) return;

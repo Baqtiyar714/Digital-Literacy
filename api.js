@@ -69,15 +69,22 @@ if (!document.getElementById("api-message-styles")) {
   document.head.appendChild(style);
 }
 
+function clearUserData() {
+  try {
+    localStorage.removeItem("diq_user");
+    localStorage.removeItem("user");
+    localStorage.removeItem("diq_test_history");
+    localStorage.removeItem("diq_block_results");
+    localStorage.removeItem("diq_ai_result");
+  } catch (_e) {}
+}
+
 async function testConnection() {
   try {
     const response = await fetch(`${API_BASE_URL}/health`, {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
-
     if (response.ok) {
       console.log("✅ Server connection OK");
       return true;
@@ -87,7 +94,6 @@ async function testConnection() {
     }
   } catch (error) {
     console.error("❌ Cannot connect to server:", error.message);
-    console.error("Make sure the server is running on", API_BASE_URL);
     return false;
   }
 }
@@ -96,9 +102,7 @@ async function registerUser(name, email, password) {
   try {
     const response = await fetch(`${API_BASE_URL}/register`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, password }),
     });
 
@@ -116,7 +120,6 @@ async function registerUser(name, email, password) {
     }
 
     const data = await response.json();
-
     if (data.success) {
       showMessage("Тіркелу сәтті! Кіру бетіне бағытталуда...", "success");
       setTimeout(() => {
@@ -143,9 +146,7 @@ async function loginUser(email, password) {
   try {
     const response = await fetch(`${API_BASE_URL}/login`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, password }),
     });
 
@@ -166,6 +167,22 @@ async function loginUser(email, password) {
 
     if (data.success) {
       const userData = data.data;
+
+      try {
+        const prevRaw =
+          localStorage.getItem("diq_user") || localStorage.getItem("user");
+        if (prevRaw) {
+          const prevUser = JSON.parse(prevRaw);
+          if (!prevUser || prevUser.id !== userData.id) {
+            clearUserData();
+          }
+        } else {
+          clearUserData();
+        }
+      } catch (_e) {
+        clearUserData();
+      }
+
       localStorage.setItem("diq_user", JSON.stringify(userData));
       localStorage.setItem("user", JSON.stringify(userData));
       showMessage("Кіру сәтті! Басты бетке бағытталуда...", "success");

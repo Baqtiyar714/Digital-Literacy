@@ -17,7 +17,6 @@ const COMP_CLASSES = {
   problem: "badge-prob",
 };
 
-// ── UTILS ──
 function showMsg(id, text, type) {
   const el = document.getElementById(id);
   if (!el) return;
@@ -32,7 +31,6 @@ function getInitials(name) {
   return name.substring(0, 2).toUpperCase();
 }
 
-// ── LOGIN ──
 async function doLogin() {
   const username = document.getElementById("adminUsername").value.trim();
   const pwd = document.getElementById("adminPwd").value;
@@ -54,11 +52,11 @@ async function doLogin() {
       adminPassword = pwd;
       adminUsername = username;
       localStorage.setItem("adminUsername", username);
+      localStorage.setItem("adminPassword", pwd);
 
       document.getElementById("loginWrap").classList.add("hidden");
       document.getElementById("adminApp").classList.remove("hidden");
 
-      // Set avatar and name in header
       document.getElementById("headerAvatar").textContent =
         getInitials(username);
       document.getElementById("headerName").textContent = username;
@@ -77,15 +75,29 @@ function doLogout() {
   adminPassword = "";
   adminUsername = "";
   localStorage.removeItem("adminUsername");
+  localStorage.removeItem("adminPassword");
   document.getElementById("loginWrap").classList.remove("hidden");
   document.getElementById("adminApp").classList.add("hidden");
   document.getElementById("adminPwd").value = "";
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  // Restore username if saved
   const savedName = localStorage.getItem("adminUsername");
-  if (savedName) document.getElementById("adminUsername").value = savedName;
+  const savedPwd = localStorage.getItem("adminPassword");
+
+  if (savedName && savedPwd) {
+    adminUsername = savedName;
+    adminPassword = savedPwd;
+    document.getElementById("loginWrap").classList.add("hidden");
+    document.getElementById("adminApp").classList.remove("hidden");
+    document.getElementById("headerAvatar").textContent =
+      getInitials(savedName);
+    document.getElementById("headerName").textContent = savedName;
+    loadStats();
+    loadQuestions();
+  } else if (savedName) {
+    document.getElementById("adminUsername").value = savedName;
+  }
 
   document.getElementById("adminPwd").addEventListener("keydown", (e) => {
     if (e.key === "Enter") doLogin();
@@ -99,7 +111,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ── STATS ──
 async function loadStats() {
   try {
     const resp = await fetch(API + "/admin/stats", {
@@ -115,7 +126,6 @@ async function loadStats() {
   } catch (e) {}
 }
 
-// ── QUESTIONS LIST ──
 async function loadQuestions() {
   const search = document.getElementById("filterSearch").value;
   const comp = document.getElementById("filterComp").value;
@@ -190,7 +200,6 @@ async function loadQuestions() {
         </thead>
         <tbody>${rows}</tbody>
       </table>`;
-    // Таңдалған санды қалпына келтіру
     updateBulkBar();
   } catch (e) {
     document.getElementById("questionsTable").innerHTML =
@@ -206,7 +215,6 @@ function resetFilters() {
   loadQuestions();
 }
 
-// ── ADD QUESTION ──
 async function addQuestion() {
   const body = {
     text: document.getElementById("addText").value.trim(),
@@ -361,8 +369,6 @@ function switchTab(tab, btn) {
   if (tab === "users") loadUsers();
 }
 
-// ── IMPORT ──
-
 let importData = [];
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -389,7 +395,6 @@ function handleFileSelect(e) {
       const previewText = document.getElementById("importPreviewText");
       preview.classList.remove("hidden");
 
-      // Статистика
       const comps = {};
       parsed.forEach((q) => {
         comps[q.competency] = (comps[q.competency] || 0) + 1;
@@ -419,7 +424,6 @@ async function startImport() {
   document.getElementById("importProgress").classList.remove("hidden");
   document.getElementById("importResult").classList.add("hidden");
 
-  // Batch — 10 сұрақтан жіберу
   const BATCH = 10;
   for (let i = 0; i < total; i += BATCH) {
     const batch = importData.slice(i, i + BATCH);
@@ -459,7 +463,6 @@ async function startImport() {
       }),
     );
 
-    // Прогресс жаңарту
     const done = Math.min(i + BATCH, total);
     const pct = Math.round((done / total) * 100);
     document.getElementById("importProgressBar").style.width = pct + "%";
@@ -467,7 +470,6 @@ async function startImport() {
       done + " / " + total;
   }
 
-  // Нәтиже
   document.getElementById("importResult").classList.remove("hidden");
   const body = document.getElementById("importResultBody");
   body.innerHTML = `

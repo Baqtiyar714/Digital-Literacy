@@ -1,9 +1,19 @@
+// ================================================
+// index.js — Серверлік негізгі файл
+// Node.js + Express.js негізінде жазылған
+// Барлық API маршруттары осы файлда орналасқан
+// ================================================
+
+//  Қажетті кітапханаларды жүктеу ---
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
+const nodemailer = require("nodemailer");
 require("dotenv").config();
 const pool = require("./db");
 
+//  questions_db деректер қорына қосылу ---
+// auth_db үшін pool (db.js-тен), questions_db үшін жаңа pool жасалады
 const { Pool } = require("pg");
 const questionsPool = new Pool({
   user: process.env.DB_USER || "postgres",
@@ -14,9 +24,15 @@ const questionsPool = new Pool({
 });
 questionsPool.on("connect", () => console.log("✅ Connected to questions_db"));
 
+// Express қосымшасын және порт нөмірін баптау ---
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+//  Middleware баптаулары ---
+// CORS — барлық домендерден сұраныстарға рұқсат
+// express.json() — JSON форматтағы сұраныс денелерін оқу
+// express.static() — фронтенд файлдарын тікелей беру
+// Лог middleware — әр сұраныстың уақыты мен жолын консольге шығару
 app.use(
   cors({
     origin: "*",
@@ -33,6 +49,106 @@ app.use((req, res, next) => {
   next();
 });
 
+//  Email верификация үшін уақытша код сақтағышы ---
+// emailCodes — жадта сақталады, кілт: email, мән: { code, expiresAt }
+const emailCodes = {};
+
+//  Nodemailer транспорты ---
+// Gmail SMTP арқылы email жіберу үшін баптау
+// EMAIL_USER және EMAIL_PASS .env файлынан алынады
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+//  Email расталу кодын жіберу ---
+// POST /auth/send-code — email алады, 6 таңбалы код генерациялайды
+// Email бұрын тіркелген болса 409 қайтарады
+// Код 5 минут бойы жарамды, emailCodes-та сақталады
+app.post("/auth/send-code", async (req, res) => {
+  try {
+    const { email } = req.body;
+    if (!email) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email міндетті" });
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Email форматы дұрыс емес" });
+    }
+    const checkUser = await pool.query(
+      "SELECT id FROM users WHERE email = $1",
+      [email],
+    );
+    if (checkUser.rows.length > 0) {
+      return res
+        .status(409)
+        .json({ success: false, message: "Бұл email тіркелген" });
+    }
+    const code = Math.floor(100000 + Math.random() * 900000).toString();
+    emailCodes[email] = { code, expiresAt: Date.now() + 5 * 60 * 1000 };
+    await transporter.sendMail({
+      from: `"Digital Literacy" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Email растау коды",
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; border-radius: 12px; border: 1px solid #e0e0e0;">
+          <h2 style="color: #6c63ff; margin-bottom: 8px;">Email растау</h2>
+          <p style="color: #555; margin-bottom: 24px;">Тіркелуді аяқтау үшін төмендегі кодты енгізіңіз:</p>
+          <div style="background: #f5f3ff; border-radius: 8px; padding: 20px; text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #6c63ff;">
+            ${code}
+          </div>
+          <p style="color: #999; margin-top: 20px; font-size: 13px;">Код 5 минут бойы жарамды. Егер сіз сұрамасаңыз, бұл хатты елемеңіз.</p>
+        </div>
+      `,
+    });
+    res.json({ success: true, message: "Код жіберілді" });
+  } catch (error) {
+    console.error("Email жіберу қатесі:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Email жіберілмеді. Сервер қатесі." });
+  }
+});
+
+//  Email растау кодын тексеру ---
+// POST /auth/verify-code — email және code алады
+// Код жоқ болса немесе мерзімі өтсе қате қайтарады
+// Дұрыс болса emailCodes-тан жойып, success қайтарады
+app.post("/auth/verify-code", (req, res) => {
+  const { email, code } = req.body;
+  if (!email || !code) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Email және код міндетті" });
+  }
+  const entry = emailCodes[email];
+  if (!entry) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Код табылмады. Қайта жіберіңіз." });
+  }
+  if (Date.now() > entry.expiresAt) {
+    delete emailCodes[email];
+    return res
+      .status(400)
+      .json({ success: false, message: "Код мерзімі өтті. Қайта жіберіңіз." });
+  }
+  if (entry.code !== code.trim()) {
+    return res.status(400).json({ success: false, message: "Код дұрыс емес" });
+  }
+  delete emailCodes[email];
+  res.json({ success: true, message: "Email расталды" });
+});
+
+//  Барлық пайдаланушыларды қарау ---
+// GET /users — auth_db-дегі users кестесінен барлық жазбаларды алу
 app.get("/users", async (req, res) => {
   try {
     const result = await pool.query(
@@ -46,6 +162,12 @@ app.get("/users", async (req, res) => {
   }
 });
 
+//  Жаңа пайдаланушы тіркеу ---
+// POST /register — аты, email, құпия сөз қабылдайды
+// Валидация: міндетті өрістер, email формат, құпия сөз ұзындығы (мин. 6)
+// Email қайталанбауын тексереді
+// bcrypt арқылы құпия сөзді шифрлайды (salt rounds: 10)
+// users кестесіне жаңа жазба қосады
 app.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -92,6 +214,11 @@ app.post("/register", async (req, res) => {
   }
 });
 
+//  Жүйеге кіру (авторизация) ---
+// POST /login — email және құпия сөз қабылдайды
+// Email арқылы пайдаланушыны DB-дан іздейді
+// bcrypt.compare() арқылы құпия сөзді тексереді
+// Сәтті кірсе — пайдаланушы деректерін қайтарады (құпия сөзсіз)
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -125,6 +252,10 @@ app.post("/login", async (req, res) => {
   }
 });
 
+//  ID бойынша пайдаланушы деректерін алу ---
+// GET /users/:id — бір пайдаланушының деректерін қайтарады
+// ID сандық болуын тексереді (isNaN)
+// Пайдаланушы табылмаса 404 қайтарады
 app.get("/users/:id", async (req, res) => {
   try {
     const userId = parseInt(req.params.id);
@@ -148,6 +279,9 @@ app.get("/users/:id", async (req, res) => {
   }
 });
 
+//  Әкімші тексеру middleware ---
+// checkAdmin() — x-admin-password хедерін немесе body-дан adminPassword өрісін тексереді
+// Барлық /admin/* маршруттарына қолданылады
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 
 function checkAdmin(req, res, next) {
@@ -160,6 +294,10 @@ function checkAdmin(req, res, next) {
   next();
 }
 
+//  Сұрақтар тізімін алу (әкімші) ---
+// GET /admin/questions — questions_db-дан сұрақтарды алады
+// Сүзгілеу: competency, age_group, education, мәтін бойынша іздеу (ILIKE)
+// checkAdmin middleware арқылы қорғалған
 app.get("/admin/questions", checkAdmin, async (req, res) => {
   try {
     const { competency, age_group, education, search } = req.query;
@@ -190,6 +328,11 @@ app.get("/admin/questions", checkAdmin, async (req, res) => {
   }
 });
 
+//  Жаңа сұрақ қосу (әкімші) ---
+// POST /admin/questions — жаңа сұрақ жазбасын questions кестесіне қосады
+// Міндетті өрістер: text, option_a-d, correct_answer, competency
+// age_group және education міндетті емес (NULL болуы мүмкін)
+// correct_answer автоматты түрде бас әріпке айналдырылады
 app.post("/admin/questions", checkAdmin, async (req, res) => {
   try {
     const {
@@ -238,6 +381,10 @@ app.post("/admin/questions", checkAdmin, async (req, res) => {
   }
 });
 
+//  Сұрақты өңдеу (әкімші) ---
+// PUT /admin/questions/:id — бар сұрақтың барлық өрістерін жаңартады
+// ID параметр арқылы беріледі
+// Сұрақ табылмаса 404 қайтарады
 app.put("/admin/questions/:id", checkAdmin, async (req, res) => {
   try {
     const {
@@ -278,6 +425,9 @@ app.put("/admin/questions/:id", checkAdmin, async (req, res) => {
   }
 });
 
+//  Сұрақты жою (әкімші) ---
+// DELETE /admin/questions/:id — ID бойынша сұрақты questions кестесінен жояды
+// Сұрақ табылмаса 404 қайтарады
 app.delete("/admin/questions/:id", checkAdmin, async (req, res) => {
   try {
     const result = await questionsPool.query(
@@ -294,6 +444,12 @@ app.delete("/admin/questions/:id", checkAdmin, async (req, res) => {
   }
 });
 
+//  Тест сұрақтарын іріктеу ---
+// POST /test/questions — пайдаланушының жас тобы мен білім деңгейіне сәйкес сұрақтарды алады
+// 5 компетенция блогының әрқайсысынан 4 сұрақ кездейсоқ іріктеледі (ORDER BY RANDOM() LIMIT 4)
+// NULL мәндері барлық топтарға жарамды сұрақтарды білдіреді
+// Барлығы 20 сұрақ қайтарылады, ретін шайқайды
+// Дұрыс жауап (correct_answer) жіберіледі — клиент тексеру үшін
 app.post("/test/questions", async (req, res) => {
   try {
     const { age_group, education } = req.body;
@@ -338,6 +494,13 @@ app.post("/test/questions", async (req, res) => {
   }
 });
 
+//  Тест нәтижесін есептеу және сақтау ---
+// POST /test/submit — пайдаланушы жауаптарын қабылдайды
+// questions кестесінен дұрыс жауаптарды алып салыстырады
+// 5 блок бойынша жеке балл есептейді
+// maxScore = 20 (4 сұрақ × 5 блок, DB-ға сақталатын шикі мән)
+// Фронтендте ×5 коэффициент қолданылып 100-ге дейін масштабталады
+// Тіркелген пайдаланушы болса (user_id бар) — test_results кестесіне жазады
 app.post("/test/submit", async (req, res) => {
   try {
     const { user_id, answers, age_group, education } = req.body;
@@ -403,6 +566,9 @@ app.post("/test/submit", async (req, res) => {
   }
 });
 
+//  Тест тарихын алу ---
+// GET /test/history/:user_id — пайдаланушының соңғы 10 тест нәтижесін қайтарады
+// test_results кестесінен created_at бойынша кері тәртіппен сұрыпталады
 app.get("/test/history/:user_id", async (req, res) => {
   try {
     const userId = parseInt(req.params.user_id);
@@ -421,6 +587,9 @@ app.get("/test/history/:user_id", async (req, res) => {
   }
 });
 
+//  Соңғы тест нәтижесін алу ---
+// GET /test/results/:user_id — пайдаланушының ең соңғы 1 нәтижесін қайтарады
+// Нәтиже жоқ болса data: null қайтарады
 app.get("/test/results/:user_id", async (req, res) => {
   try {
     const userId = parseInt(req.params.user_id);
@@ -442,6 +611,10 @@ app.get("/test/results/:user_id", async (req, res) => {
   }
 });
 
+//  Пайдаланушылар тізімі (әкімші) ---
+// GET /admin/users — auth_db-дан пайдаланушылар тізімін алады
+// Әр пайдаланушының тест саны мен орташа баллын questions_db-дан біріктіреді
+// statsMap арқылы екі қордың деректері біріктіріледі
 app.get("/admin/users", checkAdmin, async (req, res) => {
   try {
     const users = await pool.query(
@@ -468,6 +641,9 @@ app.get("/admin/users", checkAdmin, async (req, res) => {
   }
 });
 
+//  Жалпы статистика (әкімші) ---
+// GET /admin/stats — жалпы санақтарды қайтарады:
+// сұрақ саны, тест нәтижелері саны, пайдаланушы саны, орташа балл пайызы
 app.get("/admin/stats", checkAdmin, async (req, res) => {
   try {
     const qCount = await questionsPool.query("SELECT COUNT(*) FROM questions");
@@ -490,6 +666,8 @@ app.get("/admin/stats", checkAdmin, async (req, res) => {
   }
 });
 
+//  Сервер жұмысын тексеру ---
+// GET /health — сервердің іске қосылып тұрғанын тексеру үшін
 app.get("/health", (req, res) => {
   res.status(200).json({
     success: true,
@@ -498,10 +676,14 @@ app.get("/health", (req, res) => {
   });
 });
 
+//  Табылмаған маршруттарды өңдеу ---
+// Барлық белгісіз маршруттарға 404 қайтарады
 app.use("*", (req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
 
+//  Серверді іске қосу ---
+// PORT 5000-де тыңдайды (localhost:5000)
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
 });

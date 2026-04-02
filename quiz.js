@@ -1,6 +1,16 @@
+// quiz.js — Тест (викторина) беті логикасы
+// Сұрақтарды жүктеу, жауап алу, балл есептеу,
+// нәтижені көрсету және AI талдауын іске қосу
+
 (function () {
   "use strict";
 
+  //  Глобалды константалар ---
+  // API_BASE — сервер адресі
+  // HISTORY_KEY — тест тарихы localStorage кілті
+  // USER_KEY — ағымдағы пайдаланушы кілті
+  // LEGACY_KEY — ескі форматтағы пайдаланушы кілті
+  // AI_CACHE_KEY — AI нәтижесін сақтайтын кілт
   var API_BASE = "http://localhost:5000";
 
   var HISTORY_KEY = "diq_test_history";
@@ -8,37 +18,69 @@
   var LEGACY_KEY = "user";
   var AI_CACHE_KEY = "diq_ai_result";
 
+  //  5 компетенция блогының анықтамасы ---
+  // Әр блоктың ID, атауы, түсі және SVG иконасы сақталады
+  // ID-лар сервермен сәйкес болуы тиіс: information, communication,
+  // content, safety, problem
   var BLOCKS = [
-    { id: "information", title: "Ақпарат", color: "#0097a7", icon: "🔍" },
+    {
+      id: "information",
+      title: "Ақпарат",
+      color: "#0097a7",
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="#0097a7" stroke-width="2"/><path d="m16.5 16.5 3.5 3.5" stroke="#0097a7" stroke-width="2" stroke-linecap="round"/></svg>',
+    },
     {
       id: "communication",
       title: "Коммуникация",
       color: "#f57c00",
-      icon: "🛡️",
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 2C8 2 4 5 4 9c0 5 8 13 8 13s8-8 8-13c0-4-4-7-8-7Z" stroke="#f57c00" stroke-width="2"/><circle cx="12" cy="9" r="2.5" stroke="#f57c00" stroke-width="1.8"/></svg>',
     },
-    { id: "content", title: "Контент", color: "#5e35b1", icon: "🏛️" },
-    { id: "safety", title: "Қауіпсіздік", color: "#c62828", icon: "💬" },
+    {
+      id: "content",
+      title: "Контент",
+      color: "#5e35b1",
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="14" rx="2" stroke="#5e35b1" stroke-width="2"/><path d="M8 20h8M12 18v2" stroke="#5e35b1" stroke-width="2" stroke-linecap="round"/></svg>',
+    },
+    {
+      id: "safety",
+      title: "Қауіпсіздік",
+      color: "#c62828",
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 3 4 7v5c0 4.4 3.4 8.5 8 9.5 4.6-1 8-5.1 8-9.5V7l-8-4Z" stroke="#c62828" stroke-width="2"/><path d="m9 12 2 2 4-4" stroke="#c62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    },
     {
       id: "problem",
       title: "Проблемаларды шешу",
       color: "#2e7d32",
-      icon: "⚙️",
+      icon: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="#2e7d32" stroke-width="2"/><path d="M12 8v4l3 3" stroke="#2e7d32" stroke-width="2" stroke-linecap="round"/></svg>',
     },
   ];
 
+  //  Жауап нұсқалары кілттері ---
   var OPTION_KEYS = ["A", "B", "C", "D"];
 
+  //  Деңгей сипаттамалары ---
+  // 1 — Төмен, 2 — Орташа, 3 — Жоғары
+  // Нәтиже бетінде әр блоктың астында көрсетіледі
   var LEVEL_DESCS = {
     1: "Цифрлық дағдылар әлі дамып келе жатыр. Негізгі цифрлық құралдармен жұмыс жасауды жалғастыру ұсынылады.",
     2: "Цифрлық сауаттылық орта деңгейде. Жаңа технологияларды үйрену арқылы білімді тереңдетуге болады.",
     3: "Цифрлық дағдылар жоғары деңгейде. Күрделі цифрлық міндеттерді еркін шеше алатын деңгей.",
   };
 
+  //  Groq API кілті ---
+  // window.GROQ_API_KEY глобалды айнымалыдан алынады
+  // Табылмаса "YOUR_API_KEY" орнына қойылады
   var GROQ_API_KEY =
     typeof window !== "undefined" && window.GROQ_API_KEY
       ? window.GROQ_API_KEY
       : "YOUR_API_KEY";
 
+  //  Тест күйі (state) ---
+  // current — ағымдағы сұрақ индексі
+  // answers — барлық жауаптар массиві (null = жауапсыз)
+  // questions — серверден алынған сұрақтар
+  // userInfo — аты, жасы, білімі
+  // started — тест басталды ма
   var state = {
     current: 0,
     answers: [],
@@ -47,6 +89,8 @@
     started: false,
   };
 
+  //  DOM элементтерін алу ---
+  // Барлық экрандар мен батырмалар бір рет алынады
   var screenIntro = document.getElementById("screenIntro");
   var screenQuestion = document.getElementById("screenQuestion");
   var screenResult = document.getElementById("screenResult");
@@ -64,6 +108,11 @@
   var downloadBtn = document.getElementById("downloadBtn");
   var retakeBtn = document.getElementById("retakeBtn");
 
+  //  Инициализация ---
+  // Пайдаланушы жоқ болса — index.html-ге бағыттайды
+  // Пайдаланушы аты intro формасына алдын ала жазылады
+  // Барлық батырмаларға оқиға тыңдаушылар тіркеледі
+  // sessionStorage-де бұрынғы нәтиже бар болса — нәтиже экранын көрсетеді
   function init() {
     try {
       if (
@@ -91,9 +140,24 @@
     retakeBtn.addEventListener("click", onRetake);
     if (downloadBtn) downloadBtn.addEventListener("click", onDownload);
 
+    try {
+      var savedResult = sessionStorage.getItem("diq_last_result");
+      if (savedResult) {
+        var parsed = JSON.parse(savedResult);
+        state.userInfo = parsed.userInfo || { name: "Пайдаланушы" };
+        showScreen("result");
+        renderResult(parsed.scores, parsed.total, parsed.maxScore);
+        return;
+      }
+    } catch (_) {}
+
     showScreen("intro");
   }
 
+  //  Экранды ауыстыру ---
+  // Барлық экрандарға hidden класы қосады
+  // Тек сұралған экраннан hidden жояды
+  // Анимация қайта іске қосу үшін offsetWidth trick қолданылады
   function showScreen(name) {
     screenIntro.classList.add("quiz-screen--hidden");
     screenQuestion.classList.add("quiz-screen--hidden");
@@ -116,6 +180,8 @@
     target.style.animation = "";
   }
 
+  //  Жүктеу күйін көрсету ---
+  // startBtn-ды блоктайды немесе қайта белсендіреді
   function showLoading(show) {
     startBtn.disabled = show;
     startBtn.innerHTML = show
@@ -123,6 +189,12 @@
       : 'Сынақты бастау <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>';
   }
 
+  //  Тестті бастау ---
+  // Аты міндетті — бос болса қызыл жиек береді
+  // state.userInfo-ға аты, жасы, білімі сақталады
+  // POST /test/questions — сервердан 20 сұрақ алады
+  // Жауаптар массивін null-дармен толтырады
+  // Қате болса alert шығарады
   async function onStart() {
     var name = (document.getElementById("introName").value || "").trim();
     var age = document.getElementById("introAge").value;
@@ -166,6 +238,9 @@
     }
   }
 
+  //  Блок ақпаратын алу ---
+  // competency ID бойынша BLOCKS массивінен блок объектін іздейді
+  // Табылмаса бірінші блокты қайтарады
   function getBlockInfo(competency) {
     return (
       BLOCKS.find(function (b) {
@@ -174,6 +249,13 @@
     );
   }
 
+  //  Сұрақты экранға шығару ---
+  // Прогресс жолағы мен санауышты жаңартады
+  // Ағымдағы блок иконасы мен атауын көрсетеді
+  // Блок ішіндегі сұрақ нөмірін есептейді
+  // 4 жауап нұсқасын батырма ретінде жасайды
+  // Бұрын таңдалған жауап болса — selected класы береді
+  // Соңғы сұрақта "Аяқтау" батырмасы, жоқ болса "Келесі" батырмасы
   function renderQuestion() {
     var idx = state.current;
     var q = state.questions[idx];
@@ -185,7 +267,7 @@
     progressFill.style.width = pct + "%";
     if (topbarCounter) topbarCounter.textContent = idx + 1 + " / " + total;
 
-    blockIcon.textContent = block.icon;
+    blockIcon.innerHTML = block.icon;
     blockName.textContent = block.title;
 
     var blockQs = state.questions.filter(function (x) {
@@ -243,6 +325,11 @@
     nextBtn.disabled = saved === null;
   }
 
+  //  Жауап таңдау ---
+  // state.answers массивіне таңдалған кілт жазылады
+  // Барлық батырмалардан selected класы алынады
+  // Таңдалған батырмаға selected класы беріледі
+  // nextBtn белсенді болады
   function selectOption(key) {
     state.answers[state.current] = key;
     document.querySelectorAll(".quiz-option").forEach(function (btn) {
@@ -254,6 +341,10 @@
     nextBtn.disabled = false;
   }
 
+  //  Навигация батырмалары ---
+  // onPrev() — алдыңғы сұраққа оралады
+  // onNext() — соңғы сұрақта finishQuiz() шақырады,
+  //            жоқ болса келесі сұраққа өтеді
   function onPrev() {
     if (state.current > 0) {
       state.current--;
@@ -271,6 +362,11 @@
     }
   }
 
+  //  Тестті аяқтау ---
+  // Жауаптар массивін { question_id, answer } форматына түрлендіреді
+  // POST /test/submit — серверге жіберіп нәтиже алады
+  // Балл ×5 коэффициентімен масштабталады (DB-да 0-20, UI-да 0-100)
+  // Қате болса — computeLocalScores() арқылы жергілікті есептеу жасалады
   async function finishQuiz() {
     progressFill.style.width = "100%";
     if (topbarCounter)
@@ -320,6 +416,10 @@
     }
   }
 
+  //  Жергілікті балл есептеу ---
+  // Сервер қолжетімсіз болса резервтік есептеу
+  // Сұрақтардың correct_answer өрісімен салыстырады
+  // Әр дұрыс жауап үшін ×5 баллды қолдана есептейді
   function computeLocalScores() {
     var scores = {
       information: 0,
@@ -338,6 +438,10 @@
     return { scores: scores, total: total };
   }
 
+  //  Тест тарихын сақтау ---
+  // diq_test_history кілтіне JSON массиві ретінде сақталады
+  // Ең жаңа нәтиже алдына қойылады (unshift)
+  // Максимум 10 жазба сақталады (артығы кесіледі)
   function saveHistory(scores, total, maxScore) {
     try {
       var raw = localStorage.getItem(HISTORY_KEY);
@@ -358,6 +462,9 @@
     } catch (_) {}
   }
 
+  //  Деңгей анықтау ---
+  // Пайызды есептеп 3 деңгейден біреуін қайтарады:
+  // < 34% — Төмен (қызыл), < 67% — Орташа (сары), >= 67% — Жоғары (жасыл)
   function getLevelForScore(score, maxScore) {
     var max = maxScore !== undefined ? maxScore : 20;
     var pct = max > 0 ? (score / max) * 100 : 0;
@@ -366,6 +473,14 @@
     return { num: 3, kk: "Жоғары", color: "#1b8a4e" };
   }
 
+  //  Нәтиже экранын көрсету ---
+  // Жалпы деңгей мәтіні, нөмірі, баллы орнатылады
+  // 3 сегменттен тұратын деңгей индикаторы жасалады
+  // Әр блок үшін деңгей, балл, сипаттама жолы жасалады
+  // Жолды басқанда is-open класы ауысады (аккордеон эффект)
+  // saveResultsToStorage() — нәтижені localStorage-ге сақтайды
+  // initAI() — AI талдауы батырмасын белсендіреді
+  // sessionStorage-ге нәтиже сақталады (бет жаңарту үшін)
   function renderResult(scores, total, maxScore) {
     var lvl = getLevelForScore(total, maxScore);
 
@@ -452,8 +567,24 @@
 
     saveResultsToStorage(scores, total, maxScore);
     initAI(scores, total, maxScore);
+
+    try {
+      sessionStorage.setItem(
+        "diq_last_result",
+        JSON.stringify({
+          scores: scores,
+          total: total,
+          maxScore: maxScore,
+          userInfo: state.userInfo,
+        }),
+      );
+    } catch (_) {}
   }
 
+  //  Нәтижені localStorage-ге сақтау ---
+  // diq_block_results кілтіне сақталады
+  // Әр блок үшін score, total, date сақталады
+  // _lastTest — жалпы нәтиже туралы мета-ақпарат
   function saveResultsToStorage(scores, total, maxScore) {
     try {
       var RESULTS_KEY = "diq_block_results";
@@ -478,7 +609,14 @@
     } catch (_) {}
   }
 
+  //  Тестті қайталау ---
+  // sessionStorage-ден бұрынғы нәтиже жойылады
+  // state күйі тазартылады
+  // Intro экранына оралады
   function onRetake() {
+    try {
+      sessionStorage.removeItem("diq_last_result");
+    } catch (_) {}
     state.current = 0;
     state.answers = [];
     state.questions = [];
@@ -487,144 +625,235 @@
     showScreen("intro");
   }
 
+  //  PDF есепті жүктеу ---
+  // Ағымдағы нәтижелер немесе sessionStorage-дегі нәтижені пайдаланады
+  // HTML мазмұны жасалады (блок бойынша, жалпы нәтиже)
+  // html2canvas арқылы HTML суретке айналдырылады
+  // jsPDF арқылы PDF файл жасалады
+  // Файл аты: digcomp-{аты}-{күні}.pdf форматында
+  // Егер кескін A4-тен асып кетсе — бірнеше бетке бөлінеді
   function onDownload() {
     var scores = {};
     var total = 0;
     var maxScore = 100;
     var perBlock = Math.floor(maxScore / BLOCKS.length);
 
-    state.questions.forEach(function (q, i) {
-      if (!scores[q.competency]) scores[q.competency] = 0;
-      if (state.answers[i] === q.correct_answer) {
-        scores[q.competency] += 5;
-        total += 5;
-      }
-    });
+    var savedResult = null;
+    try {
+      savedResult = JSON.parse(sessionStorage.getItem("diq_last_result"));
+    } catch (_) {}
+
+    if (state.questions && state.questions.length > 0) {
+      state.questions.forEach(function (q, i) {
+        if (!scores[q.competency]) scores[q.competency] = 0;
+        if (state.answers[i] === q.correct_answer) {
+          scores[q.competency] += 5;
+          total += 5;
+        }
+      });
+    } else if (savedResult) {
+      scores = savedResult.scores || {};
+      total = savedResult.total || 0;
+      maxScore = savedResult.maxScore || 100;
+    } else {
+      alert("Нәтиже табылмады. Тестті қайта тапсырыңыз.");
+      return;
+    }
 
     var overallLvl = getLevelForScore(total, maxScore);
-    var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
-    var age = (state.userInfo && state.userInfo.age) || "—";
-    var edu = (state.userInfo && state.userInfo.education) || "—";
+    var savedUserInfo = (savedResult && savedResult.userInfo) || {};
+    var name =
+      (state.userInfo && state.userInfo.name) ||
+      savedUserInfo.name ||
+      "Пайдаланушы";
+    var age =
+      (state.userInfo && state.userInfo.age) || savedUserInfo.age || "—";
+    var edu =
+      (state.userInfo && state.userInfo.education) ||
+      savedUserInfo.education ||
+      "—";
     var dateStr = formatDate(new Date().toISOString());
+    var pct = Math.round((total / maxScore) * 100);
 
-    var blocksHtml = BLOCKS.map(function (block) {
+    if (downloadBtn) {
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = "⏳ Жасалуда...";
+    }
+
+    var blocksRowsHtml = BLOCKS.map(function (block) {
       var score = scores[block.id] || 0;
       var lvl = getLevelForScore(score, perBlock);
-      var pct = perBlock > 0 ? Math.round((score / perBlock) * 100) : 0;
-
-      var segHtml = "";
-      for (var n = 1; n <= 3; n++) {
-        segHtml +=
-          '<div style="width:36px;height:10px;border-radius:3px;display:inline-block;margin-right:3px;background:' +
-          (n <= lvl.num ? lvl.color : "#e0e0e0") +
-          '"></div>';
-      }
-
+      var bpct = Math.round((score / perBlock) * 100);
+      var barFill = Math.max(4, bpct) + "%";
       return (
-        '<div style="margin-bottom:28px;border-left:4px solid ' +
+        '<div style="display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid #eef0f8;">' +
+        '<div style="width:4px;height:42px;border-radius:2px;background:' +
         block.color +
-        ';padding-left:16px">' +
-        '<h2 style="font-size:1.3rem;font-weight:700;margin:0 0 4px">' +
-        block.icon +
-        " " +
+        ';margin-right:14px;flex-shrink:0"></div>' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:14px;font-weight:700;color:' +
+        block.color +
+        ';margin-bottom:3px">' +
         block.title +
-        "</h2>" +
-        '<div style="color:' +
+        "</div>" +
+        '<div style="background:#e8eaf0;border-radius:4px;height:6px;width:100%;max-width:220px">' +
+        '<div style="background:' +
         lvl.color +
-        ';font-weight:700;margin-bottom:6px">' +
+        ";width:" +
+        barFill +
+        ';height:6px;border-radius:4px"></div></div>' +
+        "</div>" +
+        '<div style="text-align:right;margin-left:12px">' +
+        '<div style="font-size:15px;font-weight:800;color:' +
+        lvl.color +
+        '">' +
+        score +
+        '<span style="font-size:11px;color:#9ba3c9">/' +
+        perBlock +
+        "</span></div>" +
+        '<div style="font-size:11px;color:' +
+        lvl.color +
+        ';font-weight:600">' +
         lvl.kk +
         " · " +
-        score +
-        "/" +
-        perBlock +
-        " балл · " +
-        pct +
+        bpct +
         "%</div>" +
-        '<div style="margin-bottom:8px">' +
-        segHtml +
-        "</div>" +
-        '<p style="font-size:.88rem;color:#5c6690;line-height:1.6">' +
-        (LEVEL_DESCS[lvl.num] || "") +
-        "</p>" +
-        "</div>"
+        "</div></div>"
       );
     }).join("");
 
-    var overallSegHtml = "";
-    for (var n = 1; n <= 3; n++) {
-      overallSegHtml +=
-        '<div style="width:44px;height:12px;border-radius:3px;display:inline-block;margin-right:4px;background:' +
-        (n <= overallLvl.num ? overallLvl.color : "#e0e0e0") +
-        '"></div>';
-    }
+    var overallBarFill = Math.max(4, pct) + "%";
 
     var html =
-      '<!DOCTYPE html><html lang="kk"><head><meta charset="UTF-8"><title>Сандық дағдылар есебі — ' +
+      '<div id="pdf-content" style="width:680px;font-family:Arial,Helvetica,sans-serif;color:#1a1f36;background:#fff">' +
+      '<div style="background:' +
+      overallLvl.color +
+      ';padding:28px 32px 22px;color:#fff">' +
+      '<div style="font-size:11px;letter-spacing:0.08em;opacity:0.85;margin-bottom:6px">ЦИФРЛЫҚ САУАТТЫЛЫҚТЫ БАҒАЛАУ</div>' +
+      '<div style="font-size:22px;font-weight:900;margin-bottom:4px">Тест нәтижелері: ' +
       name +
-      "</title>" +
-      "<style>body{font-family:Arial,sans-serif;max-width:820px;margin:40px auto;padding:0 28px;color:#1a1f36}" +
-      "h1{font-size:1.6rem;font-weight:900;margin:0 0 4px}.line{height:4px;background:" +
+      "</div>" +
+      '<div style="font-size:12px;opacity:0.85">DigComp 2.2 негізінде &nbsp;|&nbsp; ' +
+      dateStr +
+      " &nbsp;|&nbsp; Жасы: " +
+      age +
+      " &nbsp;|&nbsp; Білімі: " +
+      edu +
+      "</div>" +
+      "</div>" +
+      '<div style="background:#f8f9ff;border-left:5px solid ' +
       overallLvl.color +
-      ";border-radius:2px;margin:12px 0 20px}" +
-      ".meta{font-size:.82rem;color:#9ba3c9;margin-bottom:20px}.overall{background:#f8f9ff;border-radius:12px;padding:20px 24px;margin-bottom:28px;border-left:5px solid " +
+      ';padding:20px 32px;display:flex;justify-content:space-between;align-items:center">' +
+      "<div>" +
+      '<div style="font-size:11px;color:#9ba3c9;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px">Жалпы деңгей</div>' +
+      '<div style="font-size:26px;font-weight:900;color:' +
       overallLvl.color +
-      "}" +
-      ".footer{margin-top:40px;padding-top:16px;border-top:1px solid #dde1f5;display:flex;justify-content:space-between;font-size:.78rem;color:#9ba3c9}" +
-      "@media print{button{display:none}}</style></head><body>" +
-      "<h1>Сандық дағдыларды өзін-өзі бағалау: тест нәтижелері</h1>" +
-      '<div class="line"></div>' +
-      '<p class="meta">Бұл ресми тест емес және сертификатқа әкелмейді. DigComp 2.2 негізінде</p>' +
-      '<div class="overall">' +
-      '<div style="font-size:.78rem;color:#9ba3c9;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px">Сіздің сандық профиліңіз</div>' +
-      '<div style="font-size:2.2rem;font-weight:900;color:#1a1f36;line-height:1.1">' +
+      ';line-height:1">' +
       overallLvl.kk +
       "</div>" +
-      '<div style="color:' +
-      overallLvl.color +
-      ';font-weight:700;margin:4px 0 10px">' +
-      overallLvl.kk +
-      " · " +
+      '<div style="font-size:13px;color:#5c6690;margin-top:4px">' +
       total +
       " / " +
       maxScore +
       " балл</div>" +
-      "<div>" +
-      overallSegHtml +
-      "</div></div>" +
-      '<p class="meta">Аты: <strong>' +
-      name +
-      "</strong> &nbsp;|&nbsp; Жасы: " +
-      age +
-      " &nbsp;|&nbsp; Білімі: " +
-      edu +
-      "</p>" +
-      blocksHtml +
-      '<div class="footer"><span>' +
-      name +
-      "</span><span>Күні: " +
-      dateStr +
-      "</span></div>" +
-      '<br><button onclick="window.print()" style="padding:10px 24px;background:' +
+      "</div>" +
+      '<div style="text-align:right">' +
+      '<div style="font-size:32px;font-weight:900;color:' +
       overallLvl.color +
-      ';color:#fff;border:none;border-radius:8px;font-size:1rem;cursor:pointer;margin-top:12px">🖨️ PDF ретінде сақтау</button>' +
-      "</body></html>";
+      '">' +
+      pct +
+      "%</div>" +
+      '<div style="background:#e0e3f0;border-radius:6px;height:8px;width:160px;margin-top:6px">' +
+      '<div style="background:' +
+      overallLvl.color +
+      ";width:" +
+      overallBarFill +
+      ';height:8px;border-radius:6px"></div></div>' +
+      "</div></div>" +
+      '<div style="padding:20px 32px 8px">' +
+      '<div style="font-size:13px;font-weight:700;color:#1a1f36;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.05em">Құзыреттілік блоктары бойынша нәтижелер</div>' +
+      '<div style="border:1px solid #eef0f8;border-radius:8px;overflow:hidden">' +
+      blocksRowsHtml +
+      "</div></div>" +
+      '<div style="padding:14px 32px;border-top:1px solid #eef0f8;display:flex;justify-content:space-between;font-size:10px;color:#9ba3c9">' +
+      "<span>Бұл ресми тест емес және сертификатқа әкелмейді. DigComp 2.2 халықаралық стандарты негізінде.</span>" +
+      "<span>" +
+      name +
+      " &nbsp;|&nbsp; " +
+      dateStr +
+      "</span>" +
+      "</div></div>";
 
-    var blob = new Blob([html], { type: "text/html;charset=utf-8" });
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement("a");
-    a.href = url;
-    a.download =
-      "digcomp-" + name + "-" + dateStr.replace(/\./g, "-") + ".html";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    var container = document.createElement("div");
+    container.style.cssText = "position:fixed;left:-9999px;top:0;z-index:-1";
+    container.innerHTML = html;
+    document.body.appendChild(container);
+
+    var el = container.querySelector("#pdf-content");
+
+    window
+      .html2canvas(el, { scale: 2, useCORS: true, backgroundColor: "#ffffff" })
+      .then(function (canvas) {
+        var jsPDFLib = window.jspdf && window.jspdf.jsPDF;
+        if (!jsPDFLib) throw new Error("jsPDF жүктелмеді");
+
+        var imgData = canvas.toDataURL("image/png");
+        var doc = new jsPDFLib({
+          orientation: "portrait",
+          unit: "mm",
+          format: "a4",
+        });
+        var pw = 210;
+        var ph = 297;
+        var imgW = pw;
+        var imgH = (canvas.height * pw) / canvas.width;
+
+        if (imgH <= ph) {
+          doc.addImage(imgData, "PNG", 0, 0, imgW, imgH);
+        } else {
+          var pageH = ph;
+          var totalH = imgH;
+          var yPos = 0;
+          while (yPos < totalH) {
+            if (yPos > 0) doc.addPage();
+            doc.addImage(imgData, "PNG", 0, -yPos, imgW, totalH);
+            yPos += pageH;
+          }
+        }
+
+        var fileName =
+          "digcomp-" +
+          name.replace(/\s+/g, "-") +
+          "-" +
+          dateStr.replace(/\./g, "-") +
+          ".pdf";
+        doc.save(fileName);
+        document.body.removeChild(container);
+
+        if (downloadBtn) {
+          downloadBtn.disabled = false;
+          downloadBtn.textContent = "📥 Есепті жүктеу";
+        }
+      })
+      .catch(function (err) {
+        alert("PDF жасау кезінде қате: " + (err.message || err));
+        document.body.removeChild(container);
+        if (downloadBtn) {
+          downloadBtn.disabled = false;
+          downloadBtn.textContent = "📥 Есепті жүктеу";
+        }
+      });
   }
 
+  //  AI модулін инициализациялау ---
+  // _aiScores, _aiTotal, _aiMax глобалды айнымалыларға нәтижелер сақталады
+  // aiBtn, aiRetryBtn, aiErrorRetryBtn батырмаларына runAIAnalysis тіркеледі
   var _aiScores = null;
   var _aiTotal = null;
   var _aiMax = null;
 
+  //  AI нәтижесін localStorage-ге сақтау ---
+  // diq_ai_result кілтіне HTML мазмұны мен күні сақталады
   function saveAIResult(html) {
     try {
       localStorage.setItem(
@@ -655,6 +884,9 @@
       aiErrorRetryBtn.addEventListener("click", runAIAnalysis);
   }
 
+  //  AI күйін басқару ---
+  // loading / result / error / (бастапқы) күйлерден біреуін көрсетеді
+  // Тиісті элементтерден hidden класын алып/қосады
   function showAIState(s) {
     var loading = document.getElementById("aiLoading");
     var result = document.getElementById("aiResult");
@@ -679,6 +911,13 @@
     }
   }
 
+  //  AI промпт жасау ---
+  // Пайдаланушы деректері: аты, жасы, білімі
+  // Блок бойынша баллдар, деңгейлер, пайыздар
+  // Ең күшті және ең әлсіз 2 блок анықталады
+  // 5 бөлімнен тұратын нұсқаулық берілді:
+  //   1) Жалпы баға, 2) Блок профилі, 3) Күшті жақтар,
+  //   4) Дамыту керек бағыттар, 5) 30 күндік жоспар
   function buildPrompt(scores, total, maxScore) {
     var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
     var age = (state.userInfo && state.userInfo.age) || "белгісіз";
@@ -808,6 +1047,11 @@
     );
   }
 
+  //  AI жауабын HTML-ге айналдыру ---
+  // 5 бөлімді  мәтіннен іздейді
+  // Тізім мәтін (-, •, 1.) болса — <ul><li> форматына айналдырады
+  // Қалған мәтін <p> тегіне оралады
+  // Бөлімнің түсі аты бойынша белгіленеді
   function parseAIResponse(text) {
     var sections = [
       { key: "🎯 Жалпы баға", color: "#1565c0" },
@@ -873,6 +1117,15 @@
     return html;
   }
 
+  //  AI талдауын іске қосу ---
+  // Groq API-ға POST сұраныс жіберіледі
+  // stream: true — жауап бөлшектеп (chunk) келеді
+  // ReadableStream + TextDecoder арқылы chunk-тар оқылады
+  // "data: " жолдары JSON ретінде талданады
+  // delta.content алынып fullText-ке қосылады
+  // Әр chunk-та parseAIResponse() шақырылып UI жаңартылады
+  // Аяқталғанда saveAIResult() арқылы localStorage-ге сақталады
+  // Қате болса aiErrorText элементіне хабар жазылады
   async function runAIAnalysis() {
     if (!_aiScores) return;
     var aiBtn = document.getElementById("aiBtn");
@@ -974,6 +1227,8 @@
     }
   }
 
+  //  Күн форматтауы ---
+  // ISO форматтағы күнді ДД.АА.ЖЖЖЖ форматына айналдырады
   function formatDate(iso) {
     try {
       var d = new Date(iso);
@@ -989,6 +1244,9 @@
     }
   }
 
+  //  DOMContentLoaded тексеру ---
+  // Бет жүктелу аяқталса — init() тікелей шақырылады
+  // Жүктелуде болса — DOMContentLoaded оқиғасын күтеді
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);
   } else {

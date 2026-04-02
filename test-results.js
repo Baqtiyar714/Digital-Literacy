@@ -45,28 +45,17 @@
   ];
 
   var LEVEL_DESCS = {
-    1: "Қарапайым жағдайларды көмекпен шешесіз.",
-    2: "Қарапайым жағдайларды өздігіңізбен шешесіз.",
-    3: "Тікелей жағдайларды өздігіңізбен шешесіз.",
-    4: "Болжанбайтын жағдайларды тәуелсіз шешесіз.",
-    5: "Шешімдер тауып, басқаларға қолдау көрсетесіз.",
-    6: "Күрделі жағдайларда шешімдер жасайсыз.",
-    7: "Ең күрделі жағдайларда шешімдер жасайсыз.",
-    8: "Жоғары мамандандырылған деңгейде жұмыс жасайсыз.",
+    1: "Цифрлық дағдыларды дамыту қажет. Негізгі ресурстармен жұмыс жасай отырып, білімді жетілдіруге болады.",
+    2: "Орташа деңгейдегі цифрлық сауаттылық. Күнделікті міндеттерді шешуге қабілеттісіз.",
+    3: "Жоғары деңгейдегі цифрлық сауаттылық. Күрделі жағдайларды өздігіңізбен шеше аласыз.",
   };
 
   function getLevelForScore(score, maxScore) {
-    var max = maxScore !== undefined ? maxScore : 18;
+    var max = maxScore !== undefined ? maxScore : 20;
     var pct = max > 0 ? (score / max) * 100 : 0;
-    if (pct <= 20) return { num: 1, kk: "Іргетас", color: "#ef5350" };
-    if (pct <= 35) return { num: 2, kk: "Іргетас", color: "#ef5350" };
-    if (pct <= 50) return { num: 3, kk: "Орташа", color: "#f9a825" };
-    if (pct <= 65) return { num: 4, kk: "Орташа", color: "#f9a825" };
-    if (pct <= 75) return { num: 5, kk: "Кеңейтілген", color: "#1b8a4e" };
-    if (pct <= 85) return { num: 6, kk: "Кеңейтілген", color: "#1b8a4e" };
-    if (pct <= 94)
-      return { num: 7, kk: "Жоғары мамандандырылған", color: "#1565c0" };
-    return { num: 8, kk: "Жоғары мамандандырылған", color: "#1565c0" };
+    if (pct <= 33) return { num: 1, kk: "Төмен", color: "#ef5350" };
+    if (pct <= 66) return { num: 2, kk: "Орташа", color: "#f9a825" };
+    return { num: 3, kk: "Жоғары", color: "#1b8a4e" };
   }
 
   function formatDate(iso) {
@@ -154,7 +143,7 @@
     var maxTotal = completed * 20;
     var overallLvl = getLevelForScore(totalScore, maxTotal);
     var segHtml = "";
-    for (var i = 1; i <= 8; i++) {
+    for (var i = 1; i <= 3; i++) {
       segHtml +=
         '<div class="tr-seg' +
         (i <= overallLvl.num
@@ -176,8 +165,6 @@
       '<div class="tr-overall__level" style="color:' +
       overallLvl.color +
       '">' +
-      overallLvl.num +
-      "-деңгей · " +
       overallLvl.kk +
       "</div></div>" +
       '<div class="tr-overall__right"><div class="tr-segs">' +
@@ -198,7 +185,7 @@
       var wrap = document.createElement("div");
       wrap.className = "tr-block-wrap";
       var bSegHtml = "";
-      for (var n = 1; n <= 8; n++) {
+      for (var n = 1; n <= 3; n++) {
         bSegHtml +=
           '<div class="tr-block__seg' +
           (lvl && n <= lvl.num
@@ -222,8 +209,6 @@
         '<div class="tr-block__right">' +
         (lvl
           ? '<div class="tr-block__lvl">' +
-            lvl.num +
-            "-деңгей · " +
             lvl.kk +
             '</div><div class="tr-block__score">' +
             score +
