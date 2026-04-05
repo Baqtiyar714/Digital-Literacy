@@ -34,7 +34,7 @@
             <span>📋</span>
             <span data-translate="takeTest">Тест тапсыру</span>
           </a>
-          <a href="profile.html" class="btn btn-ghost">
+          <a href="profile.html" class="btn btn-ghost" id="navProfileLink">
             <span class="nav-icon profile-icon" aria-hidden="true">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -93,10 +93,15 @@
               </button>
             </div>
           </div>
+          <div id="navAuthButtons" style="display:none;gap:8px;align-items:center;">
+            <a href="index.html" class="btn btn-ghost">Кіру</a>
+            <a href="register.html" class="btn btn-primary">Тіркелу</a>
+          </div>
           <button
             type="button"
             class="btn btn-outline"
             id="logoutBtn"
+            style="display:none;"
             data-translate="logout"
           >
             Шығу
@@ -106,6 +111,7 @@
     </header>
 
     <main class="dashboard-main">
+      <div id="authOnlySections" style="display:none;">
       <section class="welcome-section">
         <h1 class="welcome-title">
           <span data-translate="welcomePrefix">Қош келдіңіз</span>,
@@ -162,6 +168,7 @@
           </div>
         </div>
       </section>
+      </div>
 
       <section
         class="digcomp-section"
@@ -497,7 +504,7 @@
             </p>
             <span class="action-card-arrow">→</span>
           </a>
-          <a href="profile.html" class="action-card action-card-profile">
+          <a href="#" id="actionProfileCard" class="action-card action-card-profile">
             <div
               class="action-card-icon profile-icon-svg profile-icon-card"
               aria-hidden="true"
@@ -521,6 +528,21 @@
         </div>
       </section>
     </main>
+
+    <div id="authModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,0.55);align-items:center;justify-content:center;">
+      <div style="background:#fff;border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(15,23,42,0.2);position:relative;margin:16px;">
+        <button id="authModalClose" type="button" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#9ba3c9;line-height:1;">&#x2715;</button>
+        <div style="text-align:center;margin-bottom:24px;">
+          <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
+          <h2 style="margin:0 0 6px;font-size:1.2rem;font-weight:700;color:#1a1f36;">Кіру немесе тіркелу қажет</h2>
+          <p style="margin:0;font-size:0.9rem;color:#5c6690;">Бұл бөлімді көру үшін жүйеге кіріңіз немесе тіркеліңіз.</p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <a href="index.html" style="display:block;height:48px;line-height:48px;border-radius:10px;background:linear-gradient(135deg,#3949ab,#5c6bc0);color:#fff;font-size:0.95rem;font-weight:700;text-align:center;text-decoration:none;">Кіру</a>
+          <a href="register.html" style="display:block;height:48px;line-height:48px;border-radius:10px;border:1.5px solid #3949ab;color:#3949ab;font-size:0.95rem;font-weight:700;text-align:center;text-decoration:none;">Тіркелу</a>
+        </div>
+      </div>
+    </div>
 
     <footer class="dashboard-footer">
       <p data-translate="footer">

@@ -119,7 +119,7 @@
             деңгейіңізді анықтауға көмектеседі.
           </p>
         </div>
-        <a href="quiz.html" class="quiz-start-banner__btn">
+        <a href="quiz.html" class="quiz-start-banner__btn" id="startTestBtn">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
               d="M5 12h14M13 6l6 6-6 6"
@@ -217,73 +217,220 @@
         </div>
       </section>
 
-      <div class="tr-section" id="resultsSection">
-        <h2 class="tr-section__title">📊 Соңғы нәтижелер</h2>
-        <p class="tr-section__sub">
-          DigComp 2.2 негізінде тапсырылған соңғы тест деректері
-        </p>
-        <div id="overallCard"></div>
-        <div class="tr-blocks" id="blockRows"></div>
-      </div>
+      <div id="authRequiredSections" style="display: none">
+        <div class="tr-section" id="resultsSection">
+          <h2 class="tr-section__title">📊 Соңғы нәтижелер</h2>
+          <p class="tr-section__sub">
+            DigComp 2.2 негізінде тапсырылған соңғы тест деректері
+          </p>
+          <div id="overallCard"></div>
+          <div class="tr-blocks" id="blockRows"></div>
+        </div>
 
-      <div class="tr-section">
-        <h2 class="tr-section__title">🤖 AI талдауы мен ұсыныстары</h2>
-        <p class="tr-section__sub">
-          Нәтижеңізді талдап, мамандығыңызға сай жеке кеңес береді
-        </p>
+        <div class="tr-section">
+          <h2 class="tr-section__title">🤖 AI талдауы мен ұсыныстары</h2>
+          <p class="tr-section__sub">
+            Нәтижеңізді талдап, мамандығыңызға сай жеке кеңес береді
+          </p>
 
-        <div class="tr-ai">
-          <div class="tr-ai__trigger" id="aiTrigger">
-            <div class="tr-ai__trigger-left">
-              <div class="tr-ai__icon">🤖</div>
-              <div>
-                <div class="tr-ai__title">AI жеке талдауы</div>
-                <div class="tr-ai__desc">
-                  Барлық блоктар бойынша нәтижеңізді талдап, оқу жоспары жасайды
+          <div class="tr-ai">
+            <div class="tr-ai__trigger" id="aiTrigger">
+              <div class="tr-ai__trigger-left">
+                <div class="tr-ai__icon">🤖</div>
+                <div>
+                  <div class="tr-ai__title">AI жеке талдауы</div>
+                  <div class="tr-ai__desc">
+                    Барлық блоктар бойынша нәтижеңізді талдап, оқу жоспары
+                    жасайды
+                  </div>
                 </div>
               </div>
+              <button class="tr-ai__btn" id="aiBtn">
+                Талдауды бастау
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M5 12h14M13 6l6 6-6 6"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </button>
             </div>
-            <button class="tr-ai__btn" id="aiBtn">
-              Талдауды бастау
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-                <path
-                  d="M5 12h14M13 6l6 6-6 6"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </button>
-          </div>
 
-          <div class="tr-ai__loading" id="aiLoading">
-            <div class="tr-ai__spinner"></div>
-            <div class="tr-ai__loading-text">ЖИ талдап жатыр...</div>
-            <div class="tr-ai__loading-sub">10–20 секунд алуы мүмкін</div>
-          </div>
-
-          <div class="tr-ai__result" id="aiResult">
-            <div class="tr-ai__result-header">
-              <span>🤖</span>
-              <span class="tr-ai__result-title">AI талдауы</span>
-              <span class="tr-ai__result-badge">Жеке</span>
+            <div class="tr-ai__loading" id="aiLoading">
+              <div class="tr-ai__spinner"></div>
+              <div class="tr-ai__loading-text">ЖИ талдап жатыр...</div>
+              <div class="tr-ai__loading-sub">10–20 секунд алуы мүмкін</div>
             </div>
-            <div class="tr-ai__result-body" id="aiResultBody"></div>
-            <div class="tr-ai__result-footer">
-              <div
-                id="aiResultDate"
-                style="font-size: 0.75rem; color: #9ba3c9"
-              ></div>
-            </div>
-          </div>
 
-          <div class="tr-ai__error" id="aiError">
-            <span>⚠️</span>
-            <span id="aiErrorText">Қате шықты. Қайталап көріңіз.</span>
-            <button class="tr-ai__retry" id="aiErrorRetryBtn">Қайталау</button>
+            <div class="tr-ai__result" id="aiResult">
+              <div class="tr-ai__result-header">
+                <span>🤖</span>
+                <span class="tr-ai__result-title">AI талдауы</span>
+                <span class="tr-ai__result-badge">Жеке</span>
+              </div>
+              <div class="tr-ai__result-body" id="aiResultBody"></div>
+              <div class="tr-ai__result-footer">
+                <div
+                  id="aiResultDate"
+                  style="font-size: 0.75rem; color: #9ba3c9"
+                ></div>
+              </div>
+            </div>
+
+            <div class="tr-ai__error" id="aiError">
+              <span>⚠️</span>
+              <span id="aiErrorText">Қате шықты. Қайталап көріңіз.</span>
+              <button class="tr-ai__retry" id="aiErrorRetryBtn">
+                Қайталау
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      <div
+        id="testAuthModal"
+        style="
+          display: none;
+          position: fixed;
+          inset: 0;
+          z-index: 9999;
+          background: rgba(15, 23, 42, 0.55);
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <div
+          style="
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 36px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+            position: relative;
+            margin: 16px;
+          "
+        >
+          <button
+            id="testAuthModalClose"
+            type="button"
+            style="
+              position: absolute;
+              top: 16px;
+              right: 16px;
+              background: none;
+              border: none;
+              font-size: 1.4rem;
+              cursor: pointer;
+              color: #9ba3c9;
+              line-height: 1;
+            "
+          >
+            &#x2715;
+          </button>
+          <div style="text-align: center; margin-bottom: 24px">
+            <div style="font-size: 2rem; margin-bottom: 8px">🔐</div>
+            <h2
+              style="
+                margin: 0 0 6px;
+                font-size: 1.2rem;
+                font-weight: 700;
+                color: #1a1f36;
+              "
+            >
+              Кіру немесе тіркелу қажет
+            </h2>
+            <p style="margin: 0; font-size: 0.9rem; color: #5c6690">
+              Тестті бастау үшін жүйеге кіріңіз немесе тіркеліңіз.
+            </p>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 10px">
+            <a
+              href="index.html"
+              style="
+                display: block;
+                height: 48px;
+                line-height: 48px;
+                border-radius: 10px;
+                background: linear-gradient(135deg, #3949ab, #5c6bc0);
+                color: #fff;
+                font-size: 0.95rem;
+                font-weight: 700;
+                text-align: center;
+                text-decoration: none;
+              "
+              >Кіру</a
+            >
+            <a
+              href="register.html"
+              style="
+                display: block;
+                height: 48px;
+                line-height: 48px;
+                border-radius: 10px;
+                border: 1.5px solid #3949ab;
+                color: #3949ab;
+                font-size: 0.95rem;
+                font-weight: 700;
+                text-align: center;
+                text-decoration: none;
+              "
+              >Тіркелу</a
+            >
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (function () {
+          var userRaw =
+            localStorage.getItem("diq_user") || localStorage.getItem("user");
+          var isLoggedIn = !!userRaw;
+          var authSections = document.getElementById("authRequiredSections");
+          var logoutBtn = document.getElementById("logoutBtn");
+          var startBtn = document.getElementById("startTestBtn");
+          var modal = document.getElementById("testAuthModal");
+          var closeBtn = document.getElementById("testAuthModalClose");
+
+          if (authSections)
+            authSections.style.display = isLoggedIn ? "block" : "none";
+          if (logoutBtn)
+            logoutBtn.style.display = isLoggedIn ? "inline-flex" : "none";
+
+          if (startBtn) {
+            startBtn.addEventListener("click", function (e) {
+              if (!isLoggedIn) {
+                e.preventDefault();
+                if (modal) modal.style.display = "flex";
+              }
+            });
+          }
+
+          if (closeBtn) {
+            closeBtn.addEventListener("click", function () {
+              if (modal) modal.style.display = "none";
+            });
+          }
+          if (modal) {
+            modal.addEventListener("click", function (e) {
+              if (e.target === modal) modal.style.display = "none";
+            });
+          }
+
+          if (logoutBtn) {
+            logoutBtn.addEventListener("click", function () {
+              try {
+                localStorage.removeItem("diq_user");
+                localStorage.removeItem("user");
+              } catch (_) {}
+              window.location.href = "index.html";
+            });
+          }
+        })();
+      </script>
     </main>
   </body>
 </html>

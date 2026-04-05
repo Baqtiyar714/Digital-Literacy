@@ -397,32 +397,81 @@
     });
   }
 
+  function showAuthModal() {
+    var modal = document.getElementById("authModal");
+    if (modal) modal.style.display = "flex";
+  }
+
+  function initAuthModal() {
+    var modal = document.getElementById("authModal");
+    var closeBtn = document.getElementById("authModalClose");
+    if (!modal) return;
+    if (closeBtn) {
+      closeBtn.addEventListener("click", function () {
+        modal.style.display = "none";
+      });
+    }
+    modal.addEventListener("click", function (e) {
+      if (e.target === modal) modal.style.display = "none";
+    });
+
+    var profileCard = document.getElementById("actionProfileCard");
+    if (profileCard) {
+      profileCard.addEventListener("click", function (e) {
+        var userRaw =
+          localStorage.getItem("diq_user") || localStorage.getItem("user");
+        if (!userRaw) {
+          e.preventDefault();
+          showAuthModal();
+        } else {
+          window.location.href = "profile.html";
+        }
+      });
+    }
+  }
+
   function initAuthAndName() {
+    var userStr =
+      localStorage.getItem("diq_user") || localStorage.getItem("user");
+    var isLoggedIn = false;
+
     try {
-      var userStr =
-        localStorage.getItem("diq_user") || localStorage.getItem("user");
-      if (!userStr) {
-        window.location.href = "index.html";
-        return false;
-      }
-      var user = JSON.parse(userStr);
-      var nameEl = document.getElementById("userName");
-      if (nameEl && user && user.name) {
-        nameEl.textContent = user.name;
+      if (userStr) {
+        isLoggedIn = true;
+        var user = JSON.parse(userStr);
+        var nameEl = document.getElementById("userName");
+        if (nameEl && user && user.name) {
+          nameEl.textContent = user.name;
+        }
       }
     } catch (_e) {}
 
+    var authOnlySections = document.getElementById("authOnlySections");
+    var navAuthButtons = document.getElementById("navAuthButtons");
     var logoutBtn = document.getElementById("logoutBtn");
+    var navProfileLink = document.getElementById("navProfileLink");
+
+    if (isLoggedIn) {
+      if (authOnlySections) authOnlySections.style.display = "block";
+      if (logoutBtn) logoutBtn.style.display = "inline-flex";
+      if (navAuthButtons) navAuthButtons.style.display = "none";
+    } else {
+      if (authOnlySections) authOnlySections.style.display = "none";
+      if (logoutBtn) logoutBtn.style.display = "none";
+      if (navAuthButtons) navAuthButtons.style.display = "flex";
+    }
+
     if (logoutBtn) {
       logoutBtn.addEventListener("click", function () {
         try {
+          localStorage.removeItem("diq_user");
           localStorage.removeItem("user");
         } catch (_e) {}
         window.location.href = "index.html";
       });
     }
 
-    return true;
+    return isLoggedIn;
   }
 
   function renderProfileStats(userId) {
@@ -499,7 +548,8 @@
   }
 
   function init() {
-    if (!initAuthAndName()) return;
+    var isLoggedIn = initAuthAndName();
+    initAuthModal();
 
     var userId = null;
     try {
@@ -511,14 +561,16 @@
       }
     } catch (_e) {}
 
-    var results = loadResults();
-    var aggregates = computeAggregates(results);
+    if (isLoggedIn) {
+      var results = loadResults();
+      var aggregates = computeAggregates(results);
+      renderStats(aggregates);
+      renderProfileStats(userId);
+      renderOverallProgress(aggregates, results);
+      renderMotivation(aggregates);
+      renderActivity(userId);
+    }
 
-    renderStats(aggregates);
-    renderProfileStats(userId);
-    renderOverallProgress(aggregates, results);
-    renderMotivation(aggregates);
-    renderActivity(userId);
     initAccordion();
     initDigcompAccordion();
   }

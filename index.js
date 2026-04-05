@@ -49,6 +49,10 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get("/", (req, res) => {
+  res.redirect("/dashboard.html");
+});
+
 //  Email верификация үшін уақытша код сақтағышы ---
 // emailCodes — жадта сақталады, кілт: email, мән: { code, expiresAt }
 const emailCodes = {};
@@ -140,13 +144,11 @@ app.post("/auth/send-reset-code", async (req, res) => {
       [email],
     );
     if (checkUser.rows.length === 0) {
-      return res
-        .status(404)
-        .json({
-          success: false,
-          message: "Бұл email тіркелмеген",
-          notRegistered: true,
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Бұл email тіркелмеген",
+        notRegistered: true,
+      });
     }
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     emailCodes[email] = { code, expiresAt: Date.now() + 5 * 60 * 1000 };
@@ -183,12 +185,10 @@ app.post("/auth/reset-password", async (req, res) => {
         .json({ success: false, message: "Email және құпия сөз міндетті" });
     }
     if (password.length < 6) {
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Құпия сөз кемінде 6 таңбадан тұруы керек",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Құпия сөз кемінде 6 таңбадан тұруы керек",
+      });
     }
     const checkUser = await pool.query(
       "SELECT id FROM users WHERE email = $1",

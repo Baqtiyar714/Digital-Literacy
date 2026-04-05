@@ -75,8 +75,13 @@
         return diqUser;
       }
     } catch (_e) {}
-    window.location.href = "login.html";
+    showProfileAuthModal();
     return null;
+  }
+
+  function showProfileAuthModal() {
+    var modal = document.getElementById("profileAuthModal");
+    if (modal) modal.style.display = "flex";
   }
 
   //  Күн форматтауы ---

@@ -85,20 +85,22 @@
 
   function initAuth() {
     var user = getUser();
-    if (!user) {
-      window.location.href = "index.html";
-      return false;
-    }
     var btn = document.getElementById("logoutBtn");
-    if (btn)
-      btn.addEventListener("click", function () {
-        try {
-          localStorage.removeItem(USER_KEY);
-          localStorage.removeItem(LEGACY_KEY);
-        } catch (_) {}
-        window.location.href = "index.html";
-      });
-    return true;
+    if (btn) {
+      if (user) {
+        btn.style.display = "inline-flex";
+        btn.addEventListener("click", function () {
+          try {
+            localStorage.removeItem(USER_KEY);
+            localStorage.removeItem(LEGACY_KEY);
+          } catch (_) {}
+          window.location.href = "index.html";
+        });
+      } else {
+        btn.style.display = "none";
+      }
+    }
+    return !!user;
   }
 
   function buildResultsFromAPI(row) {
@@ -687,8 +689,10 @@
   }
 
   function init() {
-    if (!initAuth()) return;
-    loadAndRender();
+    var isLoggedIn = initAuth();
+    if (isLoggedIn) {
+      loadAndRender();
+    }
   }
 
   if (document.readyState === "loading") {
