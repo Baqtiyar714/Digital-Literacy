@@ -6,56 +6,90 @@
   var USER_KEY = "diq_user";
   var LEGACY_KEY = "user";
 
-  var BLOCKS = [
-    {
-      id: "information",
-      title: "Ақпарат",
-      color: "#0097a7",
-      icon: "📚",
-      desc: "Интернеттен дұрыс ақпарат табу және бағалау",
-    },
-    {
-      id: "communication",
-      title: "Коммуникация",
-      color: "#f57c00",
-      icon: "🤝",
-      desc: "Онлайн алаяқтық пен тәуекелдерден қорғану",
-    },
-    {
-      id: "content",
-      title: "Контент",
-      color: "#5e35b1",
-      icon: "✏️",
-      desc: "Мемлекеттік порталдар мен ЭЦҚ пайдалану",
-    },
-    {
-      id: "safety",
-      title: "Қауіпсіздік",
-      color: "#c62828",
-      icon: "🛡️",
-      desc: "Желідегі мінез-құлық нормалары мен этика",
-    },
-    {
-      id: "problem",
-      title: "Проблемаларды шешу",
-      color: "#2e7d32",
-      icon: "💡",
-      desc: "Гаджеттерді дұрыс пайдалану және қорғау",
-    },
+  var BLOCKS_META = [
+    { id: "information", color: "#0097a7", icon: "📚" },
+    { id: "communication", color: "#f57c00", icon: "🤝" },
+    { id: "content", color: "#5e35b1", icon: "✏️" },
+    { id: "safety", color: "#c62828", icon: "🛡️" },
+    { id: "problem", color: "#2e7d32", icon: "💡" },
   ];
 
-  var LEVEL_DESCS = {
-    1: "Цифрлық дағдыларды дамыту қажет. Негізгі ресурстармен жұмыс жасай отырып, білімді жетілдіруге болады.",
-    2: "Орташа деңгейдегі цифрлық сауаттылық. Күнделікті міндеттерді шешуге қабілеттісіз.",
-    3: "Жоғары деңгейдегі цифрлық сауаттылық. Күрделі жағдайларды өздігіңізбен шеше аласыз.",
+  var BLOCK_TITLES = {
+    kk: {
+      information: "Ақпарат",
+      communication: "Коммуникация",
+      content: "Контент",
+      safety: "Қауіпсіздік",
+      problem: "Проблемаларды шешу",
+    },
+    ru: {
+      information: "Информация",
+      communication: "Коммуникация",
+      content: "Контент",
+      safety: "Безопасность",
+      problem: "Решение проблем",
+    },
+    en: {
+      information: "Information",
+      communication: "Communication",
+      content: "Content",
+      safety: "Safety",
+      problem: "Problem solving",
+    },
+  };
+
+  function getBlocks() {
+    var lang =
+      (typeof currentLanguage !== "undefined" ? currentLanguage : null) ||
+      localStorage.getItem("language") ||
+      "kk";
+    var titles = BLOCK_TITLES[lang] || BLOCK_TITLES.kk;
+    return BLOCKS_META.map(function (m) {
+      return { id: m.id, title: titles[m.id], color: m.color, icon: m.icon };
+    });
+  }
+
+  var BLOCKS = BLOCKS_META.map(function (m) {
+    return { id: m.id, title: m.id, color: m.color, icon: m.icon };
+  });
+
+  function getLevelDesc(num) {
+    var lang =
+      (typeof currentLanguage !== "undefined" ? currentLanguage : null) ||
+      localStorage.getItem("language") ||
+      "kk";
+    var t =
+      typeof translations !== "undefined" &&
+      translations[lang] &&
+      translations[lang].test
+        ? translations[lang].test
+        : null;
+    if (t) return t["levelDesc" + num] || "";
+    var fallback = {
+      1: "Цифрлық дағдыларды дамыту қажет.",
+      2: "Орташа деңгейдегі цифрлық сауаттылық.",
+      3: "Жоғары деңгейдегі цифрлық сауаттылық.",
+    };
+    return fallback[num] || "";
+  }
+
+  var LEVEL_NAMES = {
+    kk: { 1: "Төмен", 2: "Орташа", 3: "Жоғары" },
+    ru: { 1: "Низкий", 2: "Средний", 3: "Высокий" },
+    en: { 1: "Low", 2: "Average", 3: "High" },
   };
 
   function getLevelForScore(score, maxScore) {
     var max = maxScore !== undefined ? maxScore : 20;
     var pct = max > 0 ? (score / max) * 100 : 0;
-    if (pct <= 33) return { num: 1, kk: "Төмен", color: "#ef5350" };
-    if (pct <= 66) return { num: 2, kk: "Орташа", color: "#f9a825" };
-    return { num: 3, kk: "Жоғары", color: "#1b8a4e" };
+    var lang =
+      (typeof currentLanguage !== "undefined" ? currentLanguage : null) ||
+      localStorage.getItem("language") ||
+      "kk";
+    var names = LEVEL_NAMES[lang] || LEVEL_NAMES.kk;
+    if (pct <= 33) return { num: 1, kk: names[1], color: "#ef5350" };
+    if (pct <= 66) return { num: 2, kk: names[2], color: "#f9a825" };
+    return { num: 3, kk: names[3], color: "#1b8a4e" };
   }
 
   function formatDate(iso) {
@@ -119,11 +153,24 @@
     };
   }
 
+  function getT(key, fallback) {
+    try {
+      var lang =
+        (typeof currentLanguage !== "undefined" ? currentLanguage : null) ||
+        localStorage.getItem("language") ||
+        "kk";
+      return translations[lang].test[key] || fallback;
+    } catch (_) {
+      return fallback;
+    }
+  }
+
   function renderResults(results, lastDate) {
     var overallCard = document.getElementById("overallCard");
     var blockRows = document.getElementById("blockRows");
     if (!overallCard || !blockRows) return;
 
+    var BLOCKS = getBlocks();
     var completed = 0;
     var totalScore = 0;
 
@@ -137,7 +184,16 @@
 
     if (completed === 0) {
       overallCard.innerHTML =
-        '<div class="tr-empty"><div class="tr-empty__icon">📋</div><div class="tr-empty__title">Әлі тест тапсырылмаған</div><div class="tr-empty__desc">Жоғарыдағы батырманы басып тестті бастаңыз</div><a href="quiz.html" class="tr-empty__btn">→ Сынақты бастау</a></div>';
+        '<div class="tr-empty"><div class="tr-empty__icon">📋</div>' +
+        '<div class="tr-empty__title">' +
+        getT("emptyTitle", "Әлі тест тапсырылмаған") +
+        "</div>" +
+        '<div class="tr-empty__desc">' +
+        getT("emptyDesc", "Жоғарыдағы батырманы басып тестті бастаңыз") +
+        "</div>" +
+        '<a href="quiz.html" class="tr-empty__btn">' +
+        getT("emptyBtn", "→ Сынақты бастау") +
+        "</a></div>";
       blockRows.innerHTML = "";
       return;
     }
@@ -158,7 +214,9 @@
       '<div class="tr-overall" style="border-left:4px solid ' +
       overallLvl.color +
       '">' +
-      '<div class="tr-overall__left"><div class="tr-overall__label">Жалпы балл</div>' +
+      '<div class="tr-overall__left"><div class="tr-overall__label">' +
+      getT("overallLabel", "Жалпы балл") +
+      "</div>" +
       '<div class="tr-overall__score">' +
       totalScore +
       "<span> / " +
@@ -177,7 +235,9 @@
       "</div>" +
       '<div style="font-size:.78rem;color:#9ba3c9">' +
       completed +
-      " / 5 блок аяқталды</div></div></div>";
+      " " +
+      getT("blocksCompleted", "/ 5 блок аяқталды") +
+      "</div></div></div>";
 
     blockRows.innerHTML = "";
     BLOCKS.forEach(function (block) {
@@ -214,18 +274,20 @@
             lvl.kk +
             '</div><div class="tr-block__score">' +
             score +
-            " / 20 балл</div>"
-          : '<div class="tr-block__score" style="color:#9ba3c9">Тапсырылмаған</div>') +
+            " / 20</div>"
+          : '<div class="tr-block__score" style="color:#9ba3c9">' +
+            getT("notTaken", "Тапсырылмаған") +
+            "</div>") +
         "</div></div>" +
         '<div class="tr-block-detail">' +
         (lvl
-          ? (LEVEL_DESCS[lvl.num] || "") +
+          ? getLevelDesc(lvl.num) +
             ' <span style="color:' +
             block.color +
             ';font-weight:600">' +
-            block.desc +
+            block.title +
             "</span>"
-          : 'Бұл блокты тапсыру үшін жоғарыдағы "Сынақты бастау" батырмасын басыңыз.') +
+          : getT("emptyDesc", "Жоғарыдағы батырманы басып тестті бастаңыз")) +
         "</div>";
       wrap.querySelector(".tr-block").addEventListener("click", function () {
         var isOpen = wrap.classList.contains("is-open");
@@ -246,7 +308,9 @@
     if (!overallCard || !blockRows) return;
 
     overallCard.innerHTML =
-      '<div class="tr-empty"><div class="tr-empty__icon" style="font-size:2rem">⏳</div><div class="tr-empty__title">Жүктелуде...</div></div>';
+      '<div class="tr-empty"><div class="tr-empty__icon" style="font-size:2rem">⏳</div><div class="tr-empty__title">' +
+      getT("loading", "Жүктелуде...") +
+      "</div></div>";
 
     var user = getUser();
     if (!user || !user.id) {
@@ -332,28 +396,28 @@
           runAI(results);
         });
         if (aiDesc)
-          aiDesc.textContent =
-            "Барлық блоктар бойынша нәтижеңізді талдап, оқу жоспары жасайды";
+          aiDesc.textContent = getT(
+            "aiCardDesc",
+            "Барлық блоктар бойынша нәтижеңізді талдап, оқу жоспары жасайды",
+          );
       } else if (!hasResults) {
         aiBtn.disabled = true;
         aiBtn.style.opacity = "0.5";
         aiBtn.style.cursor = "not-allowed";
-        aiBtn.title = "Алдымен тест тапсырыңыз";
         if (aiDesc)
-          aiDesc.textContent = "Талдау алу үшін алдымен тестті тапсырыңыз";
+          aiDesc.textContent = getT(
+            "aiCardDesc",
+            "Талдау алу үшін алдымен тестті тапсырыңыз",
+          );
       } else {
         aiBtn.disabled = true;
         aiBtn.style.opacity = "0.5";
         aiBtn.style.cursor = "not-allowed";
-        aiBtn.title = "Жаңа талдау алу үшін тестті қайта тапсырыңыз";
         if (aiDesc) {
           var aiDateStr = lastAiDate
             ? formatDate(lastAiDate.toISOString())
             : "";
-          aiDesc.textContent =
-            "Соңғы талдау: " +
-            aiDateStr +
-            ". Жаңа талдау алу үшін тестті қайта тапсырыңыз";
+          aiDesc.textContent = getT("aiSaved", "Сақталған:") + " " + aiDateStr;
         }
       }
     }
@@ -363,7 +427,8 @@
       if (resultBodyEl) resultBodyEl.innerHTML = cached.html;
       var dateEl = document.getElementById("aiResultDate");
       if (dateEl && cached.date)
-        dateEl.textContent = "Сақталған: " + formatDate(cached.date);
+        dateEl.textContent =
+          getT("aiSaved", "Сақталған:") + " " + formatDate(cached.date);
       showAIState("result");
       if (canAnalyze) {
         var triggerEl = document.getElementById("aiTrigger");
@@ -402,6 +467,7 @@
     } catch (_) {}
     if (user && user.name) name = user.name;
 
+    var BLOCKS = getBlocks();
     var totalScore = 0;
     var scores = {};
     var blockLines = BLOCKS.map(function (b) {
@@ -678,11 +744,17 @@
       var dateEl = document.getElementById("aiResultDate");
       if (dateEl)
         dateEl.textContent =
-          "Сақталған: " + formatDate(new Date().toISOString());
+          getT("aiSaved", "Сақталған:") +
+          " " +
+          formatDate(new Date().toISOString());
     } catch (err) {
       var errEl = document.getElementById("aiErrorText");
       if (errEl)
-        errEl.textContent = "Қате: " + (err.message || "Белгісіз қате");
+        errEl.textContent =
+          getT("aiError", "Қате шықты. Қайталап көріңіз.") +
+          " (" +
+          (err.message || "") +
+          ")";
       showAIState("error");
       if (aiBtn) aiBtn.disabled = false;
     }
@@ -693,6 +765,11 @@
     if (isLoggedIn) {
       loadAndRender();
     }
+    window.__testResultsRerender = function () {
+      if (isLoggedIn) {
+        loadAndRender();
+      }
+    };
   }
 
   if (document.readyState === "loading") {

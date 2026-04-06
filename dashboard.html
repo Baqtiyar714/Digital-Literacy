@@ -93,7 +93,10 @@
               </button>
             </div>
           </div>
-          <div id="navAuthButtons" style="display:none;gap:8px;align-items:center;">
+          <div
+            id="navAuthButtons"
+            style="display: none; gap: 8px; align-items: center"
+          >
             <a href="index.html" class="btn btn-ghost">Кіру</a>
             <a href="register.html" class="btn btn-primary">Тіркелу</a>
           </div>
@@ -101,7 +104,7 @@
             type="button"
             class="btn btn-outline"
             id="logoutBtn"
-            style="display:none;"
+            style="display: none"
             data-translate="logout"
           >
             Шығу
@@ -111,63 +114,86 @@
     </header>
 
     <main class="dashboard-main">
-      <div id="authOnlySections" style="display:none;">
-      <section class="welcome-section">
-        <h1 class="welcome-title">
-          <span data-translate="welcomePrefix">Қош келдіңіз</span>,
-          <span id="userName">Пайдаланушы</span>
-        </h1>
-        <p class="welcome-subtitle" data-translate="welcomeDesc">
-          Цифрлық сауаттылығыңызды тексеріп, жаңа дағдыларды игеріңіз.
-        </p>
-      </section>
-      <section class="profile-stats-section" aria-label="Жылдам статистика">
-        <div class="profile-stats-card">
-          <div class="profile-stats-row">
-            <div class="profile-stats-item">
-              <div class="profile-stats-icon profile-stats-icon--tests">🗓️</div>
-              <div class="profile-stats-value" id="dashProfileLastTest">—</div>
-              <div class="profile-stats-label">Соңғы тест</div>
-            </div>
-            <div class="profile-stats-item">
-              <div class="profile-stats-icon profile-stats-icon--score">🏆</div>
-              <div class="profile-stats-value" id="dashProfileTotalScore">
-                — / 100
-              </div>
-              <div class="profile-stats-label">Жалпы балл</div>
-            </div>
-            <div class="profile-stats-item">
-              <div class="profile-stats-icon profile-stats-icon--avg">🎯</div>
-              <div class="profile-stats-value" id="dashProfileAverage">—</div>
-              <div class="profile-stats-label">Орташа нәтиже</div>
-            </div>
-            <div class="profile-stats-item">
-              <div class="profile-stats-icon profile-stats-icon--best">🏅</div>
-              <div class="profile-stats-value" id="dashProfileBest">—</div>
-              <div class="profile-stats-label">Үздік нәтиже</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="motivation-section" aria-label="Мотивациялық хабарлама">
-        <div class="motivation-banner">
-          <p class="motivation-banner__text" id="motivationText">
-            🚀 Бастайық! Алғашқы тестті тапсырып, деңгейіңізді анықтаңыз.
+      <div id="authOnlySections" style="display: none">
+        <section class="welcome-section">
+          <h1 class="welcome-title">
+            <span data-translate="welcomePrefix">Қош келдіңіз</span>,
+            <span id="userName">Пайдаланушы</span>
+          </h1>
+          <p class="welcome-subtitle" data-translate="welcomeDesc">
+            Цифрлық сауаттылығыңызды тексеріп, жаңа дағдыларды игеріңіз.
           </p>
-        </div>
-      </section>
+        </section>
+        <section class="profile-stats-section" aria-label="Жылдам статистика">
+          <div class="profile-stats-card">
+            <div class="profile-stats-row">
+              <div class="profile-stats-item">
+                <div class="profile-stats-icon profile-stats-icon--tests">
+                  🗓️
+                </div>
+                <div class="profile-stats-value" id="dashProfileLastTest">
+                  —
+                </div>
+                <div class="profile-stats-label" data-translate="statLastTest">
+                  Соңғы тест
+                </div>
+              </div>
+              <div class="profile-stats-item">
+                <div class="profile-stats-icon profile-stats-icon--score">
+                  🏆
+                </div>
+                <div class="profile-stats-value" id="dashProfileTotalScore">
+                  — / 100
+                </div>
+                <div
+                  class="profile-stats-label"
+                  data-translate="statTotalScore"
+                >
+                  Жалпы балл
+                </div>
+              </div>
+              <div class="profile-stats-item">
+                <div class="profile-stats-icon profile-stats-icon--avg">🎯</div>
+                <div class="profile-stats-value" id="dashProfileAverage">—</div>
+                <div class="profile-stats-label" data-translate="statAverage">
+                  Орташа нәтиже
+                </div>
+              </div>
+              <div class="profile-stats-item">
+                <div class="profile-stats-icon profile-stats-icon--best">
+                  🏅
+                </div>
+                <div class="profile-stats-value" id="dashProfileBest">—</div>
+                <div class="profile-stats-label" data-translate="statBest">
+                  Үздік нәтиже
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
-      <section class="activity-section" aria-label="Соңғы белсенділік">
-        <div class="activity-card">
-          <div class="activity-card__header">
-            <h2 class="activity-card__title">Соңғы белсенділік</h2>
+        <section class="motivation-section" aria-label="Мотивациялық хабарлама">
+          <div class="motivation-banner">
+            <p class="motivation-banner__text" id="motivationText">
+              🚀 Бастайық! Алғашқы тестті тапсырып, деңгейіңізді анықтаңыз.
+            </p>
           </div>
-          <div class="activity-card__body" id="activityList">
-            <p class="activity-empty">Әлі тест тапсырылмаған. Бастаңыз! →</p>
+        </section>
+
+        <section class="activity-section" aria-label="Соңғы белсенділік">
+          <div class="activity-card">
+            <div class="activity-card__header">
+              <h2 class="activity-card__title" data-translate="activityTitle">
+                Соңғы белсенділік
+              </h2>
+            </div>
+            <div class="activity-card__body" id="activityList">
+              <p class="activity-empty" data-translate="activityEmpty">
+                Әлі тест тапсырылмаған. Бастаңыз! →
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
       </div>
 
       <section
@@ -504,7 +530,11 @@
             </p>
             <span class="action-card-arrow">→</span>
           </a>
-          <a href="#" id="actionProfileCard" class="action-card action-card-profile">
+          <a
+            href="#"
+            id="actionProfileCard"
+            class="action-card action-card-profile"
+          >
             <div
               class="action-card-icon profile-icon-svg profile-icon-card"
               aria-hidden="true"
@@ -529,17 +559,96 @@
       </section>
     </main>
 
-    <div id="authModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(15,23,42,0.55);align-items:center;justify-content:center;">
-      <div style="background:#fff;border-radius:20px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(15,23,42,0.2);position:relative;margin:16px;">
-        <button id="authModalClose" type="button" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.4rem;cursor:pointer;color:#9ba3c9;line-height:1;">&#x2715;</button>
-        <div style="text-align:center;margin-bottom:24px;">
-          <div style="font-size:2rem;margin-bottom:8px;">🔐</div>
-          <h2 style="margin:0 0 6px;font-size:1.2rem;font-weight:700;color:#1a1f36;">Кіру немесе тіркелу қажет</h2>
-          <p style="margin:0;font-size:0.9rem;color:#5c6690;">Бұл бөлімді көру үшін жүйеге кіріңіз немесе тіркеліңіз.</p>
+    <div
+      id="authModal"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(15, 23, 42, 0.55);
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: #fff;
+          border-radius: 20px;
+          padding: 40px 36px;
+          width: 100%;
+          max-width: 400px;
+          box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+          position: relative;
+          margin: 16px;
+        "
+      >
+        <button
+          id="authModalClose"
+          type="button"
+          style="
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            background: none;
+            border: none;
+            font-size: 1.4rem;
+            cursor: pointer;
+            color: #9ba3c9;
+            line-height: 1;
+          "
+        >
+          &#x2715;
+        </button>
+        <div style="text-align: center; margin-bottom: 24px">
+          <div style="font-size: 2rem; margin-bottom: 8px">🔐</div>
+          <h2
+            style="
+              margin: 0 0 6px;
+              font-size: 1.2rem;
+              font-weight: 700;
+              color: #1a1f36;
+            "
+          >
+            Кіру немесе тіркелу қажет
+          </h2>
+          <p style="margin: 0; font-size: 0.9rem; color: #5c6690">
+            Бұл бөлімді көру үшін жүйеге кіріңіз немесе тіркеліңіз.
+          </p>
         </div>
-        <div style="display:flex;flex-direction:column;gap:10px;">
-          <a href="index.html" style="display:block;height:48px;line-height:48px;border-radius:10px;background:linear-gradient(135deg,#3949ab,#5c6bc0);color:#fff;font-size:0.95rem;font-weight:700;text-align:center;text-decoration:none;">Кіру</a>
-          <a href="register.html" style="display:block;height:48px;line-height:48px;border-radius:10px;border:1.5px solid #3949ab;color:#3949ab;font-size:0.95rem;font-weight:700;text-align:center;text-decoration:none;">Тіркелу</a>
+        <div style="display: flex; flex-direction: column; gap: 10px">
+          <a
+            href="index.html"
+            style="
+              display: block;
+              height: 48px;
+              line-height: 48px;
+              border-radius: 10px;
+              background: linear-gradient(135deg, #3949ab, #5c6bc0);
+              color: #fff;
+              font-size: 0.95rem;
+              font-weight: 700;
+              text-align: center;
+              text-decoration: none;
+            "
+            >Кіру</a
+          >
+          <a
+            href="register.html"
+            style="
+              display: block;
+              height: 48px;
+              line-height: 48px;
+              border-radius: 10px;
+              border: 1.5px solid #3949ab;
+              color: #3949ab;
+              font-size: 0.95rem;
+              font-weight: 700;
+              text-align: center;
+              text-decoration: none;
+            "
+            >Тіркелу</a
+          >
         </div>
       </div>
     </div>
@@ -549,5 +658,6 @@
         Цифрлық сауаттылықты бағалау ақпараттық жүйесі
       </p>
     </footer>
+    <script src="chatbot-widget.js" defer></script>
   </body>
 </html>

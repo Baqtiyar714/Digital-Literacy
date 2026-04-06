@@ -80,16 +80,49 @@
     return "advanced";
   }
 
+  var LEVEL_LABELS = {
+    kk: { beginner: "Бастаушы", intermediate: "Орташа", advanced: "Озат" },
+    ru: {
+      beginner: "Начинающий",
+      intermediate: "Средний",
+      advanced: "Продвинутый",
+    },
+    en: {
+      beginner: "Beginner",
+      intermediate: "Intermediate",
+      advanced: "Advanced",
+    },
+  };
+
+  function getLang() {
+    return localStorage.getItem("language") || "en";
+  }
+
+  function getT(key) {
+    try {
+      var lang = getLang();
+      return (
+        (translations[lang] &&
+          translations[lang].dashboard &&
+          translations[lang].dashboard[key]) ||
+        ""
+      );
+    } catch (_e) {
+      return "";
+    }
+  }
+
   function levelLabel(level) {
-    if (level === "intermediate") return "Орташа";
-    if (level === "advanced") return "Озат";
-    return "Бастаушы";
+    var lang = getLang();
+    var labels = LEVEL_LABELS[lang] || LEVEL_LABELS.ru;
+    return labels[level] || labels.beginner;
   }
 
   function levelLabelWithEmoji(level) {
-    if (level === "intermediate") return "Орташа ⚡";
-    if (level === "advanced") return "Озат 🏆";
-    return "Бастаушы 🌱";
+    var label = levelLabel(level);
+    if (level === "intermediate") return label + " ⚡";
+    if (level === "advanced") return label + " 🏆";
+    return label + " 🌱";
   }
 
   function renderStats(aggregates) {
@@ -117,8 +150,14 @@
     var dotsContainer = document.getElementById("overallDots");
 
     if (blocksText) {
-      blocksText.textContent =
-        aggregates.completedCount + " / " + TOTAL_BLOCKS + " блок аяқталды";
+      var lang = getLang();
+      var blocksDone =
+        lang === "ru"
+          ? " / " + TOTAL_BLOCKS + " блоков завершено"
+          : lang === "en"
+            ? " / " + TOTAL_BLOCKS + " blocks completed"
+            : " / " + TOTAL_BLOCKS + " блок аяқталды";
+      blocksText.textContent = aggregates.completedCount + blocksDone;
     }
 
     if (progressFill) {
@@ -147,27 +186,57 @@
     var textEl = document.getElementById("motivationText");
     if (!textEl) return;
 
+    var lang = getLang();
+    var msgs = {
+      kk: {
+        m0: "🚀 Бастайық! Алғашқы тестті тапсырып, деңгейіңізді анықтаңыз.",
+        m1: "💪 Жақсы бастама! Жалғастырыңыз — тағы бірнеше блок сізді күтіп тұр.",
+        m2: function (missing) {
+          return missing === 0
+            ? "🔥 Озат деңгейіне өте жақынсыз! Тағы бір блокты аяқтап көріңіз."
+            : "🔥 Озатқа аз қалды! " + missing + " балл жетіспейді.";
+        },
+        m3: "🏆 Керемет! Барлық тесттерді аяқтадыңыз.",
+      },
+      ru: {
+        m0: "🚀 Начнём! Пройдите первый тест и определите свой уровень.",
+        m1: "💪 Хорошее начало! Продолжайте — ещё несколько блоков ждут вас.",
+        m2: function (missing) {
+          return missing === 0
+            ? "🔥 Вы очень близко к продвинутому уровню! Попробуйте ещё один блок."
+            : "🔥 До продвинутого уровня совсем немного! Не хватает " +
+                missing +
+                " баллов.";
+        },
+        m3: "🏆 Отлично! Вы прошли все тесты.",
+      },
+      en: {
+        m0: "🚀 Let's go! Take your first test and find out your level.",
+        m1: "💪 Great start! Keep going — a few more blocks await you.",
+        m2: function (missing) {
+          return missing === 0
+            ? "🔥 You're very close to the advanced level! Try one more block."
+            : "🔥 Almost advanced! Only " + missing + " points to go.";
+        },
+        m3: "🏆 Excellent! You have completed all tests.",
+      },
+    };
+    var m = msgs[lang] || msgs.ru;
+
     var completed = aggregates.completedCount;
     var score = aggregates.totalScore;
-    var message =
-      "🚀 Бастайық! Алғашқы тестті тапсырып, деңгейіңізді анықтаңыз.";
+    var message = m.m0;
 
     if (completed === 0) {
-      message = "🚀 Бастайық! Алғашқы тестті тапсырып, деңгейіңізді анықтаңыз.";
+      message = m.m0;
     } else if (completed <= 2) {
-      message =
-        "💪 Жақсы бастама! Жалғастырыңыз — тағы бірнеше блок сізді күтіп тұр.";
+      message = m.m1;
     } else if (completed <= 4) {
       var missing = 18 - score;
       if (missing < 0) missing = 0;
-      if (missing === 0) {
-        message =
-          "🔥 Озат деңгейіне өте жақынсыз! Тағы бір блокты аяқтап көріңіз.";
-      } else {
-        message = "🔥 Озатқа аз қалды! " + missing + " балл жетіспейді.";
-      }
+      message = m.m2(missing);
     } else if (completed >= TOTAL_BLOCKS) {
-      message = "🏆 Керемет! Барлық тесттерді аяқтадыңыз.";
+      message = m.m3;
     }
 
     textEl.textContent = message;
@@ -175,9 +244,16 @@
 
   function getLevelFromScore(totalScore, maxScore) {
     var pct = maxScore > 0 ? (totalScore / maxScore) * 100 : 0;
-    if (pct >= 67) return { num: 3, kk: "Жоғары" };
-    if (pct >= 34) return { num: 2, kk: "Орташа" };
-    return { num: 1, kk: "Төмен" };
+    var lang = getLang();
+    var labels = {
+      kk: { high: "Жоғары", mid: "Орташа", low: "Төмен" },
+      ru: { high: "Высокий", mid: "Средний", low: "Низкий" },
+      en: { high: "High", mid: "Medium", low: "Low" },
+    };
+    var l = labels[lang] || labels.ru;
+    if (pct >= 67) return { num: 3, kk: l.high };
+    if (pct >= 34) return { num: 2, kk: l.mid };
+    return { num: 1, kk: l.low };
   }
 
   function formatDateTime(iso) {
@@ -200,11 +276,18 @@
 
     if (!userId) {
       container.innerHTML =
-        '<p class="activity-empty">Әлі тест тапсырылмаған. Бастаңыз! →</p>';
+        '<p class="activity-empty">' + getT("activityEmpty") + "</p>";
       return;
     }
 
-    container.innerHTML = '<p class="activity-empty">Жүктелуде...</p>';
+    container.innerHTML =
+      '<p class="activity-empty">' +
+      (getLang() === "ru"
+        ? "Загрузка..."
+        : getLang() === "en"
+          ? "Loading..."
+          : "Жүктелуде...") +
+      "</p>";
 
     fetch("http://localhost:5000/test/history/" + userId)
       .then(function (res) {
@@ -216,7 +299,7 @@
 
         if (!allHistory.length) {
           container.innerHTML =
-            '<p class="activity-empty">Әлі тест тапсырылмаған. Бастаңыз! →</p>';
+            '<p class="activity-empty">' + getT("activityEmpty") + "</p>";
           return;
         }
 
@@ -239,10 +322,21 @@
 
             var name = document.createElement("div");
             name.className = "activity-name";
+            var lang = getLang();
+            var passedLabel =
+              lang === "ru"
+                ? "Тест пройден"
+                : lang === "en"
+                  ? "Test passed"
+                  : "Тест тапсырды";
+            var levelLabel2 =
+              lang === "ru" ? "-уровень" : lang === "en" ? " level" : "-деңгей";
             name.textContent =
-              "Тест тапсырды — " +
+              passedLabel +
+              " — " +
               lvl.num +
-              "-деңгей, " +
+              levelLabel2 +
+              ", " +
               lvl.kk +
               " (" +
               totalScore +
@@ -275,20 +369,38 @@
           var moreBtn = document.createElement("button");
           moreBtn.style.cssText =
             "margin-top:10px;width:100%;padding:8px 16px;border-radius:999px;border:1px solid #dde1f5;background:#f0f4ff;color:#3949ab;font-size:0.82rem;font-weight:600;cursor:pointer;";
-          moreBtn.textContent =
-            "📋 Толығырақ (" + (allHistory.length - showCount) + " тағы)";
+          var moreLabel = {
+            kk: function (n) {
+              return "📋 Толығырақ (" + n + " тағы)";
+            },
+            ru: function (n) {
+              return "📋 Подробнее (" + n + " ещё)";
+            },
+            en: function (n) {
+              return "📋 Show more (" + n + " more)";
+            },
+          };
+          var collapseLabel = {
+            kk: "▲ Жию",
+            ru: "▲ Свернуть",
+            en: "▲ Collapse",
+          };
+          var lang2 = getLang();
+          var mBtn = moreLabel[lang2] || moreLabel.ru;
+          var cBtn = collapseLabel[lang2] || collapseLabel.ru;
+
+          moreBtn.textContent = mBtn(allHistory.length - showCount);
           var expanded = false;
           moreBtn.addEventListener("click", function () {
             if (!expanded) {
               renderList(allHistory);
               container.appendChild(moreBtn);
-              moreBtn.textContent = "▲ Жию";
+              moreBtn.textContent = cBtn;
               expanded = true;
             } else {
               renderList(first5);
               container.appendChild(moreBtn);
-              moreBtn.textContent =
-                "📋 Толығырақ (" + (allHistory.length - showCount) + " тағы)";
+              moreBtn.textContent = mBtn(allHistory.length - showCount);
               expanded = false;
             }
           });
@@ -296,8 +408,13 @@
         }
       })
       .catch(function () {
-        container.innerHTML =
-          '<p class="activity-empty">Деректерді жүктеу мүмкін болмады.</p>';
+        var errMsg =
+          getLang() === "ru"
+            ? "Не удалось загрузить данные."
+            : getLang() === "en"
+              ? "Could not load data."
+              : "Деректерді жүктеу мүмкін болмады.";
+        container.innerHTML = '<p class="activity-empty">' + errMsg + "</p>";
       });
   }
   function initAccordion() {
@@ -523,8 +640,15 @@
         if (totalScoreEl)
           totalScoreEl.textContent = lastTotal + " / " + lastMax;
         if (avgEl) avgEl.textContent = avgPercent + "%";
-        if (bestEl)
-          bestEl.textContent = allTimeBest > 0 ? allTimeBest + " балл" : "—";
+        if (bestEl) {
+          var ballWord =
+            getLang() === "ru"
+              ? " баллов"
+              : getLang() === "en"
+                ? " pts"
+                : " балл";
+          bestEl.textContent = allTimeBest > 0 ? allTimeBest + ballWord : "—";
+        }
       })
       .catch(function () {});
   }

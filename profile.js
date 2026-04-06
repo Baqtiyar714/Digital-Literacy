@@ -15,42 +15,69 @@
   // MAX_PER_BLOCK — әр блоктың максималды баллы (20)
   // BLOCKS — 5 компетенция блогының ID, атауы, түсі және иконасы
   const MAX_PER_BLOCK = 20;
+
+  function t(key) {
+    try {
+      var lang =
+        (typeof currentLanguage !== "undefined" ? currentLanguage : null) ||
+        localStorage.getItem("language") ||
+        "kk";
+      return (
+        (translations[lang] &&
+          translations[lang].profile &&
+          translations[lang].profile[key]) ||
+        (translations["kk"] &&
+          translations["kk"].profile &&
+          translations["kk"].profile[key]) ||
+        key
+      );
+    } catch (_) {
+      return key;
+    }
+  }
+
+  const BLOCK_NAMES = {
+    en: {
+      information: "Information",
+      communication: "Communication",
+      content: "Content",
+      safety: "Safety",
+      problem: "Problem solving",
+    },
+    kk: {
+      information: "Ақпарат",
+      communication: "Коммуникация",
+      content: "Контент",
+      safety: "Қауіпсіздік",
+      problem: "Проблемаларды шешу",
+    },
+    ru: {
+      information: "Информация",
+      communication: "Коммуникация",
+      content: "Контент",
+      safety: "Безопасность",
+      problem: "Решение проблем",
+    },
+  };
+
+  function getBlockName(id) {
+    var lang =
+      (typeof currentLanguage !== "undefined" ? currentLanguage : null) ||
+      localStorage.getItem("language") ||
+      "kk";
+    return (
+      (BLOCK_NAMES[lang] && BLOCK_NAMES[lang][id]) ||
+      (BLOCK_NAMES["kk"] && BLOCK_NAMES["kk"][id]) ||
+      id
+    );
+  }
+
   const BLOCKS = [
-    {
-      id: "information",
-      name: "Ақпарат",
-      shortLabel: "Ақпарат",
-      color: "#0097a7",
-      icon: "📚",
-    },
-    {
-      id: "communication",
-      name: "Коммуникация",
-      shortLabel: "Коммуникация",
-      color: "#f57c00",
-      icon: "🤝",
-    },
-    {
-      id: "content",
-      name: "Контент",
-      shortLabel: "Контент",
-      color: "#5e35b1",
-      icon: "✏️",
-    },
-    {
-      id: "safety",
-      name: "Қауіпсіздік",
-      shortLabel: "Қауіпсіздік",
-      color: "#c62828",
-      icon: "🛡️",
-    },
-    {
-      id: "problem",
-      name: "Проблемаларды шешу",
-      shortLabel: "Проблема",
-      color: "#2e7d32",
-      icon: "💡",
-    },
+    { id: "information", color: "#0097a7", icon: "📚" },
+    { id: "communication", color: "#f57c00", icon: "🤝" },
+    { id: "content", color: "#5e35b1", icon: "✏️" },
+    { id: "safety", color: "#c62828", icon: "🛡️" },
+    { id: "problem", color: "#2e7d32", icon: "💡" },
   ];
 
   // Пайдаланушыны тексеру ---
@@ -121,9 +148,9 @@
   function getLevelForScore(score, maxScore) {
     var max = maxScore !== undefined ? maxScore : 20;
     var pct = max > 0 ? (score / max) * 100 : 0;
-    if (pct < 34) return { num: 1, kk: "Төмен", color: "#ef5350" };
-    if (pct < 67) return { num: 2, kk: "Орташа", color: "#f9a825" };
-    return { num: 3, kk: "Жоғары", color: "#1b8a4e" };
+    if (pct < 34) return { num: 1, kk: t("levelLow"), color: "#ef5350" };
+    if (pct < 67) return { num: 2, kk: t("levelMid"), color: "#f9a825" };
+    return { num: 3, kk: t("levelHigh"), color: "#1b8a4e" };
   }
 
   //  Жалпы балл бойынша деңгей ---
@@ -137,7 +164,7 @@
   // levelLabelWithEmoji() — мәтін + эмодзи қайтарады
   function levelLabel(level) {
     if (typeof level === "object") return level.kk;
-    return level && level.kk ? level.kk : "Іргетас";
+    return level && level.kk ? level.kk : t("levelLow");
   }
 
   function levelLabelWithEmoji(level) {
@@ -145,7 +172,7 @@
       var emojis = { 1: "📉", 2: "⚡", 3: "🏆" };
       return level.kk + " " + (emojis[level.num] || "");
     }
-    return "Төмен 📉";
+    return t("levelLow") + " 📉";
   }
 
   //  Жалпы статистикаларды есептеу ---
@@ -272,7 +299,7 @@
     const regDateStr =
       (user && user.registeredDate) || new Date().toISOString();
     if (regEl) {
-      regEl.textContent = "Тіркелген: " + formatDate(regDateStr);
+      regEl.textContent = t("registeredLabel") + " " + formatDate(regDateStr);
     }
 
     const level = levelFromScore(aggregates.lastTotal);
@@ -297,9 +324,13 @@
     if (totalScoreChipEl) {
       if (aggregates.lastTotal > 0) {
         totalScoreChipEl.textContent =
-          aggregates.lastTotal + " / " + aggregates.lastMaxScore + " балл";
+          aggregates.lastTotal +
+          " / " +
+          aggregates.lastMaxScore +
+          " " +
+          t("scoreLabel");
       } else {
-        totalScoreChipEl.textContent = "0 / 100 балл";
+        totalScoreChipEl.textContent = "0 / 100 " + t("scoreLabel");
       }
     }
   }
@@ -370,7 +401,8 @@
     }
     if (bestBlockEl) {
       if (aggregates.allTimeBest > 0) {
-        bestBlockEl.textContent = aggregates.allTimeBest + " балл";
+        bestBlockEl.textContent =
+          aggregates.allTimeBest + " " + t("scoreLabel");
       } else {
         bestBlockEl.textContent = "—";
       }
@@ -447,7 +479,7 @@
       main.className = "profile-result-main";
       const nameEl = document.createElement("div");
       nameEl.className = "profile-result-name";
-      nameEl.textContent = block.name;
+      nameEl.textContent = getBlockName(block.id);
       const dateEl = document.createElement("div");
       dateEl.className = "profile-result-date";
       dateEl.textContent =
@@ -470,20 +502,21 @@
 
       if (hasResult) {
         const score = Number(lastBlockScores[block.id]) || 0;
-        scoreSpan.textContent = score + " / " + perBlock + " балл";
+        scoreSpan.textContent =
+          score + " / " + perBlock + " " + t("scoreLabel");
         const pct = perBlock > 0 ? (score / perBlock) * 100 : 0;
         setTimeout(function () {
           progressFill.style.width = pct.toFixed(1) + "%";
         }, 300);
       } else {
-        scoreSpan.textContent = "— / " + perBlock + " балл";
+        scoreSpan.textContent = "— / " + perBlock + " " + t("scoreLabel");
         scoreSpan.classList.add("profile-result-score--empty");
       }
 
       const btn = document.createElement("a");
       btn.href = "test.html";
       btn.className = "profile-result-btn";
-      btn.textContent = hasResult ? "Қайталау →" : "Тапсыру →";
+      btn.textContent = hasResult ? t("retakeBtn") : t("startBtn");
 
       row.appendChild(iconBox);
       row.appendChild(main);
@@ -550,9 +583,13 @@
         "display:flex;align-items:center;gap:8px;margin-bottom:10px;";
       header.innerHTML =
         '<span style="font-size:1rem;">🤖</span>' +
-        '<span style="font-size:0.88rem;font-weight:700;color:#1a1f36;">AI талдауы</span>' +
+        '<span style="font-size:0.88rem;font-weight:700;color:#1a1f36;">' +
+        t("aiAnalysisLabel") +
+        "</span>" +
         (dateStr
-          ? '<span style="font-size:0.75rem;color:#9ba3c9;margin-left:auto;">Сақталған: ' +
+          ? '<span style="font-size:0.75rem;color:#9ba3c9;margin-left:auto;">' +
+            t("aiSaved") +
+            " " +
             dateStr +
             "</span>"
           : "");
@@ -565,7 +602,7 @@
         footerBtn.disabled = false;
         footerBtn.style.cssText =
           "width:100%;padding:10px 14px;border-radius:999px;border:1.5px solid #c5cae9;background:#e8eaf6;color:#3949ab;font-size:0.85rem;font-weight:600;cursor:pointer;margin-top:10px;";
-        footerBtn.textContent = "🔄 Жаңа талдау алу — тест бетінде";
+        footerBtn.textContent = t("aiNewBtn");
         footerBtn.onclick = function () {
           window.location.href = "test.html";
         };
@@ -582,23 +619,23 @@
     if (lowBlocks.length > 0) {
       items.push({
         icon: "📚",
-        text: lowBlocks[0].name + " блоктын қайталауды ұсынамыз.",
+        text: getBlockName(lowBlocks[0].id) + " — " + t("reviewBlock") + ".",
       });
     }
     if (aggregates.completedCount === BLOCKS.length) {
       items.push({
         icon: "🏆",
-        text: "Барлық блоктарды аяқтадыңыз! Керемет нәтиже.",
+        text: t("completedAll"),
       });
     } else if (!lowBlocks.length) {
       items.push({
         icon: "📚",
-        text: "Қалған блоктарды аяқтау арқылы нәтижеңізді арттыра аласыз.",
+        text: t("tryRest"),
       });
     }
     items.push({
       icon: "💡",
-      text: "Күн сайын жаттықсаңыз, нәтижеңіз 30%-ға артады.",
+      text: t("dailyTip"),
     });
     items.slice(0, 3).forEach(function (item) {
       var row = document.createElement("div");
@@ -617,7 +654,7 @@
       footerBtn.disabled = false;
       footerBtn.style.cssText =
         "width:100%;padding:10px 14px;border-radius:999px;border:1.5px solid #c5cae9;background:#e8eaf6;color:#3949ab;font-size:0.85rem;font-weight:600;cursor:pointer;margin-top:10px;";
-      footerBtn.textContent = "🤖 AI талдауын алу — тест бетінде";
+      footerBtn.textContent = t("aiGetBtn");
       footerBtn.onclick = function () {
         window.location.href = "test.html";
       };
@@ -634,7 +671,9 @@
     if (!container) return;
 
     container.innerHTML =
-      '<div style="color:#9ba3c9;font-size:0.85rem;padding:8px 0">Жүктелуде...</div>';
+      '<div style="color:#9ba3c9;font-size:0.85rem;padding:8px 0">' +
+      t("loading") +
+      "</div>";
 
     function formatDateTime(iso) {
       try {
@@ -653,9 +692,9 @@
     function getLvlForRow(totalScore, maxScore) {
       var max = maxScore || 100;
       var pct = max > 0 ? (totalScore / max) * 100 : 0;
-      if (pct < 34) return { num: 1, kk: "Төмен" };
-      if (pct < 67) return { num: 2, kk: "Орташа" };
-      return { num: 3, kk: "Жоғары" };
+      if (pct < 34) return { num: 1, kk: t("level1label") };
+      if (pct < 67) return { num: 2, kk: t("level2label") };
+      return { num: 3, kk: t("level3label") };
     }
 
     function renderList(items) {
@@ -675,9 +714,8 @@
         var text = document.createElement("div");
         text.className = "profile-activity-text";
         text.textContent =
-          "Тест тапсырды — " +
-          lvl.num +
-          "-деңгей, " +
+          t("tookTest") +
+          " — " +
           lvl.kk +
           " (" +
           totalScore +
@@ -704,7 +742,7 @@
       icon.className = "profile-activity-empty-icon";
       icon.textContent = "🕐";
       var text = document.createElement("div");
-      text.textContent = "Әлі белсенділік жоқ";
+      text.textContent = t("noActivity");
       wrap.appendChild(icon);
       wrap.appendChild(text);
       container.appendChild(wrap);
@@ -733,19 +771,19 @@
           moreBtn.style.cssText =
             "margin-top:10px;width:100%;padding:8px 16px;border-radius:999px;border:1px solid #dde1f5;background:#f0f4ff;color:#3949ab;font-size:0.82rem;font-weight:600;cursor:pointer;";
           moreBtn.textContent =
-            "📋 Толығырақ (" + (limited.length - showCount) + " тағы)";
+            t("moreBtn") + " (" + (limited.length - showCount) + ")";
           var expanded = false;
           moreBtn.addEventListener("click", function () {
             if (!expanded) {
               renderList(limited);
               container.appendChild(moreBtn);
-              moreBtn.textContent = "▲ Жию";
+              moreBtn.textContent = t("collapseBtn");
               expanded = true;
             } else {
               renderList(first5);
               container.appendChild(moreBtn);
               moreBtn.textContent =
-                "📋 Толығырақ (" + (limited.length - showCount) + " тағы)";
+                t("moreBtn") + " (" + (limited.length - showCount) + ")";
               expanded = false;
             }
           });
@@ -860,7 +898,7 @@
 
         if (!name) {
           if (msgEl) {
-            msgEl.textContent = "Атыңызды енгізіңіз";
+            msgEl.textContent = t("editNameRequired");
             msgEl.style.color = "#e53935";
           }
           return;
@@ -868,7 +906,7 @@
 
         if (newPassword && newPassword !== confirmPassword) {
           if (msgEl) {
-            msgEl.textContent = "Жаңа құпия сөздер сәйкес келмейді";
+            msgEl.textContent = t("editPassMismatch");
             msgEl.style.color = "#e53935";
           }
           return;
@@ -877,7 +915,7 @@
         var submitBtn = form.querySelector("button[type=submit]");
         if (submitBtn) {
           submitBtn.disabled = true;
-          submitBtn.textContent = "Сақталуда...";
+          submitBtn.textContent = t("editSavingBtn");
         }
 
         try {
@@ -897,12 +935,12 @@
             var data = await resp.json();
             if (!data.success) {
               if (msgEl) {
-                msgEl.textContent = data.message || "Қате шықты";
+                msgEl.textContent = data.message || t("editSaveError");
                 msgEl.style.color = "#e53935";
               }
               if (submitBtn) {
                 submitBtn.disabled = false;
-                submitBtn.textContent = "Сақтау";
+                submitBtn.textContent = t("editSaveBtn");
               }
               return;
             }
@@ -924,7 +962,7 @@
           }
 
           if (msgEl) {
-            msgEl.textContent = "Сәтті сақталды!";
+            msgEl.textContent = t("editSaveSuccess");
             msgEl.style.color = "#1b8a4e";
           }
           setTimeout(function () {
@@ -932,14 +970,14 @@
           }, 1200);
         } catch (err) {
           if (msgEl) {
-            msgEl.textContent = "Сервермен байланыс жоқ";
+            msgEl.textContent = t("editSaveError");
             msgEl.style.color = "#e53935";
           }
         }
 
         if (submitBtn) {
           submitBtn.disabled = false;
-          submitBtn.textContent = "Сақтау";
+          submitBtn.textContent = t("editSaveBtn");
         }
       });
     }
@@ -1002,6 +1040,20 @@
     if (typeof initLangDropdown === "function") {
       initLangDropdown();
     }
+
+    window.__profileRerender = function () {
+      const u = ensureUser();
+      if (!u) return;
+      const r = loadResults();
+      const a = computeAggregates(r);
+      fillHero(u, a);
+      fillStatsRow(a, r);
+      fillLevelAndAchievements(a, r);
+      fillResults(r);
+      fillStatsCard(a);
+      fillAiRecommendations(r, a);
+      fillActivityHistory(r, u.id);
+    };
   }
 
   if (document.readyState === "loading") {
