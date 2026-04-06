@@ -29,6 +29,19 @@
             <span>📋</span>
             <span data-translate="takeTest">Тест тапсыру</span>
           </a>
+          <button
+            type="button"
+            class="btn btn-ghost"
+            id="aboutUsBtn"
+            onclick="
+              document
+                .querySelector('.about-footer')
+                .scrollIntoView({ behavior: 'smooth' })
+            "
+            data-translate="aboutUs"
+          >
+            Біз туралы
+          </button>
           <a href="profile.html" class="btn btn-primary">
             <span class="nav-icon profile-icon" aria-hidden="true">
               <svg
@@ -592,5 +605,64 @@
       })();
     </script>
     <script src="chatbot-widget.js" defer></script>
+
+    <footer class="about-footer">
+      <div class="about-footer__inner">
+        <div class="about-footer__brand">
+          <div class="about-footer__logo">
+            <div class="app-logo__icon"><span>◉</span></div>
+            <span data-translate="siteName">Цифрлық сауаттылықты бағалау</span>
+          </div>
+          <p class="about-footer__tagline" data-translate="footerTagline">
+            DigComp 2.2 негізіндегі цифрлық сауаттылық платформасы
+          </p>
+        </div>
+        <div class="about-footer__about">
+          <h3 class="about-footer__heading" data-translate="aboutUs">
+            Біз туралы
+          </h3>
+          <p class="about-footer__text" data-translate="aboutText1">
+            Бұл платформа пайдаланушылардың цифрлық сауаттылық деңгейін
+            бағалауға арналған интерактивті жүйе.
+          </p>
+          <p class="about-footer__text" data-translate="aboutText2">
+            Жүйе жасанды интеллект технологиясын қолдана отырып, нәтижеңізді
+            талдап, жеке ұсыныстар береді.
+          </p>
+        </div>
+        <div class="about-footer__blocks">
+          <h3 class="about-footer__heading" data-translate="competencies">
+            Құзыреттіліктер
+          </h3>
+          <ul class="about-footer__list">
+            <li>
+              <span class="about-footer__dot" style="background: #0097a7"></span
+              ><span data-translate="comp1Short">Ақпарат және деректер</span>
+            </li>
+            <li>
+              <span class="about-footer__dot" style="background: #f57c00"></span
+              ><span data-translate="comp2Short">Коммуникация</span>
+            </li>
+            <li>
+              <span class="about-footer__dot" style="background: #5e35b1"></span
+              ><span data-translate="comp3Short">Цифрлық контент</span>
+            </li>
+            <li>
+              <span class="about-footer__dot" style="background: #c62828"></span
+              ><span data-translate="comp4Short">Қауіпсіздік</span>
+            </li>
+            <li>
+              <span class="about-footer__dot" style="background: #2e7d32"></span
+              ><span data-translate="comp5Short">Проблемаларды шешу</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="about-footer__bottom">
+        <span data-translate="footerCopyright"
+          >© 2025 Цифрлық сауаттылықты бағалау жүйесі. Дипломдық жоба.</span
+        >
+      </div>
+    </footer>
   </body>
 </html>

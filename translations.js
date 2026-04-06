@@ -126,6 +126,20 @@ const translations = {
       authModalLogin: "Log in",
       authModalRegister: "Register",
       footer: "Digital literacy assessment information system",
+      footerTagline: "Digital literacy platform based on DigComp 2.2",
+      aboutUs: "About us",
+      aboutText1:
+        "This platform is an interactive system for assessing users' digital literacy. The test, built according to the European DigComp 2.2 standard, covers 5 key competency areas.",
+      aboutText2:
+        "The system uses artificial intelligence to analyze your results and provide specific personal development recommendations. All age groups and education levels are taken into account.",
+      competencies: "Competencies",
+      comp1Short: "Information and data",
+      comp2Short: "Communication",
+      comp3Short: "Digital content",
+      comp4Short: "Safety",
+      comp5Short: "Problem solving",
+      footerCopyright:
+        "© 2025 Digital Literacy Assessment System. Diploma project.",
     },
     profile: {
       siteName: "Digital literacy assessment",
@@ -201,6 +215,20 @@ const translations = {
       moreBtn: "📋 More",
       collapseBtn: "▲ Collapse",
       registeredLabel: "Registered:",
+      footerTagline: "Digital literacy platform based on DigComp 2.2",
+      aboutUs: "About us",
+      aboutText1:
+        "This platform is an interactive system for assessing users' digital literacy. The test, built according to the European DigComp 2.2 standard, covers 5 key competency areas.",
+      aboutText2:
+        "The system uses artificial intelligence to analyze your results and provide specific personal development recommendations. All age groups and education levels are taken into account.",
+      competencies: "Competencies",
+      comp1Short: "Information and data",
+      comp2Short: "Communication",
+      comp3Short: "Digital content",
+      comp4Short: "Safety",
+      comp5Short: "Problem solving",
+      footerCopyright:
+        "© 2025 Digital Literacy Assessment System. Diploma project.",
     },
     test: {
       siteName: "Digital literacy assessment",
@@ -268,6 +296,20 @@ const translations = {
         "Average level of digital literacy. You are capable of solving everyday tasks.",
       levelDesc3:
         "High level of digital literacy. You can independently solve complex situations.",
+      footerTagline: "Digital literacy platform based on DigComp 2.2",
+      aboutUs: "About us",
+      aboutText1:
+        "This platform is an interactive system for assessing users' digital literacy. The test, built according to the European DigComp 2.2 standard, covers 5 key competency areas.",
+      aboutText2:
+        "The system uses artificial intelligence to analyze your results and provide specific personal development recommendations. All age groups and education levels are taken into account.",
+      competencies: "Competencies",
+      comp1Short: "Information and data",
+      comp2Short: "Communication",
+      comp3Short: "Digital content",
+      comp4Short: "Safety",
+      comp5Short: "Problem solving",
+      footerCopyright:
+        "© 2025 Digital Literacy Assessment System. Diploma project.",
     },
   },
   kk: {
@@ -402,6 +444,20 @@ const translations = {
       authModalLogin: "Кіру",
       authModalRegister: "Тіркелу",
       footer: "Цифрлық сауаттылықты бағалау ақпараттық жүйесі",
+      footerTagline: "DigComp 2.2 негізіндегі цифрлық сауаттылық платформасы",
+      aboutUs: "Біз туралы",
+      aboutText1:
+        "Бұл платформа пайдаланушылардың цифрлық сауаттылық деңгейін бағалауға арналған интерактивті жүйе. Еуропалық DigComp 2.2 стандартына сәйкес құрастырылған тест 5 негізгі құзыреттілік саласын қамтиды.",
+      aboutText2:
+        "Жүйе жасанды интеллект технологиясын қолдана отырып, нәтижеңізді талдап, жеке даму бойынша нақты ұсыныстар береді. Барлық жас топтары мен білім деңгейлері ескерілген.",
+      competencies: "Құзыреттіліктер",
+      comp1Short: "Ақпарат және деректер",
+      comp2Short: "Коммуникация",
+      comp3Short: "Цифрлық контент",
+      comp4Short: "Қауіпсіздік",
+      comp5Short: "Проблемаларды шешу",
+      footerCopyright:
+        "© 2025 Цифрлық сауаттылықты бағалау жүйесі. Дипломдық жоба.",
     },
     profile: {
       siteName: "Цифрлық сауаттылықты бағалау",
@@ -477,6 +533,20 @@ const translations = {
       moreBtn: "📋 Толығырақ",
       collapseBtn: "▲ Жию",
       registeredLabel: "Тіркелген:",
+      footerTagline: "DigComp 2.2 негізіндегі цифрлық сауаттылық платформасы",
+      aboutUs: "Біз туралы",
+      aboutText1:
+        "Бұл платформа пайдаланушылардың цифрлық сауаттылық деңгейін бағалауға арналған интерактивті жүйе. Еуропалық DigComp 2.2 стандартына сәйкес құрастырылған тест 5 негізгі құзыреттілік саласын қамтиды.",
+      aboutText2:
+        "Жүйе жасанды интеллект технологиясын қолдана отырып, нәтижеңізді талдап, жеке даму бойынша нақты ұсыныстар береді. Барлық жас топтары мен білім деңгейлері ескерілген.",
+      competencies: "Құзыреттіліктер",
+      comp1Short: "Ақпарат және деректер",
+      comp2Short: "Коммуникация",
+      comp3Short: "Цифрлық контент",
+      comp4Short: "Қауіпсіздік",
+      comp5Short: "Проблемаларды шешу",
+      footerCopyright:
+        "© 2025 Цифрлық сауаттылықты бағалау жүйесі. Дипломдық жоба.",
     },
     test: {
       siteName: "Цифрлық сауаттылықты бағалау",
@@ -543,6 +613,20 @@ const translations = {
         "Орташа деңгейдегі цифрлық сауаттылық. Күнделікті міндеттерді шешуге қабілеттісіз.",
       levelDesc3:
         "Жоғары деңгейдегі цифрлық сауаттылық. Күрделі жағдайларды өздігіңізбен шеше аласыз.",
+      footerTagline: "DigComp 2.2 негізіндегі цифрлық сауаттылық платформасы",
+      aboutUs: "Біз туралы",
+      aboutText1:
+        "Бұл платформа пайдаланушылардың цифрлық сауаттылық деңгейін бағалауға арналған интерактивті жүйе. Еуропалық DigComp 2.2 стандартына сәйкес құрастырылған тест 5 негізгі құзыреттілік саласын қамтиды.",
+      aboutText2:
+        "Жүйе жасанды интеллект технологиясын қолдана отырып, нәтижеңізді талдап, жеке даму бойынша нақты ұсыныстар береді. Барлық жас топтары мен білім деңгейлері ескерілген.",
+      competencies: "Құзыреттіліктер",
+      comp1Short: "Ақпарат және деректер",
+      comp2Short: "Коммуникация",
+      comp3Short: "Цифрлық контент",
+      comp4Short: "Қауіпсіздік",
+      comp5Short: "Проблемаларды шешу",
+      footerCopyright:
+        "© 2025 Цифрлық сауаттылықты бағалау жүйесі. Дипломдық жоба.",
     },
   },
   ru: {
@@ -679,6 +763,20 @@ const translations = {
       authModalLogin: "Войти",
       authModalRegister: "Зарегистрироваться",
       footer: "Информационная система оценки цифровой грамотности",
+      footerTagline: "Платформа цифровой грамотности на основе DigComp 2.2",
+      aboutUs: "О нас",
+      aboutText1:
+        "Эта платформа — интерактивная система оценки уровня цифровой грамотности пользователей. Тест, разработанный в соответствии с европейским стандартом DigComp 2.2, охватывает 5 ключевых компетентностных областей.",
+      aboutText2:
+        "Система использует технологии искусственного интеллекта для анализа ваших результатов и предоставления конкретных рекомендаций по личному развитию. Учитываются все возрастные группы и уровни образования.",
+      competencies: "Компетенции",
+      comp1Short: "Информация и данные",
+      comp2Short: "Коммуникация",
+      comp3Short: "Цифровой контент",
+      comp4Short: "Безопасность",
+      comp5Short: "Решение проблем",
+      footerCopyright:
+        "© 2025 Система оценки цифровой грамотности. Дипломный проект.",
     },
     profile: {
       siteName: "Оценка цифровой грамотности",
@@ -755,6 +853,20 @@ const translations = {
       moreBtn: "📋 Подробнее",
       collapseBtn: "▲ Свернуть",
       registeredLabel: "Зарегистрирован:",
+      footerTagline: "Платформа цифровой грамотности на основе DigComp 2.2",
+      aboutUs: "О нас",
+      aboutText1:
+        "Эта платформа — интерактивная система оценки уровня цифровой грамотности пользователей. Тест, разработанный в соответствии с европейским стандартом DigComp 2.2, охватывает 5 ключевых компетентностных областей.",
+      aboutText2:
+        "Система использует технологии искусственного интеллекта для анализа ваших результатов и предоставления конкретных рекомендаций по личному развитию. Учитываются все возрастные группы и уровни образования.",
+      competencies: "Компетенции",
+      comp1Short: "Информация и данные",
+      comp2Short: "Коммуникация",
+      comp3Short: "Цифровой контент",
+      comp4Short: "Безопасность",
+      comp5Short: "Решение проблем",
+      footerCopyright:
+        "© 2025 Система оценки цифровой грамотности. Дипломный проект.",
     },
     test: {
       siteName: "Оценка цифровой грамотности",
@@ -822,6 +934,20 @@ const translations = {
         "Средний уровень цифровой грамотности. Вы способны решать повседневные задачи.",
       levelDesc3:
         "Высокий уровень цифровой грамотности. Вы можете самостоятельно справляться со сложными ситуациями.",
+      footerTagline: "Платформа цифровой грамотности на основе DigComp 2.2",
+      aboutUs: "О нас",
+      aboutText1:
+        "Эта платформа — интерактивная система оценки уровня цифровой грамотности пользователей. Тест, разработанный в соответствии с европейским стандартом DigComp 2.2, охватывает 5 ключевых компетентностных областей.",
+      aboutText2:
+        "Система использует технологии искусственного интеллекта для анализа ваших результатов и предоставления конкретных рекомендаций по личному развитию. Учитываются все возрастные группы и уровни образования.",
+      competencies: "Компетенции",
+      comp1Short: "Информация и данные",
+      comp2Short: "Коммуникация",
+      comp3Short: "Цифровой контент",
+      comp4Short: "Безопасность",
+      comp5Short: "Решение проблем",
+      footerCopyright:
+        "© 2025 Система оценки цифровой грамотности. Дипломный проект.",
     },
   },
 };

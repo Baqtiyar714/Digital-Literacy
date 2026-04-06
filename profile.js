@@ -513,16 +513,10 @@
         scoreSpan.classList.add("profile-result-score--empty");
       }
 
-      const btn = document.createElement("a");
-      btn.href = "test.html";
-      btn.className = "profile-result-btn";
-      btn.textContent = hasResult ? t("retakeBtn") : t("startBtn");
-
       row.appendChild(iconBox);
       row.appendChild(main);
       row.appendChild(progressCol);
       row.appendChild(scoreSpan);
-      row.appendChild(btn);
 
       container.appendChild(row);
     });

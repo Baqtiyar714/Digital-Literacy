@@ -803,6 +803,30 @@ svg {
   box-shadow: 0 2px 8px rgba(57, 73, 171, 0.15);
   flex-shrink: 0;
 }
+.tr-ai__icon--img {
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
+}
+.tr-ai__icon--img img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+}
+.tr-section__robot-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  vertical-align: middle;
+  margin-right: 2px;
+}
+.tr-ai__result-robot-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
 .tr-ai__title {
   font-size: 0.95rem;
   font-weight: 700;
@@ -997,5 +1021,207 @@ svg {
   .tr-ai__btn {
     width: 100%;
     justify-content: center;
+  }
+}
+
+/* ── About Modal ─────────────────────────────────────────── */
+.about-modal {
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 32px 28px;
+  width: 100%;
+  max-width: 480px;
+  margin: 16px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(15, 23, 42, 0.18);
+}
+
+.about-modal__close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #9ba3c9;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.about-modal__close:hover {
+  background: #f0f4ff;
+  color: #3949ab;
+}
+
+.about-modal__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.about-modal__icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #3949ab, #5c6bc0);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.about-modal__title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1f36;
+  margin: 0;
+}
+
+.about-modal__text {
+  font-size: 0.875rem;
+  line-height: 1.7;
+  color: #5c6690;
+  margin: 0 0 12px;
+}
+
+.about-modal__comps {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid #dde1f5;
+  padding-top: 16px;
+}
+
+.about-modal__comps li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #3949ab;
+  font-weight: 500;
+}
+
+/* ── About Footer ─────────────────────────────────────────── */
+.about-footer {
+  background: #1a1f36;
+  color: #c5cae9;
+  margin-top: auto;
+}
+
+.about-footer__inner {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 48px 24px 36px;
+  display: grid;
+  grid-template-columns: 1.4fr 2fr 1fr;
+  gap: 48px;
+}
+
+.about-footer__brand {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.about-footer__logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.about-footer__logo .app-logo__icon {
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #3949ab, #5c6bc0);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.about-footer__tagline {
+  font-size: 0.82rem;
+  color: #7986cb;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.about-footer__heading {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7986cb;
+  margin: 0 0 14px;
+}
+
+.about-footer__text {
+  font-size: 0.85rem;
+  line-height: 1.7;
+  color: #9fa8da;
+  margin: 0 0 10px;
+}
+
+.about-footer__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.about-footer__list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  color: #9fa8da;
+}
+
+.about-footer__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.about-footer__bottom {
+  border-top: 1px solid #2a2f50;
+  text-align: center;
+  padding: 16px 24px;
+  font-size: 0.78rem;
+  color: #5c6690;
+}
+
+@media (max-width: 860px) {
+  .about-footer__inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+  }
+  .about-footer__brand {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 500px) {
+  .about-footer__inner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 36px 20px 28px;
   }
 }

@@ -671,33 +671,44 @@
     } catch (_) {}
   }
 
+  var _cachedUserId = null;
+  var _cachedAggregates = null;
+  var _cachedResults = null;
+
   function init() {
     var isLoggedIn = initAuthAndName();
     initAuthModal();
 
-    var userId = null;
     try {
       var userRaw =
         localStorage.getItem("diq_user") || localStorage.getItem("user");
       if (userRaw) {
         var u = JSON.parse(userRaw);
-        userId = u && u.id ? u.id : null;
+        _cachedUserId = u && u.id ? u.id : null;
       }
     } catch (_e) {}
 
     if (isLoggedIn) {
-      var results = loadResults();
-      var aggregates = computeAggregates(results);
-      renderStats(aggregates);
-      renderProfileStats(userId);
-      renderOverallProgress(aggregates, results);
-      renderMotivation(aggregates);
-      renderActivity(userId);
+      _cachedResults = loadResults();
+      _cachedAggregates = computeAggregates(_cachedResults);
+      renderStats(_cachedAggregates);
+      renderProfileStats(_cachedUserId);
+      renderOverallProgress(_cachedAggregates, _cachedResults);
+      renderMotivation(_cachedAggregates);
+      renderActivity(_cachedUserId);
     }
 
     initAccordion();
     initDigcompAccordion();
   }
+
+  window.__dashboardRerender = function () {
+    if (_cachedAggregates) {
+      renderMotivation(_cachedAggregates);
+      renderProfileStats(_cachedUserId);
+      renderActivity(_cachedUserId);
+    }
+  };
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", init);

@@ -95,21 +95,41 @@
     }
   }
 
+  function getTooltipText() {
+    var lang =
+      (typeof currentLanguage !== "undefined" ? currentLanguage : null) ||
+      localStorage.getItem("language") ||
+      "kk";
+    if (lang === "ru") return "Посмотреть AI анализ";
+    if (lang === "en") return "View AI analysis";
+    return "AI талдауды көру";
+  }
+
   function init() {
     injectStyles();
 
     var btn = document.createElement("button");
     btn.id = "diq-ai-fab";
-    btn.setAttribute("aria-label", "AI талдауға өту");
-    btn.innerHTML = '<img src="robot.png" alt="AI талдау">';
+    btn.setAttribute("aria-label", getTooltipText());
+    btn.innerHTML = '<img src="robot.png" alt="AI">';
     btn.addEventListener("click", handleClick);
 
     var tooltip = document.createElement("div");
     tooltip.id = "diq-ai-fab-tooltip";
-    tooltip.textContent = "AI талдауды көру";
+    tooltip.textContent = getTooltipText();
 
     document.body.appendChild(btn);
     document.body.appendChild(tooltip);
+
+    // Тіл ауысқанда tooltip жаңарту
+    var origSetLanguage = window.setLanguage;
+    if (typeof origSetLanguage === "function") {
+      window.setLanguage = function (lang) {
+        origSetLanguage(lang);
+        tooltip.textContent = getTooltipText();
+        btn.setAttribute("aria-label", getTooltipText());
+      };
+    }
 
     scrollToAIOnLoad();
   }
