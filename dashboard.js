@@ -704,6 +704,8 @@
 
   window.__dashboardRerender = function () {
     if (_cachedAggregates) {
+      renderStats(_cachedAggregates);
+      renderOverallProgress(_cachedAggregates, _cachedResults || {});
       renderMotivation(_cachedAggregates);
       renderProfileStats(_cachedUserId);
       renderActivity(_cachedUserId);

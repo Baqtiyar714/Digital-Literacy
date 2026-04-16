@@ -435,6 +435,19 @@
         if (triggerEl) triggerEl.style.display = "";
       }
     }
+
+    // #ai hash болса — AI бөліміне scroll жаса (chatbot-widget redirect)
+    if (window.location.hash === "#ai") {
+      setTimeout(function () {
+        var target =
+          document.getElementById("aiTrigger") ||
+          document.getElementById("aiResult") ||
+          document.getElementById("aiBtn");
+        if (target) {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 300);
+    }
   }
 
   function showAIState(s) {

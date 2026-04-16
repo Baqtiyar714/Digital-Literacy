@@ -28,7 +28,6 @@
         </div>
         <nav class="app-header__right">
           <a href="test.html" class="btn btn-primary btn-active">
-            <span>📋</span>
             <span data-translate="takeTest">Тест тапсыру</span>
           </a>
           <button
@@ -117,8 +116,10 @@
     <main class="page-main">
       <section class="page-header">
         <div class="page-header__text">
-          <h1 class="page-header__title">Тест тапсыру</h1>
-          <p class="page-header__subtitle">
+          <h1 class="page-header__title" data-translate="pageTitle">
+            Тест тапсыру
+          </h1>
+          <p class="page-header__subtitle" data-translate="pageSubtitle">
             Цифрлық сауаттылық деңгейіңізді анықтаңыз
           </p>
         </div>
@@ -126,13 +127,20 @@
 
       <div class="quiz-start-banner">
         <div class="quiz-start-banner__text">
-          <h2 class="quiz-start-banner__title">Тестті бастауға дайынсыз ба?</h2>
-          <p class="quiz-start-banner__desc">
+          <h2 class="quiz-start-banner__title" data-translate="bannerTitle">
+            Тестті бастауға дайынсыз ба?
+          </h2>
+          <p class="quiz-start-banner__desc" data-translate="bannerDesc">
             DigComp 2.2 негізінде құрастырылған тест сіздің цифрлық сауаттылық
             деңгейіңізді анықтауға көмектеседі.
           </p>
         </div>
-        <a href="quiz.html" class="quiz-start-banner__btn" id="startTestBtn">
+        <a
+          href="quiz.html"
+          class="quiz-start-banner__btn"
+          id="startTestBtn"
+          data-translate="bannerBtn"
+        >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
             <path
               d="M5 12h14M13 6l6 6-6 6"
@@ -147,8 +155,10 @@
 
       <section class="digcomp-section">
         <div class="digcomp-section__header">
-          <h2 class="digcomp-section__title">DigComp 2.2 — 5 құзыреттілік</h2>
-          <p class="digcomp-section__sub">
+          <h2 class="digcomp-section__title" data-translate="digcompTitle">
+            DigComp 2.2 — 5 құзыреттілік
+          </h2>
+          <p class="digcomp-section__sub" data-translate="digcompSub">
             Тест осы бес саладағы цифрлық дағдыларыңызды өлшейді
           </p>
         </div>
@@ -158,30 +168,34 @@
               <div class="digcomp-card__icon">📚</div>
               <div class="digcomp-card__num">1</div>
             </div>
-            <h3 class="digcomp-card__name">
+            <h3 class="digcomp-card__name" data-translate="dc1Name">
               Ақпарат және деректерге сауаттылық
             </h3>
-            <p class="digcomp-card__desc">
+            <p class="digcomp-card__desc" data-translate="dc1Desc">
               Интернеттен ақпаратты табу, бағалау, сақтау және пайдалану
               дағдыларын өлшейді. Жалған ақпаратты анықтай алу, деректердің
               сенімділігін тексеру цифрлық ортада өмір сүрудің негізі болып
               табылады.
             </p>
-            <div class="digcomp-card__tag">Іздеу · Бағалау · Сүзгілеу</div>
+            <div class="digcomp-card__tag" data-translate="dc1Tag">
+              Іздеу · Бағалау · Сүзгілеу
+            </div>
           </div>
           <div class="digcomp-card" style="--dc: #f57c00">
             <div class="digcomp-card__top">
               <div class="digcomp-card__icon">🤝</div>
               <div class="digcomp-card__num">2</div>
             </div>
-            <h3 class="digcomp-card__name">Коммуникация және ынтымақтастық</h3>
-            <p class="digcomp-card__desc">
+            <h3 class="digcomp-card__name" data-translate="dc2Name">
+              Коммуникация және ынтымақтастық
+            </h3>
+            <p class="digcomp-card__desc" data-translate="dc2Desc">
               Цифрлық арналар арқылы тиімді қарым-қатынас жасау, бірлескен жұмыс
               істеу және онлайн қоғамдастықтарға қатысу мүмкіндіктерін
               бағалайды. Этика, кибермәдениет және цифрлық азаматтық ұғымдары
               осы блокқа кіреді.
             </p>
-            <div class="digcomp-card__tag">
+            <div class="digcomp-card__tag" data-translate="dc2Tag">
               Мессенджер · Ынтымақтастық · Этика
             </div>
           </div>
@@ -190,13 +204,15 @@
               <div class="digcomp-card__icon">✏️</div>
               <div class="digcomp-card__num">3</div>
             </div>
-            <h3 class="digcomp-card__name">Цифрлық контент жасау</h3>
-            <p class="digcomp-card__desc">
+            <h3 class="digcomp-card__name" data-translate="dc3Name">
+              Цифрлық контент жасау
+            </h3>
+            <p class="digcomp-card__desc" data-translate="dc3Desc">
               Мәтін, сурет, видео сияқты цифрлық мазмұн құру, редакциялау және
               бөлісу дағдыларын өлшейді. Авторлық құқық, лицензиялау және
               бағдарламалау негіздері де осы құзыреттілікке жатады.
             </p>
-            <div class="digcomp-card__tag">
+            <div class="digcomp-card__tag" data-translate="dc3Tag">
               Мазмұн · Авторлық · Бағдарламалау
             </div>
           </div>
@@ -205,35 +221,45 @@
               <div class="digcomp-card__icon">🛡️</div>
               <div class="digcomp-card__num">4</div>
             </div>
-            <h3 class="digcomp-card__name">Қауіпсіздік</h3>
-            <p class="digcomp-card__desc">
+            <h3 class="digcomp-card__name" data-translate="dc4Name">
+              Қауіпсіздік
+            </h3>
+            <p class="digcomp-card__desc" data-translate="dc4Desc">
               Жеке деректерді қорғау, құпиясөз гигиенасы, зиянды
               бағдарламалардан сақтану және онлайн қауіп-қатерлерді тану
               дағдыларын бағалайды. Сандық ортадағы жеке және ұжымдық
               қауіпсіздік мәселелерін қамтиды.
             </p>
-            <div class="digcomp-card__tag">Деректер · Құпиясөз · Фишинг</div>
+            <div class="digcomp-card__tag" data-translate="dc4Tag">
+              Деректер · Құпиясөз · Фишинг
+            </div>
           </div>
           <div class="digcomp-card" style="--dc: #2e7d32">
             <div class="digcomp-card__top">
               <div class="digcomp-card__icon">💡</div>
               <div class="digcomp-card__num">5</div>
             </div>
-            <h3 class="digcomp-card__name">Проблемаларды шешу</h3>
-            <p class="digcomp-card__desc">
+            <h3 class="digcomp-card__name" data-translate="dc5Name">
+              Проблемаларды шешу
+            </h3>
+            <p class="digcomp-card__desc" data-translate="dc5Desc">
               Техникалық мәселелерді өз бетінше шешу, цифрлық құралдарды
               мақсатқа сай таңдау және инновациялық тәсілдермен жаңа жағдайларға
               бейімделу қабілетін өлшейді. Сыни ойлау цифрлық дамудың кілті.
             </p>
-            <div class="digcomp-card__tag">Техника · Бейімділік · Шешім</div>
+            <div class="digcomp-card__tag" data-translate="dc5Tag">
+              Техника · Бейімділік · Шешім
+            </div>
           </div>
         </div>
       </section>
 
       <div id="authRequiredSections" style="display: none">
         <div class="tr-section" id="resultsSection">
-          <h2 class="tr-section__title">📊 Соңғы нәтижелер</h2>
-          <p class="tr-section__sub">
+          <h2 class="tr-section__title" data-translate="resultsTitle">
+            📊 Соңғы нәтижелер
+          </h2>
+          <p class="tr-section__sub" data-translate="resultsSub">
             DigComp 2.2 негізінде тапсырылған соңғы тест деректері
           </p>
           <div id="overallCard"></div>
@@ -242,10 +268,10 @@
 
         <div class="tr-section">
           <h2 class="tr-section__title">
-            <img src="robot.png" alt="AI" class="tr-section__robot-icon" /> AI
-            талдауы мен ұсыныстары
+            <img src="robot.png" alt="AI" class="tr-section__robot-icon" />
+            <span data-translate="aiTitle">AI талдауы мен ұсыныстары</span>
           </h2>
-          <p class="tr-section__sub">
+          <p class="tr-section__sub" data-translate="aiSub">
             Нәтижеңізді талдап, мамандығыңызға сай жеке кеңес береді
           </p>
 
@@ -256,14 +282,16 @@
                   <img src="robot.png" alt="AI" />
                 </div>
                 <div>
-                  <div class="tr-ai__title">AI жеке талдауы</div>
-                  <div class="tr-ai__desc">
+                  <div class="tr-ai__title" data-translate="aiCardTitle">
+                    AI жеке талдауы
+                  </div>
+                  <div class="tr-ai__desc" data-translate="aiCardDesc">
                     Барлық блоктар бойынша нәтижеңізді талдап, оқу жоспары
                     жасайды
                   </div>
                 </div>
               </div>
-              <button class="tr-ai__btn" id="aiBtn">
+              <button class="tr-ai__btn" id="aiBtn" data-translate="aiBtn">
                 Талдауды бастау
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                   <path
@@ -278,8 +306,12 @@
 
             <div class="tr-ai__loading" id="aiLoading">
               <div class="tr-ai__spinner"></div>
-              <div class="tr-ai__loading-text">ЖИ талдап жатыр...</div>
-              <div class="tr-ai__loading-sub">10–20 секунд алуы мүмкін</div>
+              <div class="tr-ai__loading-text" data-translate="aiLoading">
+                ЖИ талдап жатыр...
+              </div>
+              <div class="tr-ai__loading-sub" data-translate="aiLoadingSub">
+                10–20 секунд алуы мүмкін
+              </div>
             </div>
 
             <div class="tr-ai__result" id="aiResult">
@@ -289,8 +321,12 @@
                   alt="AI"
                   class="tr-ai__result-robot-icon"
                 />
-                <span class="tr-ai__result-title">AI талдауы</span>
-                <span class="tr-ai__result-badge">Жеке</span>
+                <span class="tr-ai__result-title" data-translate="aiResultTitle"
+                  >AI талдауы</span
+                >
+                <span class="tr-ai__result-badge" data-translate="aiResultBadge"
+                  >Жеке</span
+                >
               </div>
               <div class="tr-ai__result-body" id="aiResultBody"></div>
               <div class="tr-ai__result-footer">
@@ -362,10 +398,14 @@
                 font-weight: 700;
                 color: #1a1f36;
               "
+              data-translate="modalTitle"
             >
               Кіру немесе тіркелу қажет
             </h2>
-            <p style="margin: 0; font-size: 0.9rem; color: #5c6690">
+            <p
+              style="margin: 0; font-size: 0.9rem; color: #5c6690"
+              data-translate="modalDesc"
+            >
               Тестті бастау үшін жүйеге кіріңіз немесе тіркеліңіз.
             </p>
           </div>

@@ -26,7 +26,6 @@
         </div>
         <nav class="app-header__right">
           <a href="test.html" class="btn btn-ghost">
-            <span>📋</span>
             <span data-translate="takeTest">Тест тапсыру</span>
           </a>
           <button
@@ -162,6 +161,7 @@
                   align-items: center;
                   gap: 6px;
                 "
+                data-translate="editBtn"
               >
                 ✏️ Өзгерту
               </button>
@@ -174,51 +174,74 @@
             <div class="stats-item">
               <div class="stats-icon stats-icon--tests">🗓️</div>
               <div class="stats-value" id="profileStatCompleted">—</div>
-              <div class="stats-label">Соңғы тест</div>
+              <div class="stats-label" data-translate="statLastTest">
+                Соңғы тест
+              </div>
             </div>
             <div class="stats-item">
               <div class="stats-icon stats-icon--score">🏆</div>
               <div class="stats-value" id="profileStatTotalScore">— / 100</div>
-              <div class="stats-label">Жалпы балл</div>
+              <div class="stats-label" data-translate="statTotalScore">
+                Жалпы балл
+              </div>
             </div>
             <div class="stats-item">
               <div class="stats-icon stats-icon--avg">🎯</div>
               <div class="stats-value stats-value--avg" id="profileStatAverage">
                 —
               </div>
-              <div class="stats-label">Орташа нәтиже</div>
+              <div class="stats-label" data-translate="statAverage">
+                Орташа нәтиже
+              </div>
             </div>
             <div class="stats-item">
               <div class="stats-icon stats-icon--best">🏅</div>
               <div class="stats-value" id="profileStatBestBlock">—</div>
-              <div class="stats-label">Үздік нәтиже</div>
+              <div class="stats-label" data-translate="statBest">
+                Үздік нәтиже
+              </div>
             </div>
           </div>
         </div>
         <div class="card">
           <div class="profile-card-header">
-            <h2 class="profile-card-title">Тест нәтижелері</h2>
+            <h2
+              class="profile-card-title"
+              data-translate="testResultsCardTitle"
+            >
+              Тест нәтижелері
+            </h2>
           </div>
           <div class="profile-results" id="profileResultsContainer"></div>
         </div>
 
         <div class="card">
           <div class="profile-card-header">
-            <h2 class="profile-card-title">Толық статистика</h2>
+            <h2 class="profile-card-title" data-translate="fullStatsTitle">
+              Толық статистика
+            </h2>
           </div>
           <div class="stats-grid">
             <div class="profile-stats-item">
-              <span class="profile-stats-label">📈 Орташа нәтиже</span>
+              <span class="profile-stats-label" data-translate="statsAvg"
+                >📈 Орташа нәтиже</span
+              >
               <span class="profile-stats-value" id="profileStatsAvg">—</span>
             </div>
             <div class="profile-stats-item">
-              <span class="profile-stats-label">⏱️ Соңғы белсенділік</span>
+              <span
+                class="profile-stats-label"
+                data-translate="statsLastActivity"
+                >⏱️ Соңғы белсенділік</span
+              >
               <span class="profile-stats-value" id="profileStatsLastActivity"
                 >—</span
               >
             </div>
             <div class="profile-stats-item">
-              <span class="profile-stats-label">💯 Жалпы балл</span>
+              <span class="profile-stats-label" data-translate="statsTotalScore"
+                >💯 Жалпы балл</span
+              >
               <span class="profile-stats-value" id="profileStatsTotalScore"
                 >— / 100</span
               >
@@ -228,12 +251,24 @@
 
         <div class="card profile-card-ai">
           <div class="profile-card-header profile-card-header--ai">
-            <h2 class="profile-card-title">🎯 Жеке ұсыныстар</h2>
-            <span class="profile-ai-badge">ИИ талдауы</span>
+            <h2
+              class="profile-card-title"
+              data-translate="aiRecommendationsTitle"
+            >
+              🎯 Жеке ұсыныстар
+            </h2>
+            <span class="profile-ai-badge" data-translate="aiBadge"
+              >ИИ талдауы</span
+            >
           </div>
           <div class="profile-ai-list" id="profileAiList"></div>
           <div class="profile-ai-footer">
-            <button type="button" class="profile-ai-button" disabled>
+            <button
+              type="button"
+              class="profile-ai-button"
+              disabled
+              data-translate="aiFooterBtn"
+            >
               🤖 ИИ толық талдауы — тест бетінде қолжетімді
             </button>
           </div>
@@ -241,7 +276,9 @@
 
         <div class="card">
           <div class="profile-card-header">
-            <h2 class="profile-card-title">Белсенділік тарихы</h2>
+            <h2 class="profile-card-title" data-translate="activityTitle">
+              Белсенділік тарихы
+            </h2>
           </div>
           <div class="profile-activity" id="profileActivityList"></div>
         </div>
@@ -297,6 +334,7 @@
             font-weight: 700;
             color: #1a1f36;
           "
+          data-translate="editModalTitle"
         >
           Профильді өзгерту
         </h2>
@@ -313,11 +351,13 @@
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
               "
+              data-translate="editNameLabel"
               >Аты-жөні</label
             >
             <input
               id="editName"
               type="text"
+              data-translate-placeholder="editNamePlaceholder"
               placeholder="Атыңызды енгізіңіз"
               style="
                 height: 46px;
@@ -341,6 +381,7 @@
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
               "
+              data-translate="editNewPassLabel"
               >Жаңа құпия сөз (өзгертпесе бос қалдыр)</label
             >
             <input
@@ -372,6 +413,7 @@
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
               "
+              data-translate="editCurrentPassLabel"
               >Ағымдағы құпия сөз</label
             >
             <input
@@ -400,6 +442,7 @@
                 text-transform: uppercase;
                 letter-spacing: 0.05em;
               "
+              data-translate="editConfirmPassLabel"
               >Жаңа құпия сөзді растау</label
             >
             <input
@@ -436,6 +479,7 @@
               cursor: pointer;
               font-family: inherit;
             "
+            data-translate="editSaveBtn"
           >
             Сақтау
           </button>
@@ -541,10 +585,14 @@
               font-weight: 700;
               color: #1a1f36;
             "
+            data-translate="authModalTitle"
           >
             Кіру немесе тіркелу қажет
           </h2>
-          <p style="margin: 0; font-size: 0.9rem; color: #5c6690">
+          <p
+            style="margin: 0; font-size: 0.9rem; color: #5c6690"
+            data-translate="authModalDesc"
+          >
             Профильді көру үшін жүйеге кіріңіз немесе тіркеліңіз.
           </p>
         </div>
@@ -563,6 +611,7 @@
               text-align: center;
               text-decoration: none;
             "
+            data-translate="authModalLogin"
             >Кіру</a
           >
           <a
@@ -579,6 +628,7 @@
               text-align: center;
               text-decoration: none;
             "
+            data-translate="authModalRegister"
             >Тіркелу</a
           >
         </div>

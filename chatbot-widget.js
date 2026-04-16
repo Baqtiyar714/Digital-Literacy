@@ -9,15 +9,18 @@
   }
 
   function handleClick() {
-    var page = getCurrentPage();
-    if (page === "test") {
-      var aiSection =
-        document.getElementById("aiBtn") || document.getElementById("aiResult");
-      if (aiSection) {
-        aiSection.scrollIntoView({ behavior: "smooth", block: "center" });
-      }
+    var aiSection =
+      document.getElementById("aiTrigger") ||
+      document.getElementById("aiBtn") ||
+      document.getElementById("aiResult");
+    if (aiSection) {
+      aiSection.scrollIntoView({ behavior: "smooth", block: "center" });
     } else {
-      window.location.href = "test.html#ai";
+      // test.html бетіне redirect — sessionStorage арқылы scroll белгісін жаз
+      try {
+        sessionStorage.setItem("diq_scroll_ai", "1");
+      } catch (_) {}
+      window.location.href = "test.html";
     }
   }
 
@@ -84,25 +87,33 @@
   }
 
   function scrollToAIOnLoad() {
-    if (window.location.hash === "#ai") {
-      var aiSection =
-        document.getElementById("aiBtn") || document.getElementById("aiResult");
-      if (aiSection) {
-        setTimeout(function () {
-          aiSection.scrollIntoView({ behavior: "smooth", block: "center" });
-        }, 500);
+    var shouldScroll = false;
+    try {
+      if (sessionStorage.getItem("diq_scroll_ai") === "1") {
+        shouldScroll = true;
+        sessionStorage.removeItem("diq_scroll_ai");
       }
-    }
-  }
+    } catch (_) {}
 
-  function getTooltipText() {
-    var lang =
-      (typeof currentLanguage !== "undefined" ? currentLanguage : null) ||
-      localStorage.getItem("language") ||
-      "kk";
-    if (lang === "ru") return "Посмотреть AI анализ";
-    if (lang === "en") return "View AI analysis";
-    return "AI талдауды көру";
+    if (!shouldScroll) return;
+
+    // Element табылғанша 50ms сайын тексер, max 5 секунд
+    var attempts = 0;
+    var timer = setInterval(function () {
+      attempts++;
+      var target =
+        document.getElementById("aiTrigger") ||
+        document.getElementById("aiResult") ||
+        document.getElementById("aiBtn");
+      if (target) {
+        clearInterval(timer);
+        setTimeout(function () {
+          target.scrollIntoView({ behavior: "smooth", block: "center" });
+        }, 100);
+      } else if (attempts > 100) {
+        clearInterval(timer);
+      }
+    }, 50);
   }
 
   function init() {
@@ -110,26 +121,16 @@
 
     var btn = document.createElement("button");
     btn.id = "diq-ai-fab";
-    btn.setAttribute("aria-label", getTooltipText());
-    btn.innerHTML = '<img src="robot.png" alt="AI">';
+    btn.setAttribute("aria-label", "AI талдауға өту");
+    btn.innerHTML = '<img src="robot.png" alt="AI талдау">';
     btn.addEventListener("click", handleClick);
 
     var tooltip = document.createElement("div");
     tooltip.id = "diq-ai-fab-tooltip";
-    tooltip.textContent = getTooltipText();
+    tooltip.textContent = "AI талдауды көру";
 
     document.body.appendChild(btn);
     document.body.appendChild(tooltip);
-
-    // Тіл ауысқанда tooltip жаңарту
-    var origSetLanguage = window.setLanguage;
-    if (typeof origSetLanguage === "function") {
-      window.setLanguage = function (lang) {
-        origSetLanguage(lang);
-        tooltip.textContent = getTooltipText();
-        btn.setAttribute("aria-label", getTooltipText());
-      };
-    }
 
     scrollToAIOnLoad();
   }
