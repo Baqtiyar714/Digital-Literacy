@@ -678,6 +678,15 @@
           ? window.GROQ_API_KEY
           : "";
 
+      // Егер key жоқ болса серверден ал
+      if (!GROQ_KEY) {
+        try {
+          var cfgResp = await fetch("/config");
+          var cfg = await cfgResp.json();
+          GROQ_KEY = cfg.GROQ_API_KEY || "";
+        } catch (e) {}
+      }
+
       var resp = await fetch(
         "https://api.groq.com/openai/v1/chat/completions",
         {

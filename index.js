@@ -16,11 +16,11 @@ const pool = require("./db");
 // auth_db үшін pool (db.js-тен), questions_db үшін жаңа pool жасалады
 const { Pool } = require("pg");
 const questionsPool = new Pool({
-  connectionString:
-    process.env.QUESTIONS_DATABASE_URL || process.env.DATABASE_URL,
-  ssl: process.env.QUESTIONS_DATABASE_URL
-    ? { rejectUnauthorized: false }
-    : false,
+  user: process.env.DB_USER || "postgres",
+  host: process.env.DB_HOST || "localhost",
+  database: process.env.QUESTIONS_DB_NAME || "questions_db",
+  password: process.env.DB_PASSWORD || "1234",
+  port: process.env.DB_PORT || 5432,
 });
 questionsPool.on("connect", () => console.log("✅ Connected to questions_db"));
 
@@ -757,6 +757,13 @@ app.get("/admin/stats", checkAdmin, async (req, res) => {
 });
 
 //  Сервер жұмысын тексеру ---
+// GET /config — фронтендке қажетті конфигурация
+app.get("/config", (req, res) => {
+  res.json({
+    GROQ_API_KEY: process.env.GROQ_API_KEY || "",
+  });
+});
+
 // GET /health — сервердің іске қосылып тұрғанын тексеру үшін
 app.get("/health", (req, res) => {
   res.status(200).json({
