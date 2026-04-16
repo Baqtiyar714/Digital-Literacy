@@ -207,7 +207,11 @@
       return;
     }
 
-    state.userInfo = { name: name, age: age, education: edu };
+    state.userInfo = {
+      name: name,
+      age: age || "таңдалмаған",
+      education: edu || "таңдалмаған",
+    };
     showLoading(true);
 
     try {
@@ -920,45 +924,114 @@
   //   4) Дамыту керек бағыттар, 5) 30 күндік жоспар
   function buildPrompt(scores, total, maxScore) {
     var name = (state.userInfo && state.userInfo.name) || "Пайдаланушы";
-    var age = (state.userInfo && state.userInfo.age) || "белгісіз";
-    var edu = (state.userInfo && state.userInfo.education) || "белгісіз";
+    var age = (state.userInfo && state.userInfo.age) || "таңдалмаған";
+    var edu = (state.userInfo && state.userInfo.education) || "таңдалмаған";
+
+    // Жас пен білімді адамға лайықты форматта жазу
+    var ageStr =
+      age && age !== "таңдалмаған" ? age + " жас тобы" : "жас тобы таңдалмаған";
+    var eduStr =
+      edu && edu !== "таңдалмаған"
+        ? edu + " білімі"
+        : "білім деңгейі таңдалмаған";
+
     var perBlock = Math.floor(maxScore / BLOCKS.length);
     var overallPct = Math.round((total / maxScore) * 100);
 
-    var blockLines = BLOCKS.map(function (b) {
+    // Блок деректерін жинақтап, деңгейін анықтау
+    var blockData = BLOCKS.map(function (b) {
       var sc = scores[b.id] || 0;
       var pct = Math.round((sc / perBlock) * 100);
-      return "- " + b.title + ": " + sc + "/" + perBlock + " (" + pct + "%)";
-    }).join("\n");
+      var tag = pct >= 67 ? "ЖОҒАРЫ" : pct >= 34 ? "ОРТАША" : "ТӨМЕН";
+      return { title: b.title, sc: sc, perBlock: perBlock, pct: pct, tag: tag };
+    });
+
+    // Ең жоғары 2 және ең төмен 2 блокты анықтау
+    var sorted = blockData.slice().sort(function (a, b) {
+      return b.pct - a.pct;
+    });
+    var top2 = sorted
+      .slice(0, 2)
+      .map(function (b) {
+        return b.title;
+      })
+      .join(", ");
+    var low2 = sorted
+      .slice(-2)
+      .map(function (b) {
+        return b.title;
+      })
+      .join(", ");
+
+    var blockLines = blockData
+      .map(function (b) {
+        return (
+          "- " +
+          b.title +
+          ": " +
+          b.sc +
+          "/" +
+          b.perBlock +
+          " балл (" +
+          b.pct +
+          "%) — " +
+          b.tag
+        );
+      })
+      .join("\n");
+
+    var levelWord =
+      overallPct >= 67 ? "Жоғары" : overallPct >= 34 ? "Орташа" : "Төмен";
 
     return (
       "Сен DigComp 2.2 халықаралық фреймворкі бойынша цифрлық сауаттылық сарапшысысың.\n\n" +
       "Пайдаланушы: " +
       name +
       ", " +
-      age +
-      " жас, " +
-      edu +
-      " білімі\n\n" +
-      "Тест нәтижелері (макс " +
+      ageStr +
+      ", " +
+      eduStr +
+      "\n\n" +
+      "Тест нәтижелері (әр блок максимум " +
       perBlock +
-      " балл/блок, " +
+      " балл, жалпы максимум " +
       maxScore +
-      " жалпы):\n" +
+      " балл):\n" +
       blockLines +
       "\n" +
       "Жалпы: " +
       total +
       "/" +
       maxScore +
-      " (" +
+      " балл (" +
       overallPct +
-      "%)\n\n" +
-      "Осы нәтижелер негізінде " +
+      "%) — " +
+      levelWord +
+      " деңгей\n\n" +
+      "Күшті блоктар (ең жоғары балл): " +
+      top2 +
+      "\n" +
+      "Дамыту керек блоктар (ең төмен балл): " +
+      low2 +
+      "\n\n" +
+      "Осы НАҚТЫ сандарға сүйеніп " +
       name +
-      "-ға арналған толыққанды, жеке цифрлық сауаттылық талдауын жаз. " +
-      "Баллдарды талдап, нақты күшті және әлсіз жақтарын атап өт, өмірлік мысалдар келтір, " +
-      "нақты ресурстар мен оқу ұсыныстарын бер. Тек қазақ тілінде. ** және ## таңбаларын қолданба."
+      "-ға арналған толыққанды талдау жаз.\n" +
+      "МІНДЕТТІ ТАЛАПТАР:\n" +
+      "1. Жалпы баға: " +
+      overallPct +
+      "% нәтижені DigComp 2.2 тұрғысынан бағала, нақты балл санын атап өт\n" +
+      "2. Блок профилі: барлық 5 блокты нақты балдармен салыстырып талда\n" +
+      "3. Күшті жақтар: тек " +
+      top2 +
+      " блоктарын талда, күнделікті өмірден нақты мысалдар келтір\n" +
+      "4. Дамыту керек бағыттар: тек " +
+      low2 +
+      " блоктарына арнайы, тегін онлайн ресурстар ұсын\n" +
+      "5. 30 күндік жоспар: тек " +
+      low2 +
+      " блоктарын дамытуға арналған жоспар жаз. Күшті блоктарға уақыт бөлме\n\n" +
+      "ТЫЙЫМДАР: ** және ## таңбаларын қолданба. Бір ойды екі рет қайталама. Тек қазақ тілінде жаз."
     );
   }
 
