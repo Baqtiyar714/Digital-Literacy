@@ -1,4 +1,4 @@
-const { Pool } = require("pg");
+/*const { Pool } = require("pg");
 require("dotenv").config();
 
 const pool = new Pool({
@@ -7,6 +7,25 @@ const pool = new Pool({
   database: process.env.DB_NAME || "auth_db",
   password: process.env.DB_PASSWORD || "1234",
   port: process.env.DB_PORT || 5432,
+});
+
+pool.on("connect", () => {
+  console.log("✅ Connected to PostgreSQL database");
+});
+
+pool.on("error", (err) => {
+  console.error("❌ Unexpected error on idle client", err);
+  process.exit(-1);
+});
+
+module.exports = pool;*/
+
+const { Pool } = require("pg");
+require("dotenv").config();
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_URL ? { rejectUnauthorized: false } : false,
 });
 
 pool.on("connect", () => {
