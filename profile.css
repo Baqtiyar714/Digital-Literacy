@@ -260,6 +260,12 @@ body.profile-page {
   font-size: 18px;
 }
 
+.stats-icon-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
 .stats-value {
   font-family:
     "DM Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,

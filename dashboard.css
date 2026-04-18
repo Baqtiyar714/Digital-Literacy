@@ -564,6 +564,12 @@ body.dashboard-page {
   font-size: 18px;
 }
 
+.stats-icon-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
 .profile-stats-icon--tests {
   background: #e8eaf6;
   color: #3949ab;
