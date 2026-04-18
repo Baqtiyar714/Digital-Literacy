@@ -577,18 +577,15 @@
     } catch (_e) {}
 
     var authOnlySections = document.getElementById("authOnlySections");
-    var navAuthButtons = document.getElementById("navAuthButtons");
     var logoutBtn = document.getElementById("logoutBtn");
     var navProfileLink = document.getElementById("navProfileLink");
 
     if (isLoggedIn) {
       if (authOnlySections) authOnlySections.style.display = "block";
       if (logoutBtn) logoutBtn.style.display = "inline-flex";
-      if (navAuthButtons) navAuthButtons.style.display = "none";
     } else {
       if (authOnlySections) authOnlySections.style.display = "none";
       if (logoutBtn) logoutBtn.style.display = "none";
-      if (navAuthButtons) navAuthButtons.style.display = "flex";
     }
 
     if (logoutBtn) {
