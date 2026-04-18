@@ -713,6 +713,7 @@ async function loadUsers() {
         <td style="text-align:center;">
           ${u.avg_score !== null ? `<span class="badge ${u.avg_score >= 70 ? "badge-safe" : u.avg_score >= 40 ? "badge-comm" : "badge-prob"}">${u.avg_score}%</span>` : '<span style="color:var(--muted);font-size:0.82rem;">—</span>'}
         </td>
+        <td><button class="btn btn-danger btn-sm" onclick="deleteUser(${u.id}, '${u.name}')">🗑️ Жою</button></td>
       </tr>
     `,
       )
@@ -735,5 +736,30 @@ async function loadUsers() {
   } catch (e) {
     document.getElementById("usersTable").innerHTML =
       `<div class="empty">❌ ${e.message}</div>`;
+  }
+}
+
+async function deleteUser(id, name) {
+  if (
+    !confirm(
+      name + " қолданушысын жоясыз ба? Бұл әрекетті қайтару мүмкін емес!",
+    )
+  )
+    return;
+  try {
+    const resp = await fetch(API + "/admin/users/" + id, {
+      method: "DELETE",
+      headers: { "x-admin-password": adminPassword },
+    });
+    const data = await resp.json();
+    if (data.success) {
+      showMsg("usersMsg", "✅ Қолданушы сәтті жойылды!", "success");
+      loadUsers();
+      loadStats();
+    } else {
+      showMsg("usersMsg", data.message || "Қате шықты", "error");
+    }
+  } catch (e) {
+    showMsg("usersMsg", "Сервермен байланыс жоқ", "error");
   }
 }

@@ -730,6 +730,16 @@ app.get("/admin/users", checkAdmin, async (req, res) => {
   }
 });
 
+// DELETE /admin/users/:id
+app.delete("/admin/users/:id", checkAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await pool.query("DELETE FROM users WHERE id = $1", [id]);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 //  Жалпы статистика (әкімші) ---
 // GET /admin/stats — жалпы санақтарды қайтарады:
 // сұрақ саны, тест нәтижелері саны, пайдаланушы саны, орташа балл пайызы
