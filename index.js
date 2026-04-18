@@ -736,17 +736,33 @@ app.get("/admin/users", checkAdmin, async (req, res) => {
 // сұрақ саны, тест нәтижелері саны, пайдаланушы саны, орташа балл пайызы
 app.get("/admin/stats", checkAdmin, async (req, res) => {
   try {
-    const qCount = await questionsPool.query("SELECT COUNT(*) FROM questions");
-    const uCount = await pool.query("SELECT COUNT(*) FROM users");
-
+    let qCount = { rows: [{ count: 0 }] };
     let rCount = { rows: [{ count: 0 }] };
     let avgScore = { rows: [{ avg: null }] };
+    let uCount = { rows: [{ count: 0 }] };
+
+    try {
+      qCount = await questionsPool.query("SELECT COUNT(*) FROM questions");
+    } catch (e) {
+      console.error("qCount err:", e.message);
+    }
+    try {
+      uCount = await pool.query("SELECT COUNT(*) FROM users");
+    } catch (e) {
+      console.error("uCount err:", e.message);
+    }
     try {
       rCount = await pool.query("SELECT COUNT(*) FROM test_results");
+    } catch (e) {
+      console.error("rCount err:", e.message);
+    }
+    try {
       avgScore = await pool.query(
         "SELECT AVG(total_score::float/max_score*100) as avg FROM test_results",
       );
-    } catch (_) {}
+    } catch (e) {
+      console.error("avg err:", e.message);
+    }
 
     res.json({
       success: true,
@@ -756,7 +772,10 @@ app.get("/admin/stats", checkAdmin, async (req, res) => {
       avgPercent: Math.round(avgScore.rows[0].avg || 0),
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.error("admin/stats FATAL:", error);
+    res
+      .status(500)
+      .json({ success: false, message: error.message || String(error) });
   }
 });
 
