@@ -43,7 +43,7 @@
           >
             Біз туралы
           </button>
-          <a href="profile.html" class="btn btn-ghost">
+          <a href="profile.html" class="btn btn-ghost" id="navProfileLink">
             <span class="nav-icon profile-icon" aria-hidden="true">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -135,8 +135,8 @@
             деңгейіңізді анықтауға көмектеседі.
           </p>
         </div>
-        <a
-          href="quiz.html"
+        <button
+          type="button"
           class="quiz-start-banner__btn"
           id="startTestBtn"
           data-translate="bannerBtn"
@@ -150,7 +150,7 @@
             />
           </svg>
           Сынақты бастау
-        </a>
+        </button>
       </div>
 
       <section class="digcomp-section">
@@ -467,6 +467,8 @@
               if (!isLoggedIn) {
                 e.preventDefault();
                 if (modal) modal.style.display = "flex";
+              } else {
+                window.location.href = "quiz.html";
               }
             });
           }
@@ -488,7 +490,18 @@
                 localStorage.removeItem("diq_user");
                 localStorage.removeItem("user");
               } catch (_) {}
-              window.location.href = "index.html";
+              window.location.href = "dashboard.html";
+            });
+          }
+
+          // Navbar профиль сілтемесіне auth guard
+          var navProfileLink = document.getElementById("navProfileLink");
+          if (navProfileLink) {
+            navProfileLink.addEventListener("click", function (e) {
+              if (!isLoggedIn) {
+                e.preventDefault();
+                if (modal) modal.style.display = "flex";
+              }
             });
           }
         })();
@@ -555,7 +568,7 @@
       </div>
       <div class="about-footer__bottom">
         <span data-translate="footerCopyright"
-          >© 2025 Цифрлық сауаттылықты бағалау жүйесі. Дипломдық жоба.</span
+          >© 2026 Цифрлық сауаттылықты бағалау жүйесі. Дипломдық жоба.</span
         >
       </div>
     </footer>

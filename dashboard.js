@@ -545,6 +545,19 @@
         }
       });
     }
+
+    // Navbar профиль сілтемесіне auth guard
+    var navProfileLink = document.getElementById("navProfileLink");
+    if (navProfileLink) {
+      navProfileLink.addEventListener("click", function (e) {
+        var userRaw =
+          localStorage.getItem("diq_user") || localStorage.getItem("user");
+        if (!userRaw) {
+          e.preventDefault();
+          showAuthModal();
+        }
+      });
+    }
   }
 
   function initAuthAndName() {
@@ -584,7 +597,7 @@
           localStorage.removeItem("diq_user");
           localStorage.removeItem("user");
         } catch (_e) {}
-        window.location.href = "index.html";
+        window.location.href = "dashboard.html";
       });
     }
 

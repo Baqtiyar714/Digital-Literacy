@@ -20,7 +20,7 @@
         !localStorage.getItem(USER_KEY) &&
         !localStorage.getItem(LEGACY_KEY)
       ) {
-        window.location.href = "index.html";
+        window.location.href = "dashboard.html";
         return;
       }
     } catch (_) {}
@@ -29,7 +29,7 @@
     if (logoutBtn) {
       logoutBtn.addEventListener("click", function () {
         clearUserData();
-        window.location.href = "index.html";
+        window.location.href = "dashboard.html";
       });
     }
   }
