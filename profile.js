@@ -297,8 +297,7 @@
     if (emailEl) emailEl.textContent = email;
 
     const regDateStr =
-      (user && (user.registeredDate || user.created_at)) ||
-      new Date().toISOString();
+      (user && user.registeredDate) || new Date().toISOString();
     if (regEl) {
       regEl.textContent = t("registeredLabel") + " " + formatDate(regDateStr);
     }
@@ -758,6 +757,146 @@
           return;
         }
         var limited = data.data.slice(0, 20);
+
+        // Серверден алынған деректерді localStorage-ге сақтау (profile stats үшін)
+        try {
+          var histForStorage = limited.map(function (row) {
+            return {
+              totalScore: (row.total_score || 0) * 5,
+              maxScore: (row.max_score || 20) * 5,
+              date: row.created_at,
+            };
+          });
+          localStorage.setItem(
+            "diq_test_history",
+            JSON.stringify(histForStorage),
+          );
+
+          // Соңғы тест нәтижесін _lastTest ретінде diq_block_results-ке сақтау
+          var lastRow = limited[0];
+          var lastTotal = (lastRow.total_score || 0) * 5;
+          var lastMax = (lastRow.max_score || 20) * 5;
+          var blockScores = {
+            information:
+              lastRow.information_score !== undefined
+                ? lastRow.information_score * 5
+                : undefined,
+            communication:
+              lastRow.communication_score !== undefined
+                ? lastRow.communication_score * 5
+                : undefined,
+            content:
+              lastRow.content_score !== undefined
+                ? lastRow.content_score * 5
+                : undefined,
+            safety:
+              lastRow.safety_score !== undefined
+                ? lastRow.safety_score * 5
+                : undefined,
+            problem:
+              lastRow.problem_score !== undefined
+                ? lastRow.problem_score * 5
+                : undefined,
+          };
+          var existingResults = {};
+          try {
+            existingResults = JSON.parse(
+              localStorage.getItem("diq_block_results") || "{}",
+            );
+          } catch (_) {}
+          existingResults._lastTest = {
+            total: lastTotal,
+            maxScore: lastMax,
+            date: lastRow.created_at,
+            blockScores: blockScores,
+          };
+          // Блок нәтижелерін де жаңарту
+          [
+            "information",
+            "communication",
+            "content",
+            "safety",
+            "problem",
+          ].forEach(function (id) {
+            var scoreVal = lastRow[id + "_score"];
+            if (scoreVal !== undefined && scoreVal !== null) {
+              existingResults[id] = {
+                score: scoreVal * 5,
+                total: 20,
+                date: lastRow.created_at,
+              };
+            }
+          });
+          localStorage.setItem(
+            "diq_block_results",
+            JSON.stringify(existingResults),
+          );
+
+          // Stats жолын дереу жаңарту
+          var completedEl = document.getElementById("profileStatCompleted");
+          var totalScoreEl = document.getElementById("profileStatTotalScore");
+          var avgEl = document.getElementById("profileStatAverage");
+          var bestEl = document.getElementById("profileStatBestBlock");
+
+          if (completedEl) {
+            try {
+              var d = new Date(lastRow.created_at);
+              var dd = String(d.getDate()).padStart(2, "0");
+              var mm = String(d.getMonth() + 1).padStart(2, "0");
+              var yyyy = d.getFullYear();
+              var hh = String(d.getHours()).padStart(2, "0");
+              var min = String(d.getMinutes()).padStart(2, "0");
+              completedEl.textContent =
+                dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+            } catch (_) {}
+          }
+          if (totalScoreEl)
+            totalScoreEl.textContent = lastTotal + " / " + lastMax;
+          if (avgEl) {
+            var pct = lastMax > 0 ? Math.round((lastTotal / lastMax) * 100) : 0;
+            avgEl.textContent = pct + "%";
+            avgEl.classList.remove(
+              "profile-avg-low",
+              "profile-avg-medium",
+              "profile-avg-high",
+            );
+            if (pct < 34) avgEl.classList.add("profile-avg-low");
+            else if (pct < 67) avgEl.classList.add("profile-avg-medium");
+            else avgEl.classList.add("profile-avg-high");
+          }
+          if (bestEl) {
+            var allTimeBest = 0;
+            limited.forEach(function (h) {
+              var s = (h.total_score || 0) * 5;
+              if (s > allTimeBest) allTimeBest = s;
+            });
+            bestEl.textContent =
+              allTimeBest > 0 ? allTimeBest + " " + t("scoreLabel") : "—";
+          }
+
+          // Hero chip жаңарту
+          var chip = document.getElementById("profileTotalScoreChip");
+          if (chip)
+            chip.textContent =
+              lastTotal + " / " + lastMax + " " + t("scoreLabel");
+          var levelBadgeEl = document.getElementById("profileLevelBadge");
+          if (levelBadgeEl) {
+            var lvl = getLevelForScore(lastTotal, lastMax);
+            levelBadgeEl.textContent = levelLabelWithEmoji(lvl);
+            levelBadgeEl.classList.remove(
+              "profile-level-badge--beginner",
+              "profile-level-badge--intermediate",
+              "profile-level-badge--advanced",
+            );
+            if (lvl.num === 1)
+              levelBadgeEl.classList.add("profile-level-badge--beginner");
+            else if (lvl.num === 2)
+              levelBadgeEl.classList.add("profile-level-badge--intermediate");
+            else levelBadgeEl.classList.add("profile-level-badge--advanced");
+            levelBadgeEl.style.background = (lvl.color || "#ef5350") + "22";
+            levelBadgeEl.style.color = lvl.color || "#ef5350";
+          }
+        } catch (_e) {}
         var showCount = 5;
         var first5 = limited.slice(0, showCount);
         renderList(first5);
