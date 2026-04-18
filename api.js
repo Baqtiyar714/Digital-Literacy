@@ -187,6 +187,10 @@ async function loginUser(email, password) {
         clearUserData();
       }
 
+      // created_at -> registeredDate mapping
+      if (userData.created_at && !userData.registeredDate) {
+        userData.registeredDate = userData.created_at;
+      }
       localStorage.setItem("diq_user", JSON.stringify(userData));
       localStorage.setItem("user", JSON.stringify(userData));
       showMessage("Кіру сәтті! Басты бетке бағытталуда...", "success");

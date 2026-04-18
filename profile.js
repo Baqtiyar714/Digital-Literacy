@@ -297,7 +297,8 @@
     if (emailEl) emailEl.textContent = email;
 
     const regDateStr =
-      (user && user.registeredDate) || new Date().toISOString();
+      (user && (user.registeredDate || user.created_at)) ||
+      new Date().toISOString();
     if (regEl) {
       regEl.textContent = t("registeredLabel") + " " + formatDate(regDateStr);
     }
