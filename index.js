@@ -16,11 +16,10 @@ const pool = require("./db");
 // auth_db үшін pool (db.js-тен), questions_db үшін жаңа pool жасалады
 const { Pool } = require("pg");
 const questionsPool = new Pool({
-  user: process.env.DB_USER || "postgres",
-  host: process.env.DB_HOST || "localhost",
-  database: process.env.QUESTIONS_DB_NAME || "questions_db",
-  password: process.env.DB_PASSWORD || "1234",
-  port: process.env.DB_PORT || 5432,
+  connectionString: process.env.QUESTIONS_DATABASE_URL,
+  ssl: process.env.QUESTIONS_DATABASE_URL
+    ? { rejectUnauthorized: false }
+    : false,
 });
 questionsPool.on("connect", () => console.log("✅ Connected to questions_db"));
 
