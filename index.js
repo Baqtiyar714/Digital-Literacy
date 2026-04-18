@@ -43,16 +43,14 @@ app.use(
 );
 
 app.use(express.json());
-
-// Root route — басты бетке redirect (express.static-тен БҰРЫН болуы керек)
-app.get("/", (req, res) => {
-  res.redirect("/dashboard.html");
-});
-
 app.use(express.static(__dirname));
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
+});
+
+app.get("/", (req, res) => {
+  res.redirect("/dashboard.html");
 });
 
 //  Email верификация үшін уақытша код сақтағышы ---
@@ -739,13 +737,17 @@ app.get("/admin/users", checkAdmin, async (req, res) => {
 app.get("/admin/stats", checkAdmin, async (req, res) => {
   try {
     const qCount = await questionsPool.query("SELECT COUNT(*) FROM questions");
-    const rCount = await questionsPool.query(
-      "SELECT COUNT(*) FROM test_results",
-    );
     const uCount = await pool.query("SELECT COUNT(*) FROM users");
-    const avgScore = await questionsPool.query(
-      "SELECT AVG(total_score::float/max_score*100) as avg FROM test_results",
-    );
+
+    let rCount = { rows: [{ count: 0 }] };
+    let avgScore = { rows: [{ avg: null }] };
+    try {
+      rCount = await pool.query("SELECT COUNT(*) FROM test_results");
+      avgScore = await pool.query(
+        "SELECT AVG(total_score::float/max_score*100) as avg FROM test_results",
+      );
+    } catch (_) {}
+
     res.json({
       success: true,
       questions: parseInt(qCount.rows[0].count),
