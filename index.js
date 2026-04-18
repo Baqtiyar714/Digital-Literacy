@@ -43,14 +43,16 @@ app.use(
 );
 
 app.use(express.json());
+
+// Root route — басты бетке redirect (express.static-тен БҰРЫН болуы керек)
+app.get("/", (req, res) => {
+  res.redirect("/dashboard.html");
+});
+
 app.use(express.static(__dirname));
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.path}`);
   next();
-});
-
-app.get("/", (req, res) => {
-  res.redirect("/dashboard.html");
 });
 
 //  Email верификация үшін уақытша код сақтағышы ---
