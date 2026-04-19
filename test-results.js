@@ -1,7 +1,10 @@
 (function () {
   "use strict";
 
-  var API_BASE = "http://localhost:5000";
+  var API_BASE =
+    typeof API_BASE_URL !== "undefined"
+      ? API_BASE_URL
+      : "https://digital-literacy-zs48.onrender.com";
   var HISTORY_KEY = "diq_test_history";
   var USER_KEY = "diq_user";
   var LEGACY_KEY = "user";

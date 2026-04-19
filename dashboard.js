@@ -289,7 +289,7 @@
           : "Жүктелуде...") +
       "</p>";
 
-    fetch("http://localhost:5000/test/history/" + userId)
+    fetch(`${API_BASE_URL}/test/history/` + userId)
       .then(function (res) {
         return res.json();
       })
@@ -545,19 +545,6 @@
         }
       });
     }
-
-    // Navbar профиль сілтемесіне auth guard
-    var navProfileLink = document.getElementById("navProfileLink");
-    if (navProfileLink) {
-      navProfileLink.addEventListener("click", function (e) {
-        var userRaw =
-          localStorage.getItem("diq_user") || localStorage.getItem("user");
-        if (!userRaw) {
-          e.preventDefault();
-          showAuthModal();
-        }
-      });
-    }
   }
 
   function initAuthAndName() {
@@ -577,15 +564,18 @@
     } catch (_e) {}
 
     var authOnlySections = document.getElementById("authOnlySections");
+    var navAuthButtons = document.getElementById("navAuthButtons");
     var logoutBtn = document.getElementById("logoutBtn");
     var navProfileLink = document.getElementById("navProfileLink");
 
     if (isLoggedIn) {
       if (authOnlySections) authOnlySections.style.display = "block";
       if (logoutBtn) logoutBtn.style.display = "inline-flex";
+      if (navAuthButtons) navAuthButtons.style.display = "none";
     } else {
       if (authOnlySections) authOnlySections.style.display = "none";
       if (logoutBtn) logoutBtn.style.display = "none";
+      if (navAuthButtons) navAuthButtons.style.display = "flex";
     }
 
     if (logoutBtn) {
@@ -594,7 +584,7 @@
           localStorage.removeItem("diq_user");
           localStorage.removeItem("user");
         } catch (_e) {}
-        window.location.href = "dashboard.html";
+        window.location.href = "index.html";
       });
     }
 
@@ -609,7 +599,7 @@
 
     if (!userId) return;
 
-    fetch("http://localhost:5000/test/history/" + userId)
+    fetch(`${API_BASE_URL}/test/history/` + userId)
       .then(function (res) {
         return res.json();
       })

@@ -11,7 +11,10 @@
   // USER_KEY — ағымдағы пайдаланушы кілті
   // LEGACY_KEY — ескі форматтағы пайдаланушы кілті
   // AI_CACHE_KEY — AI нәтижесін сақтайтын кілт
-  var API_BASE = "http://localhost:5000";
+  var API_BASE =
+    typeof API_BASE_URL !== "undefined"
+      ? API_BASE_URL
+      : "https://digital-literacy-zs48.onrender.com";
 
   var HISTORY_KEY = "diq_test_history";
   var USER_KEY = "diq_user";
