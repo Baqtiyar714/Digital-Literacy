@@ -369,8 +369,12 @@ function switchTab(tab, btn) {
   document
     .getElementById("tabUsers")
     .classList.toggle("hidden", tab !== "users");
+  document
+    .getElementById("tabAnalytics")
+    .classList.toggle("hidden", tab !== "analytics");
   if (tab === "list") loadQuestions();
   if (tab === "users") loadUsers();
+  if (tab === "analytics") loadAnalytics();
 }
 
 let importData = [];
@@ -797,6 +801,237 @@ async function deleteUserResults(id, name, count) {
         "success",
       );
       loadUsers();
+      loadStats();
+    } else {
+      showMsg("usersMsg", data.message || "Қате шықты", "error");
+    }
+  } catch (e) {
+    showMsg("usersMsg", "Сервермен байланыс жоқ", "error");
+  }
+}
+
+// ── ANALYTICS ──
+const BLOCK_META = {
+  information: { label: "Ақпарат", color: "#0097a7" },
+  communication: { label: "Коммуникация", color: "#f57c00" },
+  content: { label: "Контент", color: "#5e35b1" },
+  safety: { label: "Қауіпсіздік", color: "#c62828" },
+  problem: { label: "Проблема шешу", color: "#2e7d32" },
+};
+const AGE_ORDER = ["10-18", "19-35", "36-60", "60+"];
+
+function heatColor(pct) {
+  if (!pct && pct !== 0) return { bg: "#f0f2ff", text: "#5c6690" };
+  if (pct >= 75) return { bg: "#185fa5", text: "#e6f1ff" };
+  if (pct >= 60) return { bg: "#378add", text: "#fff" };
+  if (pct >= 45) return { bg: "#85b7eb", text: "#042c53" };
+  if (pct >= 30) return { bg: "#cce9ff", text: "#0c447c" };
+  return { bg: "#f0f7ff", text: "#378add" };
+}
+
+async function loadAnalytics() {
+  const loading = document.getElementById("analyticsLoading");
+  const content = document.getElementById("analyticsContent");
+  if (!loading || !content) return;
+  loading.classList.remove("hidden");
+  content.classList.add("hidden");
+  loading.textContent = "⏳ Жүктелуде...";
+
+  try {
+    const [statsResp, analyticsResp] = await Promise.all([
+      fetch(API + "/admin/stats", {
+        headers: { "x-admin-password": adminPassword },
+      }),
+      fetch(API + "/admin/analytics", {
+        headers: { "x-admin-password": adminPassword },
+      }),
+    ]);
+    const stats = await statsResp.json();
+    const analytics = await analyticsResp.json();
+
+    if (!analytics.success) {
+      loading.textContent = "Деректер жүктелмеді: " + (analytics.message || "");
+      return;
+    }
+
+    // KPI cards
+    const testsPerUser =
+      stats.users > 0 ? (stats.results / stats.users).toFixed(1) : "—";
+    document.getElementById("analyticsCards").innerHTML = `
+      <div class="analytics-card"><div class="analytics-card__val">${(stats.users || 0).toLocaleString()}</div><div class="analytics-card__lbl">Тіркелген пайдаланушы</div></div>
+      <div class="analytics-card"><div class="analytics-card__val">${(stats.results || 0).toLocaleString()}</div><div class="analytics-card__lbl">Тапсырылған тест</div></div>
+      <div class="analytics-card"><div class="analytics-card__val">${stats.avgPercent || 0}%</div><div class="analytics-card__lbl">Орташа нәтиже</div></div>
+      <div class="analytics-card"><div class="analytics-card__val">${testsPerUser}</div><div class="analytics-card__lbl">Орташа тест / адам</div></div>
+    `;
+
+    // Monthly chart
+    const months = analytics.monthly || [];
+    const maxCount = Math.max(...months.map((m) => parseInt(m.count) || 0), 1);
+    const mn = {
+      "01": "Қаң",
+      "02": "Ақп",
+      "03": "Нау",
+      "04": "Сәу",
+      "05": "Мам",
+      "06": "Мау",
+      "07": "Шіл",
+      "08": "Там",
+      "09": "Қыр",
+      10: "Қаз",
+      11: "Қар",
+      12: "Жел",
+    };
+    document.getElementById("monthlyChart").innerHTML =
+      months.length === 0
+        ? '<div style="color:#5c6690;font-size:13px">Деректер жоқ</div>'
+        : months
+            .map((m) => {
+              const pct = Math.round((parseInt(m.count) / maxCount) * 100);
+              const mm = (m.month || "").slice(5, 7);
+              return `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+            <div style="font-size:10px;color:#1a1f36;margin-bottom:3px">${m.count}</div>
+            <div style="width:100%;height:${pct}%;background:#3949ab;border-radius:4px 4px 0 0;min-height:4px"></div>
+            <div style="font-size:10px;color:#5c6690;margin-top:4px">${mn[mm] || mm}</div>
+          </div>`;
+            })
+            .join("");
+
+    // Levels donut
+    const lv = analytics.levels || {
+      highPct: 0,
+      midPct: 0,
+      lowPct: 0,
+      high: 0,
+      mid: 0,
+      low: 0,
+      total: 1,
+    };
+    const C = 2 * Math.PI * 28;
+    const hD = ((lv.highPct / 100) * C).toFixed(1);
+    const mD = ((lv.midPct / 100) * C).toFixed(1);
+    const lD = ((lv.lowPct / 100) * C).toFixed(1);
+    document.getElementById("levelsDonut").innerHTML = `
+      <div class="a-donut-wrap">
+        <svg width="72" height="72" viewBox="0 0 72 72">
+          <circle cx="36" cy="36" r="28" fill="none" stroke="#e3e7ff" stroke-width="12"/>
+          <circle cx="36" cy="36" r="28" fill="none" stroke="#1b8a4e" stroke-width="12" stroke-dasharray="${hD} ${C}" stroke-dashoffset="0" transform="rotate(-90 36 36)"/>
+          <circle cx="36" cy="36" r="28" fill="none" stroke="#ba7517" stroke-width="12" stroke-dasharray="${mD} ${C}" stroke-dashoffset="-${hD}" transform="rotate(-90 36 36)"/>
+          <circle cx="36" cy="36" r="28" fill="none" stroke="#a32d2d" stroke-width="12" stroke-dasharray="${lD} ${C}" stroke-dashoffset="-${(parseFloat(hD) + parseFloat(mD)).toFixed(1)}" transform="rotate(-90 36 36)"/>
+        </svg>
+        <div style="flex:1">
+          <div class="a-legend-row"><div class="a-dot" style="background:#1b8a4e"></div>Жоғары<span class="a-legend-val">${lv.highPct}%</span></div>
+          <div class="a-legend-row"><div class="a-dot" style="background:#ba7517"></div>Орташа<span class="a-legend-val">${lv.midPct}%</span></div>
+          <div class="a-legend-row"><div class="a-dot" style="background:#a32d2d"></div>Төмен<span class="a-legend-val">${lv.lowPct}%</span></div>
+          <div style="font-size:11px;color:#5c6690;margin-top:6px">Барлығы: ${lv.total} тест</div>
+        </div>
+      </div>`;
+
+    // Block bars
+    const blockOrder = [
+      "information",
+      "communication",
+      "content",
+      "safety",
+      "problem",
+    ];
+    const blockMap = {};
+    (analytics.byBlock || []).forEach((b) => {
+      blockMap[b.competency] = parseInt(b.avg_pct) || 0;
+    });
+    document.getElementById("blockBars").innerHTML = blockOrder
+      .map((id) => {
+        const meta = BLOCK_META[id] || { label: id, color: "#3949ab" };
+        const pct = blockMap[id] || 0;
+        return `<div class="a-bar-row"><div class="a-bar-name">${meta.label}</div><div class="a-bar-track"><div class="a-bar-fill" style="width:${pct}%;background:${meta.color}"></div></div><div class="a-bar-val">${pct}%</div></div>`;
+      })
+      .join("");
+
+    // Age bars
+    const ageMap = {};
+    (analytics.byAge || []).forEach((r) => {
+      ageMap[r.age_group] = parseInt(r.avg_pct) || 0;
+    });
+    document.getElementById("ageBars").innerHTML = AGE_ORDER.map((age) => {
+      const pct = ageMap[age] || 0;
+      return `<div class="a-bar-row"><div class="a-bar-name">${age} жас</div><div class="a-bar-track"><div class="a-bar-fill" style="width:${pct}%;background:#3949ab"></div></div><div class="a-bar-val">${pct}%</div></div>`;
+    }).join("");
+
+    // Heatmap
+    const EDU = ["Орта мектеп", "Колледж", "Жоғары"];
+    const hmMap = {};
+    (analytics.heatmap || []).forEach((r) => {
+      if (!hmMap[r.age_group]) hmMap[r.age_group] = {};
+      hmMap[r.age_group][r.education] = parseInt(r.avg_pct) || 0;
+    });
+    let hmHtml = `<div class="a-heatmap" style="grid-template-columns:80px repeat(3,1fr)">
+      <div></div>${EDU.map((e) => `<div class="a-hm-head">${e}</div>`).join("")}`;
+    AGE_ORDER.forEach((age) => {
+      hmHtml += `<div class="a-hm-label">${age}</div>`;
+      EDU.forEach((edu) => {
+        const pct =
+          hmMap[age] && hmMap[age][edu] !== undefined ? hmMap[age][edu] : null;
+        const cl = heatColor(pct);
+        hmHtml += `<div class="a-hm-cell" style="background:${cl.bg};color:${cl.text}">${pct !== null ? pct + "%" : "—"}</div>`;
+      });
+    });
+    document.getElementById("heatmapGrid").innerHTML = hmHtml + "</div>";
+
+    // Recent table
+    const recent = analytics.recent || [];
+    if (!recent.length) {
+      document.getElementById("recentTable").innerHTML =
+        '<div class="empty"><div class="empty-icon">📋</div>Нәтижелер жоқ</div>';
+    } else {
+      const rows = recent
+        .map((r) => {
+          const pct = parseInt(r.pct) || 0;
+          const badge =
+            pct >= 67
+              ? "a-badge-high"
+              : pct >= 34
+                ? "a-badge-mid"
+                : "a-badge-low";
+          const label = pct >= 67 ? "Жоғары" : pct >= 34 ? "Орташа" : "Төмен";
+          const date = r.completed_at
+            ? new Date(r.completed_at).toLocaleDateString("ru-RU")
+            : "—";
+          return `<tr><td>${r.name || "—"}</td><td>${r.age_group || "—"}</td><td>${r.education || "—"}</td><td style="font-weight:600">${r.total_score}/${r.max_score}</td><td><span class="a-badge ${badge}">${label}</span></td><td style="color:#5c6690">${date}</td></tr>`;
+        })
+        .join("");
+      document.getElementById("recentTable").innerHTML = `
+        <table class="analytics-table">
+          <thead><tr><th>Пайдаланушы</th><th>Жас тобы</th><th>Білімі</th><th>Нәтиже</th><th>Деңгей</th><th>Күні</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    loading.classList.add("hidden");
+    content.classList.remove("hidden");
+  } catch (e) {
+    loading.textContent = "Қате: " + e.message;
+    console.error(e);
+  }
+}
+
+async function cleanupOrphanResults() {
+  if (
+    !confirm(
+      "Жойылған пайдаланушылардың барлық нәтижелерін тазалайсыз ба?\nБұл әрекетті қайтару мүмкін емес!",
+    )
+  )
+    return;
+  try {
+    const resp = await fetch(API + "/admin/cleanup", {
+      method: "DELETE",
+      headers: { "x-admin-password": adminPassword },
+    });
+    const data = await resp.json();
+    if (data.success) {
+      showMsg(
+        "usersMsg",
+        "✅ " + data.deleted + " жетім нәтиже жойылды!",
+        "success",
+      );
       loadStats();
     } else {
       showMsg("usersMsg", data.message || "Қате шықты", "error");

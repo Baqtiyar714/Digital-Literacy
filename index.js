@@ -734,8 +734,35 @@ app.get("/admin/users", checkAdmin, async (req, res) => {
 app.delete("/admin/users/:id", checkAdmin, async (req, res) => {
   try {
     const { id } = req.params;
+    await pool.query("DELETE FROM test_results WHERE user_id = $1", [id]);
     await pool.query("DELETE FROM users WHERE id = $1", [id]);
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// DELETE /admin/users/:id/results
+app.delete("/admin/users/:id/results", checkAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      "DELETE FROM test_results WHERE user_id = $1",
+      [id],
+    );
+    res.json({ success: true, deleted: result.rowCount });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// DELETE /admin/cleanup
+app.delete("/admin/cleanup", checkAdmin, async (req, res) => {
+  try {
+    const result = await pool.query(
+      "DELETE FROM test_results WHERE user_id NOT IN (SELECT id FROM users) AND user_id IS NOT NULL",
+    );
+    res.json({ success: true, deleted: result.rowCount });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
