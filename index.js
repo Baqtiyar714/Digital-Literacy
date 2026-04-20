@@ -740,6 +740,20 @@ app.delete("/admin/users/:id", checkAdmin, async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 });
+
+// DELETE /admin/users/:id/results — пайдаланушының тест нәтижелерін жояды (өзін жоймайды)
+app.delete("/admin/users/:id/results", checkAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const result = await pool.query(
+      "DELETE FROM test_results WHERE user_id = $1",
+      [id],
+    );
+    res.json({ success: true, deleted: result.rowCount });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
 //  Жалпы статистика (әкімші) ---
 // GET /admin/stats — жалпы санақтарды қайтарады:
 // сұрақ саны, тест нәтижелері саны, пайдаланушы саны, орташа балл пайызы
@@ -782,129 +796,6 @@ app.get("/admin/stats", checkAdmin, async (req, res) => {
     });
   } catch (error) {
     console.error("admin/stats FATAL:", error);
-    res
-      .status(500)
-      .json({ success: false, message: error.message || String(error) });
-  }
-});
-
-// GET /admin/analytics — толық аналитика деректері
-app.get("/admin/analytics", checkAdmin, async (req, res) => {
-  try {
-    // Ай бойынша тест белсенділігі (соңғы 8 ай)
-    let monthly = { rows: [] };
-    try {
-      monthly = await pool.query(`
-        SELECT TO_CHAR(DATE_TRUNC('month', completed_at), 'YYYY-MM') AS month,
-               COUNT(*) AS count
-        FROM test_results
-        WHERE completed_at >= NOW() - INTERVAL '8 months'
-        GROUP BY month ORDER BY month ASC
-      `);
-    } catch (e) {
-      console.error("monthly err:", e.message);
-    }
-
-    // Деңгей бойынша бөліну
-    let levels = { rows: [] };
-    try {
-      levels = await pool.query(`
-        SELECT
-          COUNT(CASE WHEN total_score::float/max_score >= 0.67 THEN 1 END) AS high,
-          COUNT(CASE WHEN total_score::float/max_score >= 0.34 AND total_score::float/max_score < 0.67 THEN 1 END) AS mid,
-          COUNT(CASE WHEN total_score::float/max_score < 0.34 THEN 1 END) AS low,
-          COUNT(*) AS total
-        FROM test_results WHERE max_score > 0
-      `);
-    } catch (e) {
-      console.error("levels err:", e.message);
-    }
-
-    // Жас тобы бойынша орташа нәтиже
-    let byAge = { rows: [] };
-    try {
-      byAge = await pool.query(`
-        SELECT tr.age_group,
-               ROUND(AVG(tr.total_score::float/tr.max_score*100)) AS avg_pct,
-               COUNT(*) AS count
-        FROM test_results tr
-        WHERE tr.max_score > 0 AND tr.age_group IS NOT NULL AND tr.age_group != ''
-        GROUP BY tr.age_group ORDER BY tr.age_group
-      `);
-    } catch (e) {
-      console.error("byAge err:", e.message);
-    }
-
-    // Жас × Білім heatmap
-    let heatmap = { rows: [] };
-    try {
-      heatmap = await pool.query(`
-        SELECT tr.age_group, tr.education,
-               ROUND(AVG(tr.total_score::float/tr.max_score*100)) AS avg_pct,
-               COUNT(*) AS count
-        FROM test_results tr
-        WHERE tr.max_score > 0
-          AND tr.age_group IS NOT NULL AND tr.age_group != ''
-          AND tr.education IS NOT NULL AND tr.education != ''
-        GROUP BY tr.age_group, tr.education
-      `);
-    } catch (e) {
-      console.error("heatmap err:", e.message);
-    }
-
-    // Блок бойынша орташа нәтиже
-    let byBlock = { rows: [] };
-    try {
-      byBlock = await pool.query(`
-        SELECT competency,
-               ROUND(AVG(score::float/20*100)) AS avg_pct,
-               COUNT(*) AS count
-        FROM test_results_blocks
-        GROUP BY competency ORDER BY competency
-      `);
-    } catch (e) {
-      console.error("byBlock err:", e.message);
-    }
-
-    // Соңғы 10 тест нәтижесі
-    let recent = { rows: [] };
-    try {
-      recent = await pool.query(`
-        SELECT u.name, tr.age_group, tr.education,
-               tr.total_score, tr.max_score,
-               ROUND(tr.total_score::float/tr.max_score*100) AS pct,
-               tr.completed_at
-        FROM test_results tr
-        LEFT JOIN users u ON tr.user_id = u.id
-        WHERE tr.max_score > 0
-        ORDER BY tr.completed_at DESC LIMIT 10
-      `);
-    } catch (e) {
-      console.error("recent err:", e.message);
-    }
-
-    const lvl = levels.rows[0] || { high: 0, mid: 0, low: 0, total: 1 };
-    const total = parseInt(lvl.total) || 1;
-
-    res.json({
-      success: true,
-      monthly: monthly.rows,
-      levels: {
-        high: parseInt(lvl.high) || 0,
-        mid: parseInt(lvl.mid) || 0,
-        low: parseInt(lvl.low) || 0,
-        total,
-        highPct: Math.round(((parseInt(lvl.high) || 0) / total) * 100),
-        midPct: Math.round(((parseInt(lvl.mid) || 0) / total) * 100),
-        lowPct: Math.round(((parseInt(lvl.low) || 0) / total) * 100),
-      },
-      byAge: byAge.rows,
-      heatmap: heatmap.rows,
-      byBlock: byBlock.rows,
-      recent: recent.rows,
-    });
-  } catch (error) {
-    console.error("admin/analytics FATAL:", error);
     res
       .status(500)
       .json({ success: false, message: error.message || String(error) });
