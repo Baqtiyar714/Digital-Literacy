@@ -796,14 +796,17 @@ app.get("/config", (req, res) => {
   });
 });
 
-// GET /health — сервердің іске қосылып тұрғанын тексеру үшін
-app.get("/health", (req, res) => {
+// GET /health және /api/health — сервердің іске қосылып тұрғанын тексеру үшін
+// /api/health — UptimeRobot мониторингі үшін (cold start алдын алу)
+const healthHandler = (req, res) => {
   res.status(200).json({
     success: true,
     message: "Server is running",
     timestamp: new Date().toISOString(),
   });
-});
+};
+app.get("/health", healthHandler);
+app.get("/api/health", healthHandler);
 
 //  Табылмаған маршруттарды өңдеу ---
 // Барлық белгісіз маршруттарға 404 қайтарады
