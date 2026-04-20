@@ -74,46 +74,22 @@
         <!-- STATS -->
         <div class="stats-row">
           <div class="stat-box">
-            <div class="stat-box__icon">
-              <img
-                src="questionnaire.png"
-                alt="сұрақ"
-                style="width: 32px; height: 32px; object-fit: contain"
-              />
-            </div>
+            <div class="stat-box__icon">📋</div>
             <div class="stat-box__val" id="statQuestions">—</div>
             <div class="stat-box__lbl">Жалпы сұрақ</div>
           </div>
           <div class="stat-box">
-            <div class="stat-box__icon">
-              <img
-                src="group.png"
-                alt="қолданушылар"
-                style="width: 32px; height: 32px; object-fit: contain"
-              />
-            </div>
+            <div class="stat-box__icon">👥</div>
             <div class="stat-box__val" id="statUsers">—</div>
             <div class="stat-box__lbl">Қолданушылар</div>
           </div>
           <div class="stat-box">
-            <div class="stat-box__icon">
-              <img
-                src="check-mark.png"
-                alt="тест"
-                style="width: 32px; height: 32px; object-fit: contain"
-              />
-            </div>
+            <div class="stat-box__icon">✅</div>
             <div class="stat-box__val" id="statResults">—</div>
             <div class="stat-box__lbl">Тапсырылған тест</div>
           </div>
           <div class="stat-box">
-            <div class="stat-box__icon">
-              <img
-                src="bar-chart.png"
-                alt="нәтиже"
-                style="width: 32px; height: 32px; object-fit: contain"
-              />
-            </div>
+            <div class="stat-box__icon">📊</div>
             <div class="stat-box__val" id="statAvg">—</div>
             <div class="stat-box__lbl">Орташа нәтиже</div>
           </div>
@@ -132,6 +108,19 @@
           </button>
           <button class="tab" onclick="switchTab('users', this)">
             👥 Қолданушылар
+          </button>
+          <button class="tab" onclick="switchTab('analytics', this)">
+            <img
+              src="google-analytics.png"
+              style="
+                width: 14px;
+                height: 14px;
+                vertical-align: middle;
+                margin-right: 4px;
+              "
+              alt=""
+            />
+            Аналитика
           </button>
         </div>
 
@@ -481,6 +470,80 @@
             </div>
             <div id="usersTable">
               <div class="loading">⏳ Жүктелуде...</div>
+            </div>
+          </div>
+        </div>
+        <!-- ── ANALYTICS TAB ── -->
+        <div id="tabAnalytics" class="hidden">
+          <div
+            id="analyticsLoading"
+            style="text-align: center; padding: 48px; color: #5c6690"
+          >
+            ⏳ Жүктелуде...
+          </div>
+          <div id="analyticsContent" class="hidden">
+            <!-- KPI cards -->
+            <div class="analytics-cards" id="analyticsCards"></div>
+            <!-- Row: chart + donut -->
+            <div class="analytics-row2" style="margin-bottom: 18px">
+              <div class="form-card" style="padding: 18px 20px">
+                <div class="analytics-box-title">
+                  Ай бойынша тест белсенділігі
+                </div>
+                <div
+                  id="monthlyChart"
+                  style="
+                    display: flex;
+                    align-items: flex-end;
+                    gap: 6px;
+                    height: 100px;
+                    margin-top: 12px;
+                  "
+                ></div>
+              </div>
+              <div class="form-card" style="padding: 18px 20px">
+                <div class="analytics-box-title">Деңгей бойынша бөліну</div>
+                <div id="levelsDonut" style="margin-top: 12px"></div>
+              </div>
+            </div>
+            <!-- Row: blocks + age -->
+            <div class="analytics-row2" style="margin-bottom: 18px">
+              <div class="form-card" style="padding: 18px 20px">
+                <div class="analytics-box-title">
+                  Блок бойынша орташа нәтиже
+                </div>
+                <div id="blockBars" style="margin-top: 12px"></div>
+              </div>
+              <div class="form-card" style="padding: 18px 20px">
+                <div class="analytics-box-title">
+                  Жас тобы бойынша орташа нәтиже
+                </div>
+                <div id="ageBars" style="margin-top: 12px"></div>
+              </div>
+            </div>
+            <!-- Heatmap -->
+            <div
+              class="form-card"
+              style="padding: 18px 20px; margin-bottom: 18px"
+            >
+              <div class="analytics-box-title">
+                Жас × Білім деңгейі — жылу картасы
+              </div>
+              <div id="heatmapGrid" style="margin-top: 14px"></div>
+            </div>
+            <!-- Recent -->
+            <div class="table-wrap">
+              <div class="table-header">
+                <h2>Соңғы тест нәтижелері</h2>
+                <button
+                  class="btn btn-outline btn-sm"
+                  onclick="loadAnalytics()"
+                  style="margin-left: auto"
+                >
+                  🔄 Жаңарту
+                </button>
+              </div>
+              <div id="recentTable"></div>
             </div>
           </div>
         </div>
