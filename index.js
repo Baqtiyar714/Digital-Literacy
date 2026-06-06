@@ -60,20 +60,19 @@ const emailCodes = {};
 // Gmail SMTP арқылы email жіберу үшін баптау
 // EMAIL_USER және EMAIL_PASS .env файлынан алынады
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  requireTLS: true,
+  host: "smtp.gmail.com", // SMTP сервері
+  port: 587, // STARTTLS порты
+  secure: false, // Secure емес, біз STARTTLS қолданамыз
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
+  connectionTimeout: 10000, // Қосылу тайм-аутын 10 секундқа орнатамыз
+  greetingTimeout: 10000, // Серверден жауап алу уақытын орнатамыз
+  socketTimeout: 10000, // Сокет үшін тайм-аут орнатамыз
   tls: {
-    family: 4,
-    rejectUnauthorized: false,
+    rejectUnauthorized: false, // SSL сертификатын тексермеу
+    family: 4, // IPv4-ті таңдау (IPv6-дан аулақ болу)
   },
 });
 
