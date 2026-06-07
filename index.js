@@ -60,28 +60,11 @@ const emailCodes = {};
 // Gmail SMTP арқылы email жіберу үшін баптау
 // EMAIL_USER және EMAIL_PASS .env файлынан алынады
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
+  service: "gmail",
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  connectionTimeout: 10000,
-  greetingTimeout: 10000,
-  socketTimeout: 10000,
-  tls: {
-    rejectUnauthorized: false,
-    family: 4,
-  },
-});
-
-transporter.verify((error, success) => {
-  if (error) {
-    console.error("SMTP VERIFY ERROR:", error);
-  } else {
-    console.log("SMTP READY");
-  }
 });
 
 //  Email расталу кодын жіберу ---
