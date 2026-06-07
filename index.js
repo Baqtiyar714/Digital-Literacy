@@ -8,7 +8,6 @@
 const express = require("express");
 const cors = require("cors");
 const bcrypt = require("bcryptjs");
-const nodemailer = require("nodemailer");
 require("dotenv").config();
 const pool = require("./db");
 
@@ -56,16 +55,25 @@ app.get("/", (req, res) => {
 // emailCodes — жадта сақталады, кілт: email, мән: { code, expiresAt }
 const emailCodes = {};
 
-//  Nodemailer транспорты ---
-// Gmail SMTP арқылы email жіберу үшін баптау
-// EMAIL_USER және EMAIL_PASS .env файлынан алынады
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+//  Resend арқылы email жіберу ---
+async function sendEmail(to, subject, html) {
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
+      to,
+      subject,
+      html,
+    }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data.message || "Email жіберілмеді");
+  return data;
+}
 
 //  Email расталу кодын жіберу ---
 // POST /auth/send-code — email алады, 6 таңбалы код генерациялайды
@@ -96,11 +104,10 @@ app.post("/auth/send-code", async (req, res) => {
     }
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     emailCodes[email] = { code, expiresAt: Date.now() + 5 * 60 * 1000 };
-    await transporter.sendMail({
-      from: `"Digital Literacy" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Email растау коды",
-      html: `
+    await sendEmail(
+      email,
+      "Email растау коды",
+      `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; border-radius: 12px; border: 1px solid #e0e0e0;">
           <h2 style="color: #6c63ff; margin-bottom: 8px;">Email растау</h2>
           <p style="color: #555; margin-bottom: 24px;">Тіркелуді аяқтау үшін төмендегі кодты енгізіңіз:</p>
@@ -110,7 +117,7 @@ app.post("/auth/send-code", async (req, res) => {
           <p style="color: #999; margin-top: 20px; font-size: 13px;">Код 5 минут бойы жарамды. Егер сіз сұрамасаңыз, бұл хатты елемеңіз.</p>
         </div>
       `,
-    });
+    );
     res.json({ success: true, message: "Код жіберілді" });
   } catch (error) {
     console.error("Email жіберу қатесі:", error);
@@ -151,11 +158,10 @@ app.post("/auth/send-reset-code", async (req, res) => {
     }
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     emailCodes[email] = { code, expiresAt: Date.now() + 5 * 60 * 1000 };
-    await transporter.sendMail({
-      from: `"Digital Literacy" <${process.env.EMAIL_USER}>`,
-      to: email,
-      subject: "Құпия сөзді қалпына келтіру коды",
-      html: `
+    await sendEmail(
+      email,
+      "Құпия сөзді қалпына келтіру коды",
+      `
         <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; border-radius: 12px; border: 1px solid #e0e0e0;">
           <h2 style="color: #3b82f6; margin-bottom: 8px;">Құпия сөзді қалпына келтіру</h2>
           <p style="color: #555; margin-bottom: 24px;">Жаңа құпия сөз орнату үшін төмендегі кодты енгізіңіз:</p>
@@ -165,7 +171,7 @@ app.post("/auth/send-reset-code", async (req, res) => {
           <p style="color: #999; margin-top: 20px; font-size: 13px;">Код 5 минут бойы жарамды. Егер сіз сұрамасаңыз, бұл хатты елемеңіз.</p>
         </div>
       `,
-    });
+    );
     res.json({ success: true, message: "Код жіберілді" });
   } catch (error) {
     console.error("Reset код жіберу қатесі:", error);
