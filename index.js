@@ -55,24 +55,29 @@ app.get("/", (req, res) => {
 // emailCodes — жадта сақталады, кілт: email, мән: { code, expiresAt }
 const emailCodes = {};
 
-//  Resend арқылы email жіберу ---
+//  Nodemailer транспорты (Gmail, port 587 TLS) ---
+const nodemailer = require("nodemailer");
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+  requireTLS: true,
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
 async function sendEmail(to, subject, html) {
-  const response = await fetch("https://api.resend.com/emails", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      from: process.env.EMAIL_FROM || "onboarding@resend.dev",
-      to,
-      subject,
-      html,
-    }),
+  await transporter.sendMail({
+    from: `"Digital Literacy" <${process.env.EMAIL_USER}>`,
+    to,
+    subject,
+    html,
   });
-  const data = await response.json();
-  if (!response.ok) throw new Error(data.message || "Email жіберілмеді");
-  return data;
 }
 
 //  Email расталу кодын жіберу ---
