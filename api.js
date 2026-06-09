@@ -213,3 +213,37 @@ async function loginUser(email, password) {
     return { success: false, message: errorMessage };
   }
 }
+
+async function sendVerificationCode(email) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/send-code`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ email }),
+    });
+
+    let data;
+    try {
+      data = await response.json();
+    } catch (e) {
+      data = {
+        success: false,
+        message: `Server error: ${response.status} ${response.statusText}`,
+      };
+    }
+
+    if (!response.ok || !data.success) {
+      showMessage(data.message || "Email жіберілмеді. Сервер қатесі.");
+      return { success: false, message: data.message };
+    }
+
+    showMessage(data.message || "Код email-ге жіберілді", "success");
+    return { success: true, message: data.message };
+  } catch (error) {
+    const errorMessage = error.message || "Email жіберілмеді. Сервер қатесі.";
+    showMessage(errorMessage);
+    return { success: false, message: errorMessage };
+  }
+}

@@ -257,13 +257,20 @@
   }
 
   function formatDateTime(iso) {
+    if (!iso || iso === 0 || iso === "0") return "—";
+
     try {
       var d = new Date(iso);
+
+      if (isNaN(d.getTime())) return "—";
+      if (d.getFullYear() <= 1971) return "—";
+
       var dd = String(d.getDate()).padStart(2, "0");
       var mm = String(d.getMonth() + 1).padStart(2, "0");
       var yyyy = d.getFullYear();
       var hh = String(d.getHours()).padStart(2, "0");
       var min = String(d.getMinutes()).padStart(2, "0");
+
       return dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
     } catch (_e) {
       return "—";

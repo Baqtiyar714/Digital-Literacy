@@ -2,6 +2,8 @@
 // Пайдаланушы деректерін, тест нәтижелерін,
 // AI ұсыныстарын және белсенділік тарихын көрсетеді
 
+lastDateFormatted = dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+
 (function () {
   // localStorage кілттері ---
   // diq_user — ағымдағы пайдаланушы деректері
@@ -127,6 +129,22 @@
       return "--.--.----";
     }
   }
+  function formatDateTimeSafe(value) {
+    if (!value || value === 0 || value === "0") return "—";
+
+    const d = new Date(value);
+
+    if (Number.isNaN(d.getTime())) return "—";
+    if (d.getFullYear() <= 1971) return "—";
+
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    const hh = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+
+    return dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+  }
 
   //  Нәтижелерді localStorage-ден оқу ---
   // diq_block_results кілтінен блок нәтижелерін алады
@@ -229,15 +247,7 @@
 
     let lastDateFormatted = "—";
     if (lastDate) {
-      try {
-        const d = new Date(lastDate);
-        const dd = String(d.getDate()).padStart(2, "0");
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const yyyy = d.getFullYear();
-        const hh = String(d.getHours()).padStart(2, "0");
-        const min = String(d.getMinutes()).padStart(2, "0");
-        lastDateFormatted = dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
-      } catch (_) {}
+      lastDateFormatted = formatDateTimeSafe(lastDate);
     }
 
     const HISTORY_KEY = "diq_test_history";
@@ -846,8 +856,7 @@
               var yyyy = d.getFullYear();
               var hh = String(d.getHours()).padStart(2, "0");
               var min = String(d.getMinutes()).padStart(2, "0");
-              completedEl.textContent =
-                dd + "." + mm + "." + yyyy + " " + hh + ":" + min;
+              completedEl.textContent = formatDateTimeSafe(lastRow.created_at);
             } catch (_) {}
           }
           if (totalScoreEl)
