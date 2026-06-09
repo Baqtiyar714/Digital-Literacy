@@ -62,16 +62,9 @@ const emailCodes = {};
 async function sendEmail(to, subject, html) {
   await resend.emails.send({
     from: "Digital Literacy <onboarding@resend.dev>",
-    to: to,
-    subject: "Растау коды",
-    html: `
-    <div style="font-family: Arial, sans-serif;">
-      <h2>Digital Literacy</h2>
-      <p>Сіздің растау кодыңыз:</p>
-      <h1>${code}</h1>
-      <p>Код 5 минут ішінде жарамды.</p>
-    </div>
-  `,
+    to,
+    subject,
+    html,
   });
 }
 
