@@ -10,6 +10,8 @@ const cors = require("cors");
 const bcrypt = require("bcryptjs");
 require("dotenv").config();
 const pool = require("./db");
+const { Resend } = require("resend");
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 //  questions_db деректер қорына қосылу ---
 // auth_db үшін pool (db.js-тен), questions_db үшін жаңа pool жасалады
@@ -56,27 +58,20 @@ app.get("/", (req, res) => {
 const emailCodes = {};
 
 //  Nodemailer транспорты (Gmail, port 587 TLS) ---
-const nodemailer = require("nodemailer");
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 587,
-  secure: false,
-  requireTLS: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
 
 async function sendEmail(to, subject, html) {
-  await transporter.sendMail({
-    from: `"Digital Literacy" <${process.env.EMAIL_USER}>`,
-    to,
-    subject,
-    html,
+  await resend.emails.send({
+    from: "Digital Literacy <onboarding@resend.dev>",
+    to: email,
+    subject: "Растау коды",
+    html: `
+    <div style="font-family: Arial, sans-serif;">
+      <h2>Digital Literacy</h2>
+      <p>Сіздің растау кодыңыз:</p>
+      <h1>${code}</h1>
+      <p>Код 5 минут ішінде жарамды.</p>
+    </div>
+  `,
   });
 }
 
