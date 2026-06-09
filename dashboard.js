@@ -629,11 +629,16 @@
 
         var lastDateStr = "—";
         try {
-          var d = new Date(last.created_at);
-          var dd = String(d.getDate()).padStart(2, "0");
-          var mm = String(d.getMonth() + 1).padStart(2, "0");
-          var yyyy = d.getFullYear();
-          lastDateStr = dd + "." + mm + "." + yyyy;
+          var rawDate = last.created_at;
+          if (rawDate) {
+            var d = new Date(rawDate);
+            if (!isNaN(d.getTime())) {
+              var dd = String(d.getDate()).padStart(2, "0");
+              var mm = String(d.getMonth() + 1).padStart(2, "0");
+              var yyyy = d.getFullYear();
+              lastDateStr = dd + "." + mm + "." + yyyy;
+            }
+          }
         } catch (_e) {}
 
         if (lastTestEl) lastTestEl.textContent = lastDateStr;
