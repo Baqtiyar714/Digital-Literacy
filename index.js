@@ -62,7 +62,7 @@ const emailCodes = {};
 async function sendEmail(to, subject, html) {
   await resend.emails.send({
     from: "Digital Literacy <onboarding@resend.dev>",
-    to: email,
+    to: to,
     subject: "Растау коды",
     html: `
     <div style="font-family: Arial, sans-serif;">
@@ -106,17 +106,15 @@ app.post("/auth/send-code", async (req, res) => {
     emailCodes[email] = { code, expiresAt: Date.now() + 5 * 60 * 1000 };
     await sendEmail(
       email,
-      "Email растау коды",
+      "Растау коды",
       `
-        <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 32px; border-radius: 12px; border: 1px solid #e0e0e0;">
-          <h2 style="color: #6c63ff; margin-bottom: 8px;">Email растау</h2>
-          <p style="color: #555; margin-bottom: 24px;">Тіркелуді аяқтау үшін төмендегі кодты енгізіңіз:</p>
-          <div style="background: #f5f3ff; border-radius: 8px; padding: 20px; text-align: center; font-size: 36px; font-weight: bold; letter-spacing: 8px; color: #6c63ff;">
-            ${code}
-          </div>
-          <p style="color: #999; margin-top: 20px; font-size: 13px;">Код 5 минут бойы жарамды. Егер сіз сұрамасаңыз, бұл хатты елемеңіз.</p>
-        </div>
-      `,
+    <div style="font-family: Arial, sans-serif;">
+      <h2>Digital Literacy</h2>
+      <p>Сіздің растау кодыңыз:</p>
+      <h1 style="letter-spacing: 4px;">${code}</h1>
+      <p>Код 5 минут ішінде жарамды.</p>
+    </div>
+  `,
     );
     res.json({ success: true, message: "Код жіберілді" });
   } catch (error) {
